@@ -83,7 +83,7 @@ inline uint32_t get_nr_dirt_blks_in_chip (fb_chip_inf_t *ci) {
 }
 
 inline int is_dirt_blk (fb_blk_inf_t *blki) {
-	return (get_nr_invalid_pgs (blki) == NUM_PAGES_PER_BLOCK) ? 
+	return (get_nr_invalid_pgs (blki) == NUM_PAGES_PER_BLOCK) ?
 		TRUE : FALSE;
 }
 
@@ -91,9 +91,9 @@ inline int is_dirt_blk (fb_blk_inf_t *blki) {
 struct ssd_info_t *create_ssd_info(void)
 {
 	uint32_t loop_bus, loop_chip, loop_block, loop_page;
-	
+
 	struct ssd_info_t *ptr_ssd_info = NULL;
-   
+
 	if((ptr_ssd_info = (struct ssd_info_t *)kmalloc(sizeof(struct ssd_info_t), GFP_ATOMIC)) == NULL)
 	{
 		printk(KERN_ERR "[FlashBench] fb_ssd_info: Allocating ssd information structure failed.\n");
@@ -104,28 +104,28 @@ struct ssd_info_t *create_ssd_info(void)
 	ptr_ssd_info->nr_chips_per_bus = NUM_CHIPS_PER_BUS;
 	ptr_ssd_info->nr_blocks_per_chip = NUM_BLOCKS_PER_CHIP;
 	ptr_ssd_info->nr_pages_per_block = NUM_PAGES_PER_BLOCK;
- 	
 
-	if((ptr_ssd_info->list_buses = 
+
+	if((ptr_ssd_info->list_buses =
 				(struct flash_bus_t *)kmalloc(sizeof(struct flash_bus_t) * NUM_BUSES, GFP_ATOMIC)) == NULL)
 	{
 		printk(KERN_ERR "[FlashBench] fb_ssd_info: Allocating bus information structure failed.\n");
 		goto FAIL_ALLOC_BUS_INFO;
 	}
-	
-	for(loop_bus = 0 ; loop_bus < NUM_BUSES ; loop_bus++) 
+
+	for(loop_bus = 0 ; loop_bus < NUM_BUSES ; loop_bus++)
 	{
 		struct flash_bus_t *ptr_bus = &ptr_ssd_info->list_buses[loop_bus];
 
 		/* initialize flash chip */
-		if((ptr_bus->list_chips = 
-					(struct flash_chip_t *)kmalloc(sizeof(struct flash_chip_t) * NUM_CHIPS_PER_BUS, GFP_ATOMIC)) == NULL) 
+		if((ptr_bus->list_chips =
+					(struct flash_chip_t *)kmalloc(sizeof(struct flash_chip_t) * NUM_CHIPS_PER_BUS, GFP_ATOMIC)) == NULL)
 		{
 			printk(KERN_ERR "[FlashBench] fb_ssd_info: Allocating chip information structure failed.\n");
 			goto FAIL_ALLOC_INFOS;
 		}
 
-		for(loop_chip = 0 ; loop_chip < NUM_CHIPS_PER_BUS ; loop_chip++) 
+		for(loop_chip = 0 ; loop_chip < NUM_CHIPS_PER_BUS ; loop_chip++)
 		{
 			struct flash_chip_t *ptr_chip = &ptr_bus->list_chips[loop_chip];
 
@@ -145,13 +145,13 @@ struct ssd_info_t *create_ssd_info(void)
 			ptr_chip->dirt_blks = NULL;
 
 			/* initialize blocks */
-			if((ptr_chip->list_blocks = (struct flash_block_t *)kmalloc(sizeof(struct flash_block_t) * NUM_BLOCKS_PER_CHIP, GFP_ATOMIC)) == NULL) 
+			if((ptr_chip->list_blocks = (struct flash_block_t *)kmalloc(sizeof(struct flash_block_t) * NUM_BLOCKS_PER_CHIP, GFP_ATOMIC)) == NULL)
 			{
 				printk(KERN_ERR "[FlashBench] fb_ssd_info: Allocating block information structure failed.\n");
 				goto FAIL_ALLOC_INFOS;
 			}
 
-			for (loop_block = 0 ; loop_block < NUM_BLOCKS_PER_CHIP ; loop_block++) 
+			for (loop_block = 0 ; loop_block < NUM_BLOCKS_PER_CHIP ; loop_block++)
 			{
 				struct flash_block_t *ptr_block = &ptr_chip->list_blocks[loop_block];
 
@@ -170,18 +170,18 @@ struct ssd_info_t *create_ssd_info(void)
 				ptr_block->is_bad_block = FALSE;
 				ptr_block->is_reserved_block = FALSE;
 				ptr_block->is_active_block = FALSE;
-				ptr_block->last_modified_time = 0; 
+				ptr_block->last_modified_time = 0;
 
 				set_del_flag_blk (ptr_block, FALSE);
 				// timestamp is set to 0 if the block is not used after initialization
 
-				if((ptr_block->list_pages = (struct flash_page_t*)kmalloc(sizeof(struct flash_page_t) * NUM_PAGES_PER_BLOCK, GFP_ATOMIC)) == NULL) 
+				if((ptr_block->list_pages = (struct flash_page_t*)kmalloc(sizeof(struct flash_page_t) * NUM_PAGES_PER_BLOCK, GFP_ATOMIC)) == NULL)
 				{
 					printk(KERN_ERR "[FlashBench] fb_ssd_info: Allocating page information structure failed.\n");
 					goto FAIL_ALLOC_INFOS;
-				} 
+				}
 
-				for (loop_page = 0 ; loop_page < NUM_PAGES_PER_BLOCK ; loop_page++) 
+				for (loop_page = 0 ; loop_page < NUM_PAGES_PER_BLOCK ; loop_page++)
 				{
 					struct flash_page_t *ptr_page = &ptr_block->list_pages[loop_page];
 					uint8_t lp_loop;
@@ -200,11 +200,11 @@ struct ssd_info_t *create_ssd_info(void)
 	}
 
 	return ptr_ssd_info;
-	
+
 FAIL_ALLOC_INFOS:
 	if(ptr_ssd_info->list_buses != NULL)
 	{
-		for(loop_bus = 0 ; loop_bus < NUM_BUSES ; loop_bus++)	
+		for(loop_bus = 0 ; loop_bus < NUM_BUSES ; loop_bus++)
 		{
 			struct flash_bus_t *ptr_bus = &ptr_ssd_info->list_buses[loop_bus];
 			if(ptr_bus->list_chips != NULL)
@@ -250,7 +250,7 @@ void destroy_ssd_info (struct ssd_info_t* ptr_ssd_info)
 	{
 		if(ptr_ssd_info->list_buses != NULL)
 		{
-			for(loop_bus = 0 ; loop_bus < NUM_BUSES ; loop_bus++)	
+			for(loop_bus = 0 ; loop_bus < NUM_BUSES ; loop_bus++)
 			{
 				struct flash_bus_t *ptr_bus = &ptr_ssd_info->list_buses[loop_bus];
 				if(ptr_bus->list_chips != NULL)
@@ -283,22 +283,22 @@ void destroy_ssd_info (struct ssd_info_t* ptr_ssd_info)
 }
 
 struct flash_bus_t* get_bus_info(
-		struct ssd_info_t *ptr_ssd_info, 
+		struct ssd_info_t *ptr_ssd_info,
 		uint32_t bus)
 {
 	return &(ptr_ssd_info->list_buses[bus]);
 }
 
 struct flash_chip_t* get_chip_info(
-		struct ssd_info_t *ptr_ssd_info, 
-		uint32_t bus, 
+		struct ssd_info_t *ptr_ssd_info,
+		uint32_t bus,
 		uint32_t chip)
 {
 	return &(ptr_ssd_info->list_buses[bus].list_chips[chip]);
 }
 
 struct flash_block_t* get_block_info(
-		struct ssd_info_t *ptr_ssd_info, 
+		struct ssd_info_t *ptr_ssd_info,
 		uint32_t bus,
 		uint32_t chip,
 		uint32_t block)
@@ -307,7 +307,7 @@ struct flash_block_t* get_block_info(
 }
 
 struct flash_page_t* get_page_info(
-		struct ssd_info_t *ptr_ssd_info, 
+		struct ssd_info_t *ptr_ssd_info,
 		uint32_t bus,
 		uint32_t chip,
 		uint32_t block,
@@ -358,7 +358,7 @@ inline void set_pg_status (fb_pg_inf_t *pgi, uint8_t ofs, fb_pg_status_t status)
 }
 
 inline uint32_t get_nr_invalid_lps (fb_pg_inf_t *pgi) {
-	return pgi->nr_invalid_log_pages;	
+	return pgi->nr_invalid_log_pages;
 }
 
 inline void set_nr_invalid_lps (fb_pg_inf_t *pgi, uint32_t value) {
@@ -395,14 +395,14 @@ inline void init_blk_inf (fb_blk_inf_t *blki) {
 	set_nr_invalid_pgs (blki, 0);
 	set_nr_valid_lps_in_blk (blki, 0);
 	set_nr_invalid_lps_in_blk (blki, 0);
-	
+
 	set_del_flag_blk (blki, FALSE);
 
 	for(pg = 0 ; pg < NUM_PAGES_PER_BLOCK ; pg++) {
 		pgi = get_pgi_from_blki (blki, pg);
 
 		set_nr_invalid_lps (pgi, 0);
-		
+
 		set_del_flag_pg (pgi, FALSE);
 
 		for (lp = 0 ; lp < NR_LP_IN_PP ; lp++) {

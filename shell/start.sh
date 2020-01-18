@@ -1,6 +1,6 @@
 . insert_module.sh
 . mkfs.sh
-. mount.sh 
+. mount.sh
 
 #sudo chown mj:mj /home/mj/pure/flashbench-master/vSSD
 

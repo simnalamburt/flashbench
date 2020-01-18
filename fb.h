@@ -40,7 +40,7 @@ typedef struct fb_context_t
 
 	int (*make_flush_request) 	(struct fb_context_t *ptr_fb_context, struct bio *bio);
 	int (*make_discard_request) (struct fb_context_t *ptr_fb_context, struct bio *bio);
-	int (*make_read_request) 	(struct fb_context_t *ptr_fb_context, 
+	int (*make_read_request) 	(struct fb_context_t *ptr_fb_context,
 										uint32_t lpa_curr,
 										uint8_t *ptr_page_buffer,
 										fb_bio_t *ptr_fb_bio);

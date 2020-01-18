@@ -8,7 +8,7 @@ struct page_mapping_table_t {
 
 typedef struct {
 	struct flash_block_t **act_blks;
-	
+
 	uint32_t mru_bus;
 	uint32_t mru_chip;
 } fb_act_blk_mngr_t;
@@ -28,12 +28,12 @@ typedef struct fb_wtod_s { // wordline to del
 } fb_wtod_t;
 
 typedef struct {
-    
+
     // list of pages (blocks) to lock - physical address base
     // list of pages to copy - logical address base
     // data buffers for pages to copy
 	uint32_t *ppas;
-    
+
     uint32_t nr_btod;
     fb_btod_t *btod;
     fb_btod_t *hash_btod;
@@ -45,7 +45,7 @@ typedef struct {
     uint32_t nr_pgs_to_copy;
 	uint32_t *lpas_to_copy;
 	uint8_t *data_to_copy;
-    
+
 } fb_del_mngr_t;
 
 typedef struct {

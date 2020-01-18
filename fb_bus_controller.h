@@ -7,7 +7,7 @@ struct fb_operation_t
 	fb_bio_t *ptr_fb_bio;
 };
 
-struct fb_opr_queue_t 
+struct fb_opr_queue_t
 {
 	uint32_t num_max_entries;
 	uint32_t num_entries;
@@ -26,13 +26,13 @@ struct fb_chip_busy_t
 	uint32_t issue_time_in_us;
 
 	struct completion chip_busy;
-	
+
 	fb_bio_t *ptr_fb_bio;
 };
 
 struct fb_bus_controller_t
 {
-	uint32_t num_bus; 
+	uint32_t num_bus;
 
 	struct fb_opr_queue_t **ptr_opr_queue;
 

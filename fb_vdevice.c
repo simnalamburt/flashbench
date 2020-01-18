@@ -13,7 +13,7 @@ struct vdevice_t *create_vdevice(void)
 	struct vdevice_t *ptr_vdevice = NULL;
 	uint64_t bus_loop, chip_loop, block_loop, page_loop;
 	uint64_t bus_capacity;
-	
+
 
 	if((ptr_vdevice = (struct vdevice_t *)vmalloc(sizeof(struct vdevice_t))) == NULL)
 	{
@@ -23,9 +23,9 @@ struct vdevice_t *create_vdevice(void)
 
 /*
 	bus_capacity =
-		NUM_CHIPS_PER_BUS * 
-		NUM_BLOCKS_PER_CHIP * 
-		NUM_PAGES_PER_BLOCK * 
+		NUM_CHIPS_PER_BUS *
+		NUM_BLOCKS_PER_CHIP *
+		NUM_PAGES_PER_BLOCK *
 		PHYSICAL_PAGE_SIZE;
 */
 	bus_capacity = NUM_CHIPS_PER_BUS;
@@ -33,7 +33,7 @@ struct vdevice_t *create_vdevice(void)
 	bus_capacity *= NUM_PAGES_PER_BLOCK;
 	bus_capacity *= PHYSICAL_PAGE_SIZE;
 
-	ptr_vdevice->device_capacity = 
+	ptr_vdevice->device_capacity =
 		NUM_BUSES * bus_capacity;
 
 	for(bus_loop = 0 ; bus_loop < NUM_BUSES ; bus_loop++)
@@ -62,7 +62,7 @@ struct vdevice_t *create_vdevice(void)
 				for(page_loop = 0 ; page_loop < NUM_PAGES_PER_BLOCK ; page_loop++)
 				{
 					ptr_vdevice->buses[bus_loop].chips[chip_loop].blocks[block_loop].pages[page_loop].ptr_data =
-						ptr_vdevice->ptr_vdisk[bus_loop] + 
+						ptr_vdevice->ptr_vdisk[bus_loop] +
 						(chip_loop * NUM_BLOCKS_PER_CHIP * NUM_PAGES_PER_BLOCK +
 						block_loop * NUM_PAGES_PER_BLOCK +
 						page_loop) * PHYSICAL_PAGE_SIZE;
@@ -121,7 +121,7 @@ void vdevice_read(
 {
 	uint8_t* ptr_src = ptr_vdevice->buses[bus].chips[chip].blocks[block].pages[page].ptr_data;
 	uint8_t lp_loop;
-	uint8_t* ptr_curr = ptr_dest; 
+	uint8_t* ptr_curr = ptr_dest;
 	//memcpy(ptr_dest, ptr_src, PHYSICAL_PAGE_SIZE);
 	for (lp_loop = 0 ; lp_loop < NR_LP_IN_PP ; lp_loop++) {
 		if (page_bitmap[lp_loop] == 1) {
@@ -132,7 +132,7 @@ void vdevice_read(
 	}
 
 #if (VDEVICE_TIME_MODELED==TRUE)
-	fb_issue_operation(ptr_vdevice->ptr_bus_controller[bus], 
+	fb_issue_operation(ptr_vdevice->ptr_bus_controller[bus],
 			chip, OP_READ, ptr_fb_bio);
 #endif
 }
@@ -151,7 +151,7 @@ void vdevice_write(
 	memcpy(ptr_dest, ptr_src, PHYSICAL_PAGE_SIZE);
 
 #if (VDEVICE_TIME_MODELED==TRUE)
-	fb_issue_operation(ptr_vdevice->ptr_bus_controller[bus], chip, 
+	fb_issue_operation(ptr_vdevice->ptr_bus_controller[bus], chip,
 			OP_PROG, ptr_fb_bio);
 #endif
 }
@@ -162,7 +162,7 @@ void vdevice_plock (
 		uint8_t bus,
 		uint8_t chip) {
 #if (VDEVICE_TIME_MODELED==TRUE)
-	fb_issue_operation(ptr_vdevice->ptr_bus_controller[bus], chip, 
+	fb_issue_operation(ptr_vdevice->ptr_bus_controller[bus], chip,
 			OP_PLOCK, NULL);
 #endif
 }
@@ -172,7 +172,7 @@ void vdevice_block (
 		uint8_t bus,
 		uint8_t chip) {
 #if (VDEVICE_TIME_MODELED==TRUE)
-	fb_issue_operation(ptr_vdevice->ptr_bus_controller[bus], chip, 
+	fb_issue_operation(ptr_vdevice->ptr_bus_controller[bus], chip,
 			OP_BLOCK, NULL);
 #endif
 }
@@ -196,8 +196,8 @@ void vdevice_erase(
 inline int is_valid_address_range(uint32_t logical_page_address)
 {
 
-	return (logical_page_address >= 0 
-			&& logical_page_address < 
+	return (logical_page_address >= 0
+			&& logical_page_address <
 					NUM_LOG_PAGES) ?
 		TRUE : FALSE;
 }
@@ -235,7 +235,7 @@ inline fb_pg_type_t page_type (uint32_t pg_idx) {
 inline uint32_t operation_time (fb_dev_op_t op) {
 	switch (op) {
 		case OP_READ:
-			return TREAD;  
+			return TREAD;
 		case OP_PROG:
 			return TPROG;
 		case OP_PLOCK:
@@ -244,7 +244,7 @@ inline uint32_t operation_time (fb_dev_op_t op) {
 			return TBLOCK;
 		case OP_BERS:
 			return TBERS;
-		default:			
+		default:
 			return 0;
 	}
 }

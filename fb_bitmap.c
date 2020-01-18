@@ -78,7 +78,7 @@ int set_bitmap(struct fb_bitmap_t *ptr_bitmap, uint32_t idx, int value)
 
 	if(ptr_bitmap->num_entries <= idx)
 	{
-		printk(KERN_ERR "fb_bitmap - set_bitmap: Out of range: %d >= %d (bound)\n", 
+		printk(KERN_ERR "fb_bitmap - set_bitmap: Out of range: %d >= %d (bound)\n",
 				idx, ptr_bitmap->num_entries);
 		ret_value = -1;
 	}
@@ -109,7 +109,7 @@ int get_bitmap(struct fb_bitmap_t* ptr_bitmap, uint32_t idx)
 
 	if(ptr_bitmap->num_entries <= idx)
 	{
-		printk(KERN_ERR "fb_bitmap - set_bitmap: Out of range: %d >= %d (bound)\n", 
+		printk(KERN_ERR "fb_bitmap - set_bitmap: Out of range: %d >= %d (bound)\n",
 				idx, ptr_bitmap->num_entries);
 		ret_value = -1;
 	}

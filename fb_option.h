@@ -1,7 +1,7 @@
 #define	TRUE 1
 #define FALSE 0
 
-// Parameterf for DEL manager 
+// Parameterf for DEL manager
 #define NR_MAX_LPAS_DISCARD 2048
 #define NUM_WTODS NR_MAX_LPAS_DISCARD
 #define NUM_BTODS NR_MAX_LPAS_DISCARD

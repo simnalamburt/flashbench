@@ -19,8 +19,8 @@ typedef struct fb_wb {
 	fb_wb_pg_t* writing_pgs;
 	fb_wb_pg_t* buf_pgs;
 
-	fb_wb_pg_t* hash_pgs;	//hashed page 
-	
+	fb_wb_pg_t* hash_pgs;	//hashed page
+
 	uint8_t *pg_buf;
 
 	struct completion wb_lock;

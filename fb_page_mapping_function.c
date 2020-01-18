@@ -85,7 +85,7 @@ void get_next_bus_chip(
 
 int alloc_new_page (fb_t *fb, uint8_t bus, uint8_t chip, uint32_t *blk, uint32_t *pg) {
 	fb_ssd_inf_t *ssdi = get_ssd_inf (fb);
-	
+
 	fb_blk_inf_t *blki;
 
 	if ((blki = get_curr_active_block (fb, bus, chip)) == NULL) {
@@ -113,8 +113,8 @@ int map_logical_to_physical(
 		uint32_t chip,
 		uint32_t block,
 		uint32_t page) {
-	
-	uint8_t lp_loop;	
+
+	uint8_t lp_loop;
 
 	int ret = -1;
 
@@ -145,7 +145,7 @@ void update_act_blk (fb_t* fb, uint8_t bus, uint8_t chip) {
 }
 
 inline uint32_t get_mapped_ppa (fb_pg_ftl_t *ftl, uint32_t lpa) {
-	return ftl->ptr_mapping_table->mappings[lpa];	
+	return ftl->ptr_mapping_table->mappings[lpa];
 }
 
 inline void set_mapped_ppa (fb_pg_ftl_t *ftl, uint32_t lpa, uint32_t ppa) {
@@ -167,7 +167,7 @@ uint32_t invalidate_lpg (fb_t *fb, uint32_t lpa) {
 
 		blki = get_block_info (ssdi, bus, chip, blk);
 		pgi = get_page_info (ssdi, bus, chip, blk, (pg >> LP_PAGE_SHIFT));
-		
+
 		set_pg_status (pgi, (pg & LP_PAGE_MASK), PAGE_STATUS_INVALID);
 		inc_nr_invalid_lps_in_blk (blki);
 		dec_nr_valid_lps_in_blk (blki);
@@ -175,11 +175,11 @@ uint32_t invalidate_lpg (fb_t *fb, uint32_t lpa) {
 		/*
 		if ((vic_blki = fb_gc_vic_blk (fb, bus, chip)) != NULL) {
 			if ((get_nr_free_pgs (blki) == 0) &&
-					(get_nr_invalid_lps_in_blk (vic_blki) < 
+					(get_nr_invalid_lps_in_blk (vic_blki) <
 					 get_nr_invalid_lps_in_blk (blki))) {
 				set_vic_blk (get_gcm (ftl), bus, chip, blki);
 			}
-		}	
+		}
 		*/
 
 		if (inc_nr_invalid_lps (pgi) == NR_LP_IN_PP) {
@@ -219,7 +219,7 @@ int __map_logical_to_physical(
 		invalidate_lpg (fb, lpa);
 		inc_nr_valid_lps_in_blk (blki);
 		set_pg_status (pgi, lp_ofs, PAGE_STATUS_VALID);
-		set_mapped_ppa (ftl, lpa, 
+		set_mapped_ppa (ftl, lpa,
 				convert_to_physical_address (
 					bus, chip, blk, ((pg << LP_PAGE_SHIFT) | lp_ofs)));
 	} else {
@@ -235,7 +235,7 @@ int __map_logical_to_physical(
 		dec_nr_free_pgs (blki);
 	}
 
-	return 0; 
+	return 0;
 }
 
 inline fb_blk_inf_t* get_curr_gc_block (fb_t *fb, uint32_t bus, uint32_t chip) {
@@ -266,6 +266,6 @@ inline void set_curr_active_block (
 
 	*(ftl->abm->act_blks + (bus * NUM_CHIPS_PER_BUS + chip)) = blki;
 
-	if (blki != NULL) 
+	if (blki != NULL)
 		set_act_blk_flag (blki, TRUE);
 }

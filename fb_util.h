@@ -15,7 +15,7 @@ void perf_inc_nr_lsb_pg_backup (void);
 void perf_inc_nr_discard_reqs (void);
 void perf_inc_nr_discard_lpgs (uint32_t nr_lpgs);
 uint32_t get_nr_incomming_write (void);
-uint32_t get_nr_wordline_prog_fg (void); 
+uint32_t get_nr_wordline_prog_fg (void);
 uint32_t timer_get_timestamp_in_us(void);
 void fb_file_log (char* filename, char* string);
 struct file* file_open(const char* path, int flags, int rights);

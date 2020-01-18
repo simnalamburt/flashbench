@@ -15,7 +15,7 @@
 #include "uthash.h"
 
 static int make_read_request_page_mapping(
-		struct fb_context_t *ptr_fb_context, 
+		struct fb_context_t *ptr_fb_context,
 		uint32_t logical_page_address,
 		uint8_t *ptr_page_buffer,
 		fb_bio_t *ptr_fb_bio);
@@ -54,7 +54,7 @@ static fb_act_blk_mngr_t *create_act_blk_mngr (fb_t *fb) {
 		goto FAIL;
 	}
 
-	if ((abm->act_blks = 
+	if ((abm->act_blks =
 				(fb_blk_inf_t **) vmalloc (
 					sizeof (fb_blk_inf_t*) * NUM_CHIPS)) == NULL) {
 		printk (KERN_ERR "Allocating active block list failed.\n");
@@ -67,7 +67,7 @@ static fb_act_blk_mngr_t *create_act_blk_mngr (fb_t *fb) {
 				printk (KERN_ERR "Getting new active block failed.\n");
 				goto FAIL;
 			}
-			
+
 			reset_free_blk (ssdi, blki);
 			set_act_blk_flag (blki, TRUE);
 			abm->act_blks[bus * NUM_CHIPS_PER_BUS + chip] = blki;
@@ -132,7 +132,7 @@ void *create_pg_ftl (fb_t* fb)
 		goto FAIL;
 	}
 
-	if ((ftl->lpas_to_discard = 
+	if ((ftl->lpas_to_discard =
 			(uint32_t *) vmalloc (NR_MAX_LPAS_DISCARD * sizeof (uint32_t))) == NULL) {
 		printk (KERN_ERR "[FlashBench] fb_page_mapping: Allocating lpas failed.\n");
 
@@ -268,7 +268,7 @@ fb_del_mngr_t *create_del_mngr (fb_t *fb) {
     for(i = 0; i < NUM_BTODS; i++) {
         delm->btod[i].blki = NULL;
     }
-	
+
     if ((delm->wtod = (fb_wtod_t *) vmalloc (
 					sizeof (fb_wtod_t) * NUM_WTODS)) == NULL) {
 		printk (KERN_ERR "Allocating DEL WL list failed.\n");
@@ -285,7 +285,7 @@ fb_del_mngr_t *create_del_mngr (fb_t *fb) {
 		printk (KERN_ERR "Allocating PPA list failed.\n");
 		goto FAIL;
 	}
-	
+
     if ((delm->lpas_to_copy =
 				(uint32_t *) vmalloc (
 					sizeof (uint32_t) * NR_MAX_LPGS_COPY)) == NULL) {
@@ -293,7 +293,7 @@ fb_del_mngr_t *create_del_mngr (fb_t *fb) {
 		goto FAIL;
 	}
 
-	if ((delm->data_to_copy = 
+	if ((delm->data_to_copy =
 				(uint8_t *) vmalloc (
 					sizeof (uint8_t) * LOGICAL_PAGE_SIZE * NR_MAX_LPGS_COPY)) == NULL) {
 		printk (KERN_ERR "Allocating valid page buffer failed.\n");
@@ -301,10 +301,10 @@ fb_del_mngr_t *create_del_mngr (fb_t *fb) {
 	}
 
     delm->hash_btod = NULL;
-    delm->hash_wtod = NULL; 
-	
+    delm->hash_wtod = NULL;
+
     init_delm (delm);
-	
+
     return delm;
 
 FAIL:
@@ -346,9 +346,9 @@ void destroy_del_mngr (fb_del_mngr_t *delm) {
 
 
 // return:	0 if add new one,
-//			1 otherwise (already exist)	
+//			1 otherwise (already exist)
 void fb_del_add_blk_to_del (fb_del_mngr_t *delm, fb_blk_inf_t *blki) {
-    fb_btod_t *btod = NULL; 
+    fb_btod_t *btod = NULL;
     fb_btod_t *new = fb_del_get_btod (delm, fb_del_get_nr_btod (delm));
 
     HASH_FIND (hh, delm->hash_btod, &blki, sizeof (fb_blk_inf_t*), btod);
@@ -360,20 +360,20 @@ void fb_del_add_blk_to_del (fb_del_mngr_t *delm, fb_blk_inf_t *blki) {
         HASH_ADD (hh, delm->hash_btod, blki, sizeof (fb_blk_inf_t*), new);
         fb_del_inc_nr_btod (delm);
 
-		//printk (KERN_INFO "Blk (%p) is added (%u).\n", 
+		//printk (KERN_INFO "Blk (%p) is added (%u).\n",
 				//blki, fb_del_get_nr_btod (delm));
     }
 
-	//printk (KERN_INFO "Blk (%p) is exist (%u).\n", 
+	//printk (KERN_INFO "Blk (%p) is exist (%u).\n",
 			//blki, fb_del_get_nr_btod (delm));
 
 }
 
 // return:	0 if add new one,
-//			1 otherwise (already exist)	
-void fb_del_add_wl_to_del (fb_del_mngr_t *delm, 
+//			1 otherwise (already exist)
+void fb_del_add_wl_to_del (fb_del_mngr_t *delm,
         uint32_t bus, uint32_t chip, uint32_t blk, uint32_t pg) {
-    fb_wtod_t *wtod = NULL; 
+    fb_wtod_t *wtod = NULL;
     fb_wtod_t *new = fb_del_get_wtod (delm, fb_del_get_nr_wtod (delm));
 
     uint32_t wl_idx = convert_to_wl_idx (bus, chip, blk, pg);
@@ -388,11 +388,11 @@ void fb_del_add_wl_to_del (fb_del_mngr_t *delm,
         fb_del_init_wtod (new, bus, chip, wl_idx);
         HASH_ADD (hh, delm->hash_wtod, wl_idx, sizeof (uint32_t), new);
         fb_del_inc_nr_wtod (delm);
-		//printk (KERN_INFO "WL (%u, %u, %u, %u) is added (%u).\n", 
+		//printk (KERN_INFO "WL (%u, %u, %u, %u) is added (%u).\n",
 				//new->bus, new->chip, blk, pg, fb_del_get_nr_wtod (delm));
     } else {
         new = wtod;
-		//printk (KERN_INFO "WL (%u, %u, %u, %u) is exist (%u).\n", 
+		//printk (KERN_INFO "WL (%u, %u, %u, %u) is exist (%u).\n",
 				//new->bus, new->chip, blk, pg, fb_del_get_nr_wtod (delm));
     }
 }
@@ -415,19 +415,19 @@ int _fb_del_invalidate_pgs (fb_t* fb, uint32_t nr_reqs, uint32_t *req_lpas) {
 	//printk(KERN_INFO "# of req: %u\n", nr_reqs);
 
 	fb_lock (&ftl->mapping_context_lock);
-	
+
     for (loop = 0; loop < nr_reqs ; loop++) {
         // 1. invalidate the lpa
         //  - access to the L2P mapping - then we can know the physical page to lock
         //  - change the status of physical page (4-KiB) to invalid
-		delm->ppas[loop] = invalidate_lpg (fb, req_lpas[loop]); 
+		delm->ppas[loop] = invalidate_lpg (fb, req_lpas[loop]);
 		//printk(KERN_INFO "lpa: %u\n", req_lpas[loop]);
 		// this is all we have to do here.
-    }    
+    }
 
 	fb_unlock (&ftl->mapping_context_lock);
 
-    return 0; 
+    return 0;
 }
 /*
 int fb_del_put_live_pgs_to_wb (fb_t *fb) {
@@ -455,7 +455,7 @@ int fb_del_put_live_pgs_to_wb (fb_t *fb) {
 		}
 	}
 
-    return 0; 
+    return 0;
 }
 */
 
@@ -488,7 +488,7 @@ void destroy_pg_ftl (fb_pg_ftl_t *ftl)
 }
 
 static int make_read_request_page_mapping(
-		struct fb_context_t *ptr_fb_context, 
+		struct fb_context_t *ptr_fb_context,
 		uint32_t logical_page_address,
 		uint8_t *ptr_page_buffer,
 		fb_bio_t *ptr_fb_bio)
@@ -497,7 +497,7 @@ static int make_read_request_page_mapping(
 	uint32_t physical_page_address;
 	uint8_t page_bitmap[NR_LP_IN_PP] = {0};
 
-	struct page_mapping_context_t *ptr_mapping_context = 
+	struct page_mapping_context_t *ptr_mapping_context =
 		(struct page_mapping_context_t *)ptr_fb_context->ptr_mapping_context;
 
 	wait_for_completion(&ptr_mapping_context->mapping_context_lock);
@@ -515,7 +515,7 @@ static int make_read_request_page_mapping(
 
 	perf_inc_nr_page_reads();
 
-	page_offset = LP_PAGE_MASK & page;	
+	page_offset = LP_PAGE_MASK & page;
 	page = (page >> LP_PAGE_SHIFT);
 	page_bitmap[page_offset] = 1;
 
@@ -555,12 +555,12 @@ static int make_write_request_page_mapping(
 	uint8_t bus, chip;
 	uint32_t blk, pg;
 
-	
+
 	wait_for_completion(&ftl->mapping_context_lock);
 	reinit_completion(&ftl->mapping_context_lock);
 
 	get_next_bus_chip (fb, &bus, &chip);
-	/* check foreground GC condition 
+	/* check foreground GC condition
 	 * if the GC block is null */
 	if (is_fgc_needed (fb, bus, chip) == TRUE) {
 		if (trigger_gc_page_mapping (fb) == -1) {
@@ -576,7 +576,7 @@ static int make_write_request_page_mapping(
 			printk(KERN_ERR "[FlashBench] fb_page_mapping: Foreground GC failed.\n");
 			goto FAILED;
 		}
-		
+
 		get_next_bus_chip (fb, &bus, &chip);
 
 		if ((alloc_new_page (fb, bus, chip, &blk, &pg)) == -1) {
@@ -688,8 +688,8 @@ static struct page_mapping_table_t *create_page_mapping_table(void)
 		goto FAIL_ALLOC_TABLE;
 	}
 
-	ptr_mapping_table->nr_entries = 
-		NUM_BUSES * NUM_CHIPS_PER_BUS * NUM_BLOCKS_PER_CHIP * NUM_PAGES_PER_BLOCK; 
+	ptr_mapping_table->nr_entries =
+		NUM_BUSES * NUM_CHIPS_PER_BUS * NUM_BLOCKS_PER_CHIP * NUM_PAGES_PER_BLOCK;
 	ptr_mapping_table->nr_entries *= (PHYSICAL_PAGE_SIZE / LOGICAL_PAGE_SIZE);
 	ptr_mapping_table->nr_entries = (ptr_mapping_table->nr_entries * CFACTOR_PERCENT) / 100;
 
@@ -728,7 +728,7 @@ void print_blk_mgmt (fb_t *fb) {
 			printk (KERN_INFO "Block Status b(%u), c(%u) - act: %s(%u), gc: %s, free: %u, used: %u, dirt: %u\n",
 					bus, chip,
 					(get_curr_active_block (fb, bus, chip) == NULL) ? "X" : "O",
-					(get_curr_active_block(fb, bus, chip) == NULL) ? 0 : 
+					(get_curr_active_block(fb, bus, chip) == NULL) ? 0 :
 					get_nr_free_pgs (get_curr_active_block (fb, bus, chip)),
 					(get_curr_gc_block (fb, bus, chip) == NULL) ? "X" : "O",
 					get_nr_free_blks_in_chip (
@@ -744,16 +744,16 @@ void print_blk_mgmt (fb_t *fb) {
 
 int fb_wb_flush (fb_t *fb) {
 	fb_wb_t *wb = get_write_buffer (fb);
-			
+
 	uint32_t lpas[NR_LP_IN_PP];
-	
+
 	while (fb_get_pgs_to_write (wb, NR_LP_IN_PP, lpas, fb_wb_get_pg_buf (wb)) != -1) {
 		if (make_write_request_page_mapping (
 					fb, lpas, fb_wb_get_pg_buf (wb), NULL) == -1) {
 			fb_print_err ("Handling a write request filed.\n");
 
 			return -1;
-		}		
+		}
 
 		fb_rm_written_pgs (wb);
 	}

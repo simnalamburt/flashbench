@@ -91,9 +91,9 @@ static void make_request(struct request_queue *ptr_req_queue, struct bio *bio)
 
 				goto REQ_FINISH;
 			}
-			
+
 			for (loop = 0 ; loop < req_count ; loop++) {
-				if (_fb->make_read_request(_fb, 
+				if (_fb->make_read_request(_fb,
 							fb_bio_get_lpa (fbio, loop),
 							fb_bio_get_kpage (fbio, loop),
 							fbio) == -1) {
@@ -155,7 +155,7 @@ FAIL:
 	_fb->err = TRUE;
 
 	bio_endio(bio, ret_value);
-	if (fbio != NULL) 
+	if (fbio != NULL)
 		fb_destroy_bio (fbio);
 	fb_unlock (&_fb->dev_lock);
 	return;
@@ -196,7 +196,7 @@ static int __init fb_init(void) // __init: 해당 함수 혹은 변수가 초기
 		goto FAIL_CREATE_MAPPING_CONTEXT;
 	}
 
-	if(!(_fb->ptr_req_queue = blk_alloc_queue(GFP_KERNEL)))	
+	if(!(_fb->ptr_req_queue = blk_alloc_queue(GFP_KERNEL)))
 	{
 		printk(KERN_ERR "[FlashBench] Allocating a block queue failed.\n");
 		ret_value = -ENOMEM;
@@ -217,14 +217,14 @@ static int __init fb_init(void) // __init: 해당 함수 혹은 변수가 초기
 	blk_queue_io_opt(_fb->ptr_req_queue, LOGICAL_PAGE_SIZE);                /* 항상 PAGE_SIZE에 align된, n*PAGE_SIZE 크기의 I/O req를 받기위함 */
 
 	_fb->ptr_req_queue->limits.discard_granularity = LOGICAL_PAGE_SIZE;     /* Discard 단위 */
-	_fb->ptr_req_queue->limits.max_discard_sectors = UINT_MAX;              
-	_fb->ptr_req_queue->limits.discard_zeroes_data = 1;                     /* 이전에 Discard한 Data를 다시 read할 때, 
-                                                                               stale or random Data를 돌려주는 것이 아니라, 
-                                                                               zero fill된 Data를 돌려주도록 한다. 
+	_fb->ptr_req_queue->limits.max_discard_sectors = UINT_MAX;
+	_fb->ptr_req_queue->limits.discard_zeroes_data = 1;                     /* 이전에 Discard한 Data를 다시 read할 때,
+                                                                               stale or random Data를 돌려주는 것이 아니라,
+                                                                               zero fill된 Data를 돌려주도록 한다.
                                                                                file system이 해당 Data가 Clear되있기를 기대할 수도 있기 때문이다. */
 	queue_flag_set_unlocked(QUEUE_FLAG_DISCARD, _fb->ptr_req_queue);        /* 잘은 모르겠고 DISCARD를 support한다는 것으로 추정 */
 
-	if((_fb->device_major_num = 
+	if((_fb->device_major_num =
 				register_blkdev(_fb->device_major_num, DEV_NAME)) < 0)
 	{
 		printk(KERN_ERR "[FlashBench] Registering a block device failed.\n");
@@ -240,7 +240,7 @@ static int __init fb_init(void) // __init: 해당 함수 혹은 변수가 초기
 	}
 //TODO GH
 #if(WRITE_BUFFER_ENABLE==TRUE)
-	if((_fb->wb = 
+	if((_fb->wb =
 				fb_create_write_buffer(
 					NUM_PAGES_IN_WRITE_BUFFER, LOGICAL_PAGE_SIZE)) == NULL)
 	{
@@ -248,7 +248,7 @@ static int __init fb_init(void) // __init: 해당 함수 혹은 변수가 초기
 		ret_value = -ENOMEM;
 		goto FAIL_CREATE_WRITE_BUFFER;
 	}
-		
+
 	_fb->flag_enable_wb_thread = 1;
 	if(fb_init_write_buffer_thread() == -1)
 	{
@@ -354,7 +354,7 @@ static void __exit fb_exit(void)
 	}
 
 	perf_display_result();
-	
+
 	perf_exit();
 }
 
@@ -404,7 +404,7 @@ static int fb_write_buffer_thread(void *arg)
 	{
 		signr = 0;
 		ret = 0;
-		
+
 		allow_signal(SIGHUP);
 
 AGAIN:
@@ -488,7 +488,7 @@ static inline uint64_t fb_get_bgc_ts (fb_t *fb) {
 }
 
 static inline void fb_update_bgc_ts (fb_t* fb) {
-	fb->background_gc_time_stamp = fb_get_time_in_us();	
+	fb->background_gc_time_stamp = fb_get_time_in_us();
 }
 
 static inline int fb_is_bgc_ts_expired (fb_t* fb, uint64_t threshold) {
@@ -539,7 +539,7 @@ static fb_bio_t *fb_build_bio (struct bio *bio) {
 
 	// assumption: logical page size (i.e., mapping size) = 4 KB
 	sec_start = bio->bi_sector & (~(7));
-	
+
 	bio_for_each_segment(bvec, bio, bio_loop) {
 
 		lpa_curr = sec_start >> 3;
@@ -549,7 +549,7 @@ static fb_bio_t *fb_build_bio (struct bio *bio) {
 			if (fb_get_pg_data(
 						get_write_buffer (_fb),
 						lpa_curr, ptr_page_buffer) != -1) {
-				
+
 				sec_start += 8;
 				continue;
 			}

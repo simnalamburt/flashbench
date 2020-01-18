@@ -26,7 +26,7 @@ static inline int fb_wb_get_pg_wflag (fb_wb_pg_t *wb_pg) {
 
 static void fb_destroy_wb_entry (fb_wb_pg_t *wb_pg) {
 	if (wb_pg != NULL) {
-		if (wb_pg->data != NULL) 
+		if (wb_pg->data != NULL)
 			vfree (wb_pg->data);
 
 		vfree (wb_pg);
@@ -59,7 +59,7 @@ FAIL:
 }
 
 static inline void fb_wb_set_free_pg (fb_wb_t *wb, fb_wb_pg_t *wb_pg) {
-	DL_APPEND (wb->free_pgs, wb_pg);	
+	DL_APPEND (wb->free_pgs, wb_pg);
 }
 
 static inline fb_wb_pg_t *fb_wb_get_free_pg (fb_wb_t *wb) {
@@ -71,7 +71,7 @@ static inline void fb_wb_reset_free_pg (fb_wb_t *wb, fb_wb_pg_t *wb_pg) {
 }
 
 static inline void fb_wb_set_writing_pg (fb_wb_t *wb, fb_wb_pg_t *wb_pg) {
-	DL_APPEND (wb->writing_pgs, wb_pg);	
+	DL_APPEND (wb->writing_pgs, wb_pg);
 	fb_wb_set_pg_wflag (wb_pg, TRUE);
 }
 
@@ -85,7 +85,7 @@ static inline void fb_wb_reset_writing_pg (fb_wb_t *wb, fb_wb_pg_t *wb_pg) {
 }
 
 static inline uint32_t fb_wb_set_buf_pg (fb_wb_t *wb, fb_wb_pg_t *wb_pg) {
-	DL_APPEND (wb->buf_pgs, wb_pg);	
+	DL_APPEND (wb->buf_pgs, wb_pg);
 	return ++(wb->nr_entries);
 }
 
@@ -180,7 +180,7 @@ void fb_destroy_write_buffer (fb_wb_t *wb) {
 		}
 
 		vfree (wb);
-	}		
+	}
 }
 
 inline uint32_t fb_get_nr_pgs_in_wb (fb_wb_t *wb, int lock) {
@@ -256,7 +256,7 @@ int fb_put_pg (fb_wb_t *wb, uint32_t lpa, uint8_t* src) {
 	if ((wb_pg = fb_wb_get_buf_pg (wb, lpa)) == NULL) {
 		if ((wb_pg = fb_wb_get_free_pg (wb)) == NULL)
 			goto FINISH;
-	
+
 		fb_wb_reset_free_pg (wb, wb_pg);
 
 		fb_wb_set_pg_lpa (wb_pg, lpa);
@@ -264,7 +264,7 @@ int fb_put_pg (fb_wb_t *wb, uint32_t lpa, uint8_t* src) {
 	} else {
 		if (fb_wb_get_pg_wflag (wb_pg) == TRUE)
 			fb_wb_reset_writing_pg (wb, wb_pg);
-		else 
+		else
 			fb_wb_reset_buf_pg (wb, wb_pg);
 	}
 
@@ -293,7 +293,7 @@ void fb_rm_buf_pg (fb_wb_t *wb, uint32_t lpa) {
 	fb_wb_pg_t *wb_pg;
 
 	if ((wb_pg = fb_wb_get_buf_pg (wb, lpa)) != NULL) {
-		if (fb_wb_get_pg_wflag (wb_pg) == TRUE) 
+		if (fb_wb_get_pg_wflag (wb_pg) == TRUE)
 			fb_wb_reset_writing_pg (wb, wb_pg);
 		else
 			fb_wb_reset_buf_pg (wb, wb_pg);

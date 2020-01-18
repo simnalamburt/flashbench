@@ -22,7 +22,7 @@ static const struct file_operations fb_proc_fops = {
 	.read = seq_read,       // 파일(/proc/summary)을 읽을 때 불리는 함수
 };
 
-static uint32_t _perf_nr_incomming_write = 0; 
+static uint32_t _perf_nr_incomming_write = 0;
 static uint32_t _perf_nr_wordline_prog_fg = 0;
 static uint32_t _perf_nr_wordline_prog_bg = 0;
 static uint32_t _perf_nr_page_reads = 0;
@@ -48,13 +48,13 @@ static int fb_proc_summary (struct seq_file *m, void *v) {
 	seq_printf(m, "FlashBench: # of FG GC: %u\n", _perf_nr_gc_trigger_fg);
 	seq_printf(m, "FlashBench: # of BG GC: %u\n", _perf_nr_gc_trigger_bg);
 	seq_printf(m, "FlashBench: # of LSB page backups: %u\n", _perf_nr_lsb_pg_backup);
-	seq_printf(m, "FlashBench: # of discard reqs: %u (%u)\n", 
+	seq_printf(m, "FlashBench: # of discard reqs: %u (%u)\n",
 			_perf_nr_discard_reqs, _perf_nr_discarded_lpgs);
 	seq_printf(m, "FlashBench: # of plocks: %u\n", _perf_nr_plocks);
 	seq_printf(m, "FlashBench: # of blocks: %u\n", _perf_nr_blocks);
 	//seq_printf(m, "FlashBench: # of pgs in write buffer: %u\n", util_write_buffer ());
 	//seq_printf(m, "FlashBench: # of slow blocks: %u, dirt blocks: %u\n", util_slow_blk (), util_dirt_blk());
-	
+
 	return 0;
 }
 
@@ -190,7 +190,7 @@ int file_read(struct file* file, unsigned long long offset, unsigned char* data,
 
 	set_fs(oldfs);
 	return ret;
-} 
+}
 
 int file_write(struct file* file, unsigned long long offset, unsigned char* data, unsigned int size) {
 	mm_segment_t oldfs;
@@ -235,14 +235,14 @@ void perf_display_result(void)
 	printk(KERN_INFO "FlashBench: # of FG GC: %u\n", _perf_nr_gc_trigger_fg);
 	printk(KERN_INFO "FlashBench: # of BG GC: %u\n", _perf_nr_gc_trigger_bg);
 	printk(KERN_INFO "FlashBench: # of LSB page backups: %u\n", _perf_nr_lsb_pg_backup);
-	printk(KERN_INFO "FlashBench: # of discard reqs: %u (%u)\n", 
+	printk(KERN_INFO "FlashBench: # of discard reqs: %u (%u)\n",
 			_perf_nr_discard_reqs, _perf_nr_discarded_lpgs);
 }
 
 void perf_init (void)
 {
     /* procfs를 통해, 커널 정보를 사용자 영역에서 접근 가능하다.
-     * proc_create(...): /proc 에다가 파일 생성하는 함수 
+     * proc_create(...): /proc 에다가 파일 생성하는 함수
      * 파일명, 권한, 디렉토리, file_operation 구조체 */
 
     proc_dir = proc_create ("summary", 0444, NULL, &fb_proc_fops);

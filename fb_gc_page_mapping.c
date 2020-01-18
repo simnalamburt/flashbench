@@ -36,12 +36,12 @@ inline uint32_t find_first_valid_pg (fb_blk_inf_t *blki, uint32_t start_pg) {
 
 	for (pg = start_pg ; pg < NUM_PAGES_PER_BLOCK ; pg++) {
 		pgi = get_pgi_from_blki (blki, pg);
-			
+
 		if (get_nr_invalid_lps (pgi) < NR_LP_IN_PP)
 			break;
 	}
 
-	return pg;	
+	return pg;
 }
 
 inline void set_first_valid_pg (
@@ -54,23 +54,23 @@ inline uint32_t get_first_valid_pg (fb_gc_mngr_t *gcm, uint32_t bus, uint32_t ch
 }
 
 static fb_blk_inf_t* select_vic_blk_from_used (
-		fb_ssd_inf_t *ssdi, 
+		fb_ssd_inf_t *ssdi,
 		uint32_t bus, uint32_t chip) {
 	fb_blk_inf_t *vic_blki = NULL, *blki;
 	uint32_t nr_max_invalid_lpgs = 0, nr_invalid_lpgs;
 
 	blk_list_for_each (get_used_block (ssdi, bus, chip), blki) {
 		if ((nr_invalid_lpgs = get_nr_invalid_lps_in_blk (blki)) > nr_max_invalid_lpgs) {
-			nr_max_invalid_lpgs = nr_invalid_lpgs;			
+			nr_max_invalid_lpgs = nr_invalid_lpgs;
 			vic_blki = blki;
-		}	
+		}
 	}
 
 	return vic_blki;
 }
 
 static fb_blk_inf_t* select_vic_blk_greedy (
-		fb_ssd_inf_t *ssdi, 
+		fb_ssd_inf_t *ssdi,
 		uint32_t bus, uint32_t chip) {
 	fb_blk_inf_t *vic_blki = NULL, *blki;
 	uint32_t nr_max_invalid_lpgs = 0, nr_invalid_lpgs;
@@ -80,9 +80,9 @@ static fb_blk_inf_t* select_vic_blk_greedy (
 
 	blk_list_for_each (get_used_block (ssdi, bus, chip), blki) {
 		if ((nr_invalid_lpgs = get_nr_invalid_lps_in_blk (blki)) > nr_max_invalid_lpgs) {
-			nr_max_invalid_lpgs = nr_invalid_lpgs;			
+			nr_max_invalid_lpgs = nr_invalid_lpgs;
 			vic_blki = blki;
-		}	
+		}
 	}
 
 	return vic_blki;
@@ -92,7 +92,7 @@ static int set_vic_blks (fb_t *fb) {
 	fb_pg_ftl_t *ftl = (fb_pg_ftl_t *) get_ftl (fb);
 	fb_gc_mngr_t *gcm = get_gcm (ftl);
 	fb_ssd_inf_t *ssdi = get_ssd_inf (fb);
-	
+
 	fb_blk_inf_t *blki;
 
 	uint32_t bus, chip;
@@ -100,7 +100,7 @@ static int set_vic_blks (fb_t *fb) {
 	for (bus = 0 ; bus < NUM_BUSES ; bus++) {
 		for( chip = 0 ; chip < NUM_CHIPS_PER_BUS ; chip++) {
 			if ((get_curr_gc_block (fb, bus, chip) != NULL) &&
-					(get_curr_active_block (fb, bus, chip) != NULL)) 
+					(get_curr_active_block (fb, bus, chip) != NULL))
 				blki = NULL;
 			else {
 				if ((blki = select_vic_blk_greedy (ssdi, bus, chip)) == NULL) {
@@ -112,7 +112,7 @@ static int set_vic_blks (fb_t *fb) {
 					blki = NULL;
 				else {
 					gcm->nr_pgs_to_copy += get_nr_valid_lps_in_blk (blki);
-					set_first_valid_pg (gcm, bus, chip, 
+					set_first_valid_pg (gcm, bus, chip,
 							find_first_valid_pg (blki, 0));
 				}
 			}
@@ -227,10 +227,10 @@ static int prepare_act_blks (fb_t *fb) {
 	fb_blk_inf_t *blki;
 
 	uint8_t bus, chip;
-	
+
 	for (chip = 0 ; chip < NUM_CHIPS_PER_BUS ; chip++) {
 		for (bus = 0 ; bus < NUM_BUSES ; bus++) {
-			if (get_curr_active_block (fb, bus, chip) != NULL) 
+			if (get_curr_active_block (fb, bus, chip) != NULL)
 				continue;
 
 			if ((blki = get_curr_gc_block (fb, bus, chip)) == NULL) {
@@ -290,14 +290,14 @@ fb_gc_mngr_t *create_gc_mngr (fb_t *fb) {
 		goto FAIL;
 	}
 
-	if ((gcm->gc_blks = 
+	if ((gcm->gc_blks =
 				(fb_blk_inf_t **) vmalloc (
 					sizeof (fb_blk_inf_t *) * NUM_CHIPS)) == NULL) {
 		printk (KERN_ERR "Allocating GC block list failed.\n");
 		goto FAIL;
 	}
 
-	if ((gcm->vic_blks = 
+	if ((gcm->vic_blks =
 				(fb_blk_inf_t **) vmalloc (
 					sizeof (fb_blk_inf_t *) * NUM_CHIPS)) == NULL) {
 		printk (KERN_ERR "Allocating victim block list failed.\n");
@@ -306,22 +306,22 @@ fb_gc_mngr_t *create_gc_mngr (fb_t *fb) {
 
 	if ((gcm->lpas_to_copy =
 				(uint32_t *) vmalloc (
-					sizeof (uint32_t) * 
+					sizeof (uint32_t) *
 					NUM_CHIPS * NUM_PAGES_PER_BLOCK * NR_LP_IN_PP)) == NULL) {
 		printk (KERN_ERR "Allocating LPA list failed.\n");
 		goto FAIL;
 	}
 
-	if ((gcm->data_to_copy = 
+	if ((gcm->data_to_copy =
 				(uint8_t *) vmalloc (
-					sizeof (uint32_t) * 
+					sizeof (uint32_t) *
 					NUM_CHIPS * NUM_PAGES_PER_BLOCK * NR_LP_IN_PP *
 					LOGICAL_PAGE_SIZE)) == NULL) {
 		printk (KERN_ERR "Allocating valid page buffer failed.\n");
 		goto FAIL;
 	}
 
-	if ((gcm->first_valid_pg = 
+	if ((gcm->first_valid_pg =
 				(uint32_t *) vmalloc (sizeof (uint32_t) * NUM_CHIPS)) == NULL) {
 		printk (KERN_ERR "Allocating page_offset failed.\n");
 		goto FAIL;
@@ -335,8 +335,8 @@ fb_gc_mngr_t *create_gc_mngr (fb_t *fb) {
 				printk (KERN_ERR "Getting new gc block failed.\n");
 				goto FAIL;
 			}
-			
-			reset_free_blk (ssdi, blki);	
+
+			reset_free_blk (ssdi, blki);
 			set_rsv_blk_flag (blki, TRUE);
 			gcm->gc_blks[bus * NUM_CHIPS_PER_BUS + chip] = blki;
 		}
@@ -346,7 +346,7 @@ fb_gc_mngr_t *create_gc_mngr (fb_t *fb) {
 
 FAIL:
 	destroy_gc_mngr (gcm);
-	
+
 	return NULL;
 }
 
@@ -394,7 +394,7 @@ int trigger_gc_page_mapping (fb_t *fb) {
 		return -1;
 	}
 
-	// 5. set GC blocks with dirt blocks 
+	// 5. set GC blocks with dirt blocks
 	if (update_gc_blks (fb) != 0) {
 		printk (KERN_ERR "[FlahsBench] Updating GC blocks failed.\n");
 		return -1;
@@ -405,7 +405,7 @@ int trigger_gc_page_mapping (fb_t *fb) {
 
 int fb_bgc_prepare_act_blks (fb_t *fb) {
 	fb_ssd_inf_t *ssdi = get_ssd_inf (fb);
-	fb_blk_inf_t *blki; 
+	fb_blk_inf_t *blki;
 
 	uint8_t bus, chip;
 	uint32_t i;
@@ -460,12 +460,12 @@ static int fb_bgc_set_vic_blks (fb_t *fb) {
 			//			get_chip_info (ssdi, bus, chip)) > BGC_TH_UBLK) {
 			chipi = get_chip_info (ssdi, bus, chip);
 
-			if ((get_nr_dirt_blks_in_chip (chipi) + 
+			if ((get_nr_dirt_blks_in_chip (chipi) +
 					get_nr_free_blks_in_chip (chipi)) < BGC_TH_NR_BLKS) {
 				/* victim block exists */
 				if ((blki = get_vic_blk (gcm, bus, chip)) != NULL) {
 					set_first_valid_pg (gcm, bus, chip,
-							find_first_valid_pg (blki, 
+							find_first_valid_pg (blki,
 								get_first_valid_pg (gcm, bus, chip)));
 
 					if (get_first_valid_pg (gcm, bus, chip) == NUM_PAGES_PER_BLOCK) {
@@ -482,13 +482,13 @@ static int fb_bgc_set_vic_blks (fb_t *fb) {
 					print_blk_mgmt (fb);
 					return -1;
 				}
-				
+
 				set_vic_blk (gcm, bus, chip, blki);
 				set_first_valid_pg (gcm, bus, chip, find_first_valid_pg (blki, 0));
 			} else {
 				set_vic_blk (gcm, bus, chip, NULL);
 				set_first_valid_pg (gcm, bus, chip, 0);
-			}	
+			}
 		}
 	}
 
@@ -498,10 +498,10 @@ static int fb_bgc_set_vic_blks (fb_t *fb) {
 int fb_bgc_read_valid_pgs (fb_t *fb) {
 	fb_pg_ftl_t *ftl = (fb_pg_ftl_t *) get_ftl (fb);
 	fb_gc_mngr_t *gcm = get_gcm (ftl);
-	
+
 	fb_blk_inf_t *vic_blki = NULL;
 	fb_pg_inf_t *pgi = NULL;
-	
+
 	uint8_t bus, chip, lp;
 	uint32_t pg, nr_pgs_to_read;
 	uint8_t lp_bitmap[NR_LP_IN_PP];
@@ -541,8 +541,8 @@ int fb_bgc_read_valid_pgs (fb_t *fb) {
 
 		perf_inc_nr_page_reads ();
 
-		vdevice_read (get_vdev (fb), 
-				bus, chip, get_blk_idx (vic_blki), pg, 
+		vdevice_read (get_vdev (fb),
+				bus, chip, get_blk_idx (vic_blki), pg,
 				lp_bitmap, ptr_data, NULL);
 
 		ptr_data += nr_pgs_to_read * LOGICAL_PAGE_SIZE;

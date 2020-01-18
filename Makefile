@@ -38,7 +38,7 @@ modules_install:
 .PHONY: kernel_clean
 kernel_clean:
 	@$(MAKE) -C $(KROOT) M=$(PWD) clean
- 
+
 .PHONY: clean
 clean: kernel_clean
 	rm -rf Module.symvers Module.markers modules.order
@@ -52,10 +52,10 @@ clean: kernel_clean
 #
 # 12 June 2000, Christoph Hellwig <hch@infradead.org>
 # Rewritten to use lists instead of if-statements.
-# 
+#
 #
 # Makefile for the kernel block device drivers.
 #
 # 12 June 2000, Christoph Hellwig <hch@infradead.org>
 # Rewritten to use lists instead of if-statements.
-# 
+#

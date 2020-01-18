@@ -26,7 +26,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define UTLIST_VERSION 1.9.8
 
-/* 
+/*
  * This file contains macros to manipulate singly and doubly-linked lists.
  *
  * 1. LL_ macros:  singly-linked lists.
@@ -36,7 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * To use singly-linked lists, your structure must have a "next" pointer.
  * To use doubly-linked lists, your structure must "prev" and "next" pointers.
  * Either way, the pointer to the head of the list must be initialized to NULL.
- * 
+ *
  * ----------------.EXAMPLE -------------------------
  * struct item {
  *      int id;
@@ -86,7 +86,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define _PREVASGN(elt,list,to,prev) { char **_alias = (char**)&((list)->prev); *_alias=(char*)(to); }
 #define _RS(list) { char **_alias = (char**)&(list); *_alias=_tmp; }
 #define _CASTASGN(a,b) { char **_alias = (char**)&(a); *_alias=(char*)(b); }
-#else 
+#else
 #define _SV(elt,list)
 #define _NEXT(elt,list,next) ((elt)->next)
 #define _NEXTASGN(elt,list,to,next) ((elt)->next)=(to)
@@ -443,7 +443,7 @@ do {                                                                            
     LL_FOREACH2(head,out,next) {                                                               \
       if ((out)->field == (val)) break;                                                        \
     }                                                                                          \
-} while(0) 
+} while(0)
 
 #define LL_SEARCH(head,out,elt,cmp)                                                            \
     LL_SEARCH2(head,out,elt,cmp,next)
@@ -453,7 +453,7 @@ do {                                                                            
     LL_FOREACH2(head,out,next) {                                                               \
       if ((cmp(out,elt))==0) break;                                                            \
     }                                                                                          \
-} while(0) 
+} while(0)
 
 #define LL_REPLACE_ELEM(head, el, add)                                                         \
 do {                                                                                           \
@@ -523,7 +523,7 @@ do {                                                                            
       (head)->prev = (head);                                                                   \
       (head)->next = NULL;                                                                     \
   }                                                                                            \
-} while (0) 
+} while (0)
 
 #define DL_CONCAT(head1,head2)                                                                 \
     DL_CONCAT2(head1,head2,prev,next)
@@ -541,7 +541,7 @@ do {                                                                            
         (head1)=(head2);                                                                       \
     }                                                                                          \
   }                                                                                            \
-} while (0) 
+} while (0)
 
 #define DL_DELETE(head,del)                                                                    \
     DL_DELETE2(head,del,prev,next)
@@ -561,7 +561,7 @@ do {                                                                            
           (head)->prev = (del)->prev;                                                          \
       }                                                                                        \
   }                                                                                            \
-} while (0) 
+} while (0)
 
 #define DL_COUNT(head,el,counter)                                                              \
     DL_COUNT2(head,el,counter,next)                                                            \
@@ -659,7 +659,7 @@ do {                                                                            
      (del)->prev->next = (del)->next;                                                          \
      if ((del) == (head)) (head)=(del)->next;                                                  \
   }                                                                                            \
-} while (0) 
+} while (0)
 
 #define CDL_COUNT(head,el,counter)                                                             \
     CDL_COUNT2(head,el,counter,next)                                                           \
@@ -674,7 +674,7 @@ do {                                                                            
     CDL_FOREACH2(head,el,next)
 
 #define CDL_FOREACH2(head,el,next)                                                             \
-    for(el=head;el;el=((el)->next==head ? 0L : (el)->next)) 
+    for(el=head;el;el=((el)->next==head ? 0L : (el)->next))
 
 #define CDL_FOREACH_SAFE(head,el,tmp1,tmp2)                                                    \
     CDL_FOREACH_SAFE2(head,el,tmp1,tmp2,prev,next)
@@ -692,7 +692,7 @@ do {                                                                            
     CDL_FOREACH2(head,out,next) {                                                              \
       if ((out)->field == (val)) break;                                                        \
     }                                                                                          \
-} while(0) 
+} while(0)
 
 #define CDL_SEARCH(head,out,elt,cmp)                                                           \
     CDL_SEARCH2(head,out,elt,cmp,next)
@@ -702,7 +702,7 @@ do {                                                                            
     CDL_FOREACH2(head,out,next) {                                                              \
       if ((cmp(out,elt))==0) break;                                                            \
     }                                                                                          \
-} while(0) 
+} while(0)
 
 #define CDL_REPLACE_ELEM(head, el, add)                                                        \
 do {                                                                                           \

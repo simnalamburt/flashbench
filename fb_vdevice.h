@@ -39,7 +39,7 @@ struct vdevice_bus_t
 typedef struct vdevice_t {
 	uint64_t device_capacity;
 	uint64_t logical_capacity;
-	
+
 	uint8_t *ptr_vdisk[NUM_BUSES];
 	struct vdevice_bus_t buses[NUM_BUSES];
 
@@ -86,7 +86,7 @@ void vdevice_plock (
 void vdevice_block (
 		struct vdevice_t *ptr_vdevice,
 		uint8_t bus,
-		uint8_t chip); 
+		uint8_t chip);
 
 
 inline int is_valid_address_range(uint32_t logical_page_address);

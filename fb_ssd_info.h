@@ -12,7 +12,7 @@ typedef enum {
 } fb_pg_status_t;
 
 typedef struct flash_page_t {
-	fb_pg_status_t page_status[NR_LP_IN_PP];	
+	fb_pg_status_t page_status[NR_LP_IN_PP];
 	uint32_t no_logical_page_addr[NR_LP_IN_PP];
 	uint32_t nr_invalid_log_pages;
 
@@ -29,10 +29,10 @@ typedef struct flash_block_t {
 	uint32_t nr_valid_pages;
 	uint32_t nr_invalid_pages;
 	uint32_t nr_free_pages;
-	
+
 	uint32_t nr_valid_log_pages;
 	uint32_t nr_invalid_log_pages;
-	
+
 
 	/* the number of erasure operations */
 	uint32_t nr_erase_cnt;
@@ -185,22 +185,22 @@ struct ssd_info_t* create_ssd_info (void);
 void destroy_ssd_info (struct ssd_info_t *ptr_ssd_info);
 
 struct flash_bus_t* get_bus_info(
-		struct ssd_info_t *ptr_ssd_info, 
+		struct ssd_info_t *ptr_ssd_info,
 		uint32_t bus);
 
 struct flash_chip_t* get_chip_info(
-		struct ssd_info_t *ptr_ssd_info, 
-		uint32_t bus, 
+		struct ssd_info_t *ptr_ssd_info,
+		uint32_t bus,
 		uint32_t chip);
 
 struct flash_block_t* get_block_info(
-		struct ssd_info_t *ptr_ssd_info, 
+		struct ssd_info_t *ptr_ssd_info,
 		uint32_t bus,
 		uint32_t chip,
 		uint32_t block);
 
 struct flash_page_t* get_page_info(
-		struct ssd_info_t *ptr_ssd_info, 
+		struct ssd_info_t *ptr_ssd_info,
 		uint32_t bus,
 		uint32_t chip,
 		uint32_t block,
