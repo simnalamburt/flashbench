@@ -45,17 +45,3 @@ clean: kernel_clean
 
 #	-C	: 커널 위치
 #	M 	: 현재 모듈 소스 (보통은 PWD)
-
-
-#
-# Makefile for the kernel block device drivers.
-#
-# 12 June 2000, Christoph Hellwig <hch@infradead.org>
-# Rewritten to use lists instead of if-statements.
-#
-#
-# Makefile for the kernel block device drivers.
-#
-# 12 June 2000, Christoph Hellwig <hch@infradead.org>
-# Rewritten to use lists instead of if-statements.
-#
