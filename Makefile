@@ -1,9 +1,9 @@
-LIBS := libs
+# Reference:
+#   https://www.kernel.org/doc/Documentation/kbuild/modules.txt
+#   https://www.kernel.org/doc/Documentation/kbuild/makefiles.txt
 
-EXTRA_CFLAGS := \
-	-I$(PWD)/$(LIBS) \
-
-obj-m+= flashBench.o
+ccflags-y := -I$(src)/libs
+obj-m += flashBench.o
 
 flashBench-y += \
 	fb.o \
@@ -42,6 +42,3 @@ kernel_clean:
 .PHONY: clean
 clean: kernel_clean
 	rm -rf Module.symvers Module.markers modules.order
-
-#	-C	: 커널 위치
-#	M 	: 현재 모듈 소스 (보통은 PWD)
