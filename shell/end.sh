@@ -1,2 +1,0 @@
-. umount.sh
-. rmmod.sh

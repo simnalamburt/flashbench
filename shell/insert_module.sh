@@ -1,1 +1,0 @@
-sudo insmod ../flashBench.ko
