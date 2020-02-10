@@ -529,9 +529,9 @@ uint32_t get_bio_req_count (fb_bio_t *fbio) {
 }
 
 static fb_bio_t *fb_build_bio (struct bio *bio) {
-	struct bio_vec *bvec;
+	struct bio_vec bvec;
 	const int rw = bio_data_dir(bio);
-	uint32_t bio_loop = 0;
+	struct bvec_iter bio_loop;
 	uint64_t sec_start, lpa_curr;
 	fb_bio_t *fbio = NULL;
 	uint8_t *ptr_page_buffer;
@@ -546,12 +546,12 @@ static fb_bio_t *fb_build_bio (struct bio *bio) {
 	fbio->req_count = 0;
 
 	// assumption: logical page size (i.e., mapping size) = 4 KB
-	sec_start = bio->bi_sector & (~(7));
+	sec_start = bio->bi_iter.bi_sector & (~(7));
 
 	bio_for_each_segment(bvec, bio, bio_loop) {
 
 		lpa_curr = sec_start >> 3;
-		ptr_page_buffer = (uint8_t *) page_address (bvec->bv_page);
+		ptr_page_buffer = (uint8_t *) page_address (bvec.bv_page);
 
 		if (rw == READA || rw == READ) {
 			if (fb_get_pg_data(

@@ -249,7 +249,8 @@ void perf_init (void)
 
 	if (proc_dir == NULL) {
 		printk (KERN_INFO "proc summary creation failed \n");
-		return -EEXIST;
+		// TODO: Handle error properly
+		// return -EEXIST;
 	}
 }
 

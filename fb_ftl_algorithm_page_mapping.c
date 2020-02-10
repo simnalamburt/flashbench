@@ -635,8 +635,8 @@ static int make_discard_request_page_mapping (fb_t *fb, struct bio *bio) {
 	uint64_t sec_start, sec_end, lpa_start, nr_lpgs;
 	uint32_t lp_loop, bio_loop;
 
-	sec_start = (bio->bi_sector + 7) & (~(7));
-	sec_end = (bio->bi_sector + bio_sectors (bio)) & (~(7));
+	sec_start = (bio->bi_iter.bi_sector + 7) & (~(7));
+	sec_end = (bio->bi_iter.bi_sector + bio_sectors (bio)) & (~(7));
 
 	lpa_start = sec_start >> 3;
 	nr_lpgs = (sec_start < sec_end) ? ((sec_end - sec_start) >> 3) : 0;
