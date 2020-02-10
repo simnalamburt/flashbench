@@ -210,19 +210,27 @@ static int __init fb_init(void) // __init: 해당 함수 혹은 변수가 초기
 
 	_fb->device_major_num = 0;
 
-	blk_queue_make_request(_fb->ptr_req_queue, make_request);               /* 해당 request queue의 요청을 처리할 함수를 등록한다. */
-	blk_queue_logical_block_size(_fb->ptr_req_queue, LOGICAL_PAGE_SIZE);    /* sector size 정의, 기본읜 512B고 여기서는 4KB로 잡음 */
-                                                                            /* TODO blk_queue_physical_block_size() 함수는 안써도 되나...? */
-	blk_queue_io_min(_fb->ptr_req_queue, LOGICAL_PAGE_SIZE);
-	blk_queue_io_opt(_fb->ptr_req_queue, LOGICAL_PAGE_SIZE);                /* 항상 PAGE_SIZE에 align된, n*PAGE_SIZE 크기의 I/O req를 받기위함 */
+	// 해당 request queue의 요청을 처리할 함수를 등록한다.
+	blk_queue_make_request(_fb->ptr_req_queue, make_request);
+	// sector size 정의, 기본읜 512B고 여기서는 4KB로 잡음
+	// TODO: blk_queue_physical_block_size() 함수는 안써도 되나...?
+	blk_queue_logical_block_size(_fb->ptr_req_queue, LOGICAL_PAGE_SIZE);
 
-	_fb->ptr_req_queue->limits.discard_granularity = LOGICAL_PAGE_SIZE;     /* Discard 단위 */
+	blk_queue_io_min(_fb->ptr_req_queue, LOGICAL_PAGE_SIZE);
+	// 항상 PAGE_SIZE에 align된, n*PAGE_SIZE 크기의 I/O req를 받기위함
+	blk_queue_io_opt(_fb->ptr_req_queue, LOGICAL_PAGE_SIZE);
+
+	// Discard 단위
+	_fb->ptr_req_queue->limits.discard_granularity = LOGICAL_PAGE_SIZE;
 	_fb->ptr_req_queue->limits.max_discard_sectors = UINT_MAX;
-	_fb->ptr_req_queue->limits.discard_zeroes_data = 1;                     /* 이전에 Discard한 Data를 다시 read할 때,
-                                                                               stale or random Data를 돌려주는 것이 아니라,
-                                                                               zero fill된 Data를 돌려주도록 한다.
-                                                                               file system이 해당 Data가 Clear되있기를 기대할 수도 있기 때문이다. */
-	queue_flag_set_unlocked(QUEUE_FLAG_DISCARD, _fb->ptr_req_queue);        /* 잘은 모르겠고 DISCARD를 support한다는 것으로 추정 */
+	// 이전에 Discard한 Data를 다시 read할 때,
+	// stale or random Data를 돌려주는 것이 아니라,
+	// zero fill된 Data를 돌려주도록 한다.
+	// file system이 해당 Data가 Clear되있기를 기대할 수도 있기 때문이다.
+	_fb->ptr_req_queue->limits.discard_zeroes_data = 1;
+
+	// 잘은 모르겠고 DISCARD를 support한다는 것으로 추정
+	queue_flag_set_unlocked(QUEUE_FLAG_DISCARD, _fb->ptr_req_queue);
 
 	if((_fb->device_major_num =
 				register_blkdev(_fb->device_major_num, DEV_NAME)) < 0)

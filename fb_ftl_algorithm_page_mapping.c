@@ -164,11 +164,11 @@ inline fb_del_mngr_t *get_delm (fb_pg_ftl_t *ftl) {
 }
 
 inline fb_btod_t *fb_del_get_btod (fb_del_mngr_t *delm, uint32_t idx) {
-    return &delm->btod[idx];
+	return &delm->btod[idx];
 }
 
 inline void fb_del_set_btod (fb_btod_t *btod, fb_blk_inf_t *blki) {
-    btod->blki = blki;
+	btod->blki = blki;
 }
 
 inline void fb_del_get_bus_chip_btod (
@@ -178,32 +178,32 @@ inline void fb_del_get_bus_chip_btod (
 }
 
 inline void fb_del_inc_nr_btod (fb_del_mngr_t *delm) {
-    delm->nr_btod++;
+	delm->nr_btod++;
 }
 
 inline uint32_t fb_del_get_nr_btod (fb_del_mngr_t *delm){
-    return delm->nr_btod;
+	return delm->nr_btod;
 }
 
 inline void fb_del_set_nr_btod (fb_del_mngr_t *delm, uint32_t new) {
-    delm->nr_btod = new;
+	delm->nr_btod = new;
 }
 
 inline fb_wtod_t *fb_del_get_wtod (fb_del_mngr_t *delm, uint32_t idx) {
-    return &delm->wtod[idx];
+	return &delm->wtod[idx];
 }
 
 inline void fb_del_init_wtod (
 		fb_wtod_t *wtod, uint32_t bus, uint32_t chip, uint32_t wl_idx) {
-    wtod->wl_idx = wl_idx;
+	wtod->wl_idx = wl_idx;
 	wtod->bus = bus;
 	wtod->chip = chip;
 }
 
 /*
 inline void fb_del_set_wtod_pgi (
-        fb_wtod_t *wtod, fb_pg_type_t pg_type, fb_pg_inf_t *pgi) {
-    wtod->pgs[pg_type] = pgi;
+		fb_wtod_t *wtod, fb_pg_type_t pg_type, fb_pg_inf_t *pgi) {
+	wtod->pgs[pg_type] = pgi;
 }
 */
 
@@ -214,39 +214,39 @@ inline void fb_del_get_bus_chip_wtod (
 }
 
 inline void fb_del_inc_nr_wtod (fb_del_mngr_t *delm) {
-    delm->nr_wtod++;
+	delm->nr_wtod++;
 }
 
 inline uint32_t fb_del_get_nr_wtod (fb_del_mngr_t *delm){
-    return delm->nr_wtod;
+	return delm->nr_wtod;
 }
 
 inline void fb_del_set_nr_wtod (fb_del_mngr_t *delm, uint32_t new) {
-    delm->nr_wtod = new;
+	delm->nr_wtod = new;
 }
 
 inline uint32_t fb_del_get_nr_pgs_to_copy (fb_del_mngr_t *delm) {
-    return delm->nr_pgs_to_copy;
+	return delm->nr_pgs_to_copy;
 }
 
 inline void fb_del_set_nr_pgs_to_copy (fb_del_mngr_t *delm, uint32_t new) {
-    delm->nr_pgs_to_copy = new;
+	delm->nr_pgs_to_copy = new;
 }
 
 inline void fb_del_inc_nr_pgs_to_copy (fb_del_mngr_t *delm) {
-    delm->nr_pgs_to_copy++;
+	delm->nr_pgs_to_copy++;
 }
 
 inline void init_delm (fb_del_mngr_t *delm) {
-    fb_del_set_nr_btod (delm, 0);
-    HASH_CLEAR (hh, delm->hash_btod);
+	fb_del_set_nr_btod (delm, 0);
+	HASH_CLEAR (hh, delm->hash_btod);
 	delm->hash_btod = NULL;
 
-    fb_del_set_nr_wtod (delm, 0);
-    HASH_CLEAR (hh, delm->hash_wtod);
+	fb_del_set_nr_wtod (delm, 0);
+	HASH_CLEAR (hh, delm->hash_wtod);
 	delm->hash_wtod = NULL;
 
-    fb_del_set_nr_pgs_to_copy (delm, 0);
+	fb_del_set_nr_pgs_to_copy (delm, 0);
 }
 
 fb_del_mngr_t *create_del_mngr (fb_t *fb) {
@@ -265,28 +265,28 @@ fb_del_mngr_t *create_del_mngr (fb_t *fb) {
 		goto FAIL;
 	}
 
-    for(i = 0; i < NUM_BTODS; i++) {
-        delm->btod[i].blki = NULL;
-    }
+	for(i = 0; i < NUM_BTODS; i++) {
+		delm->btod[i].blki = NULL;
+	}
 
-    if ((delm->wtod = (fb_wtod_t *) vmalloc (
+	if ((delm->wtod = (fb_wtod_t *) vmalloc (
 					sizeof (fb_wtod_t) * NUM_WTODS)) == NULL) {
 		printk (KERN_ERR "Allocating DEL WL list failed.\n");
 		goto FAIL;
 	}
 
-    for(i = 0; i < NUM_WTODS; i++) {
-        fb_del_init_wtod (&delm->wtod[i], -1, -1, -1);
-    }
+	for(i = 0; i < NUM_WTODS; i++) {
+		fb_del_init_wtod (&delm->wtod[i], -1, -1, -1);
+	}
 
-    if ((delm->ppas =
+	if ((delm->ppas =
 				(uint32_t *) vmalloc (
 					sizeof (uint32_t) * NR_MAX_LPAS_DISCARD)) == NULL) {
 		printk (KERN_ERR "Allocating PPA list failed.\n");
 		goto FAIL;
 	}
 
-    if ((delm->lpas_to_copy =
+	if ((delm->lpas_to_copy =
 				(uint32_t *) vmalloc (
 					sizeof (uint32_t) * NR_MAX_LPGS_COPY)) == NULL) {
 		printk (KERN_ERR "Allocating LPA list failed.\n");
@@ -300,17 +300,17 @@ fb_del_mngr_t *create_del_mngr (fb_t *fb) {
 		goto FAIL;
 	}
 
-    delm->hash_btod = NULL;
-    delm->hash_wtod = NULL;
+	delm->hash_btod = NULL;
+	delm->hash_wtod = NULL;
 
-    init_delm (delm);
+	init_delm (delm);
 
-    return delm;
+	return delm;
 
 FAIL:
 	destroy_del_mngr (delm);
 
-    return NULL;
+	return NULL;
 }
 
 
@@ -348,21 +348,21 @@ void destroy_del_mngr (fb_del_mngr_t *delm) {
 // return:	0 if add new one,
 //			1 otherwise (already exist)
 void fb_del_add_blk_to_del (fb_del_mngr_t *delm, fb_blk_inf_t *blki) {
-    fb_btod_t *btod = NULL;
-    fb_btod_t *new = fb_del_get_btod (delm, fb_del_get_nr_btod (delm));
+	fb_btod_t *btod = NULL;
+	fb_btod_t *new = fb_del_get_btod (delm, fb_del_get_nr_btod (delm));
 
-    HASH_FIND (hh, delm->hash_btod, &blki, sizeof (fb_blk_inf_t*), btod);
+	HASH_FIND (hh, delm->hash_btod, &blki, sizeof (fb_blk_inf_t*), btod);
 
 	//printk (KERN_INFO "blki: %p\n", blki);
 
-    if (btod == NULL) {
-        fb_del_set_btod (new, blki);
-        HASH_ADD (hh, delm->hash_btod, blki, sizeof (fb_blk_inf_t*), new);
-        fb_del_inc_nr_btod (delm);
+	if (btod == NULL) {
+		fb_del_set_btod (new, blki);
+		HASH_ADD (hh, delm->hash_btod, blki, sizeof (fb_blk_inf_t*), new);
+		fb_del_inc_nr_btod (delm);
 
 		//printk (KERN_INFO "Blk (%p) is added (%u).\n",
 				//blki, fb_del_get_nr_btod (delm));
-    }
+	}
 
 	//printk (KERN_INFO "Blk (%p) is exist (%u).\n",
 			//blki, fb_del_get_nr_btod (delm));
@@ -372,29 +372,29 @@ void fb_del_add_blk_to_del (fb_del_mngr_t *delm, fb_blk_inf_t *blki) {
 // return:	0 if add new one,
 //			1 otherwise (already exist)
 void fb_del_add_wl_to_del (fb_del_mngr_t *delm,
-        uint32_t bus, uint32_t chip, uint32_t blk, uint32_t pg) {
-    fb_wtod_t *wtod = NULL;
-    fb_wtod_t *new = fb_del_get_wtod (delm, fb_del_get_nr_wtod (delm));
+		uint32_t bus, uint32_t chip, uint32_t blk, uint32_t pg) {
+	fb_wtod_t *wtod = NULL;
+	fb_wtod_t *new = fb_del_get_wtod (delm, fb_del_get_nr_wtod (delm));
 
-    uint32_t wl_idx = convert_to_wl_idx (bus, chip, blk, pg);
+	uint32_t wl_idx = convert_to_wl_idx (bus, chip, blk, pg);
 
-    HASH_FIND (hh, delm->hash_wtod, &wl_idx, sizeof (uint32_t), wtod);
+	HASH_FIND (hh, delm->hash_wtod, &wl_idx, sizeof (uint32_t), wtod);
 
 	//printk (KERN_INFO "pg: %u\n", pg);
 	//printk (KERN_INFO "wl: %u\n", wl_idx);
 	//printk (KERN_INFO "bus: %u, chip: %u\n", bus, chip);
 
-    if (wtod == NULL) {
-        fb_del_init_wtod (new, bus, chip, wl_idx);
-        HASH_ADD (hh, delm->hash_wtod, wl_idx, sizeof (uint32_t), new);
-        fb_del_inc_nr_wtod (delm);
+	if (wtod == NULL) {
+		fb_del_init_wtod (new, bus, chip, wl_idx);
+		HASH_ADD (hh, delm->hash_wtod, wl_idx, sizeof (uint32_t), new);
+		fb_del_inc_nr_wtod (delm);
 		//printk (KERN_INFO "WL (%u, %u, %u, %u) is added (%u).\n",
 				//new->bus, new->chip, blk, pg, fb_del_get_nr_wtod (delm));
-    } else {
-        new = wtod;
+	} else {
+		new = wtod;
 		//printk (KERN_INFO "WL (%u, %u, %u, %u) is exist (%u).\n",
 				//new->bus, new->chip, blk, pg, fb_del_get_nr_wtod (delm));
-    }
+	}
 }
 
 inline uint32_t* fb_del_get_lpas_to_copy (fb_del_mngr_t *delm) {
@@ -409,26 +409,27 @@ int _fb_del_invalidate_pgs (fb_t* fb, uint32_t nr_reqs, uint32_t *req_lpas) {
 	fb_pg_ftl_t *ftl = get_ftl (fb);
 	fb_del_mngr_t *delm = get_delm (ftl);
 
-    uint32_t loop = 0;
+	uint32_t loop = 0;
 	init_delm (delm);
 
 	//printk(KERN_INFO "# of req: %u\n", nr_reqs);
 
 	fb_lock (&ftl->mapping_context_lock);
 
-    for (loop = 0; loop < nr_reqs ; loop++) {
-        // 1. invalidate the lpa
-        //  - access to the L2P mapping - then we can know the physical page to lock
-        //  - change the status of physical page (4-KiB) to invalid
+	for (loop = 0; loop < nr_reqs ; loop++) {
+		// 1. invalidate the lpa
+		//  - access to the L2P mapping - then we can know the physical page to lock
+		//  - change the status of physical page (4-KiB) to invalid
 		delm->ppas[loop] = invalidate_lpg (fb, req_lpas[loop]);
 		//printk(KERN_INFO "lpa: %u\n", req_lpas[loop]);
 		// this is all we have to do here.
-    }
+	}
 
 	fb_unlock (&ftl->mapping_context_lock);
 
-    return 0;
+	return 0;
 }
+
 /*
 int fb_del_put_live_pgs_to_wb (fb_t *fb) {
 	fb_pg_ftl_t *ftl = get_ftl (fb);
@@ -455,7 +456,7 @@ int fb_del_put_live_pgs_to_wb (fb_t *fb) {
 		}
 	}
 
-    return 0;
+	return 0;
 }
 */
 
@@ -464,10 +465,10 @@ inline int fb_del_invalidate_pgs (fb_t* fb, fb_bio_t* fb_bio) {
 }
 
 int fb_del_invalid_data (fb_t *fb, fb_bio_t  *fb_bio) {
-    // 1. Invalidate all LPAs in the request
-    fb_del_invalidate_pgs (fb, fb_bio);
+	// 1. Invalidate all LPAs in the request
+	fb_del_invalidate_pgs (fb, fb_bio);
 
-    return 0;
+	return 0;
 }
 
 

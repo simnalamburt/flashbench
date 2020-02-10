@@ -14,35 +14,35 @@ typedef struct {
 } fb_act_blk_mngr_t;
 
 typedef struct fb_btod_s { // block to del
-    struct flash_block_t *blki;
+	struct flash_block_t *blki;
 
-    UT_hash_handle hh;
+	UT_hash_handle hh;
 } fb_btod_t;
 
 typedef struct fb_wtod_s { // wordline to del
-    uint32_t wl_idx;
+	uint32_t wl_idx;
 	uint32_t bus;
 	uint32_t chip;
 
-    UT_hash_handle hh;
+	UT_hash_handle hh;
 } fb_wtod_t;
 
 typedef struct {
 
-    // list of pages (blocks) to lock - physical address base
-    // list of pages to copy - logical address base
-    // data buffers for pages to copy
+	// list of pages (blocks) to lock - physical address base
+	// list of pages to copy - logical address base
+	// data buffers for pages to copy
 	uint32_t *ppas;
 
-    uint32_t nr_btod;
-    fb_btod_t *btod;
-    fb_btod_t *hash_btod;
+	uint32_t nr_btod;
+	fb_btod_t *btod;
+	fb_btod_t *hash_btod;
 
-    uint32_t nr_wtod;
-    fb_wtod_t *wtod;
-    fb_wtod_t *hash_wtod;
+	uint32_t nr_wtod;
+	fb_wtod_t *wtod;
+	fb_wtod_t *hash_wtod;
 
-    uint32_t nr_pgs_to_copy;
+	uint32_t nr_pgs_to_copy;
 	uint32_t *lpas_to_copy;
 	uint8_t *data_to_copy;
 

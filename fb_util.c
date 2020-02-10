@@ -13,9 +13,9 @@
 static int fb_proc_open (struct inode *inode, struct file *file);
 static int fb_proc_summary (struct seq_file *m, void *v);
 
-/* file operation 구조체, 초기화를 이렇게 함
- * read 함수는 개발자가 직접 작성 X
- * 커널의 seq-file에서 제공되는 seq_read를 사용*/
+// file operation 구조체, 초기화를 이렇게 함
+// read 함수는 개발자가 직접 작성 X
+// 커널의 seq-file에서 제공되는 seq_read를 사용
 static const struct file_operations fb_proc_fops = {
 	.owner = THIS_MODULE,
 	.open = fb_proc_open,   // 파일(/proc/summary)을 열 때 불리는 함수
@@ -175,7 +175,7 @@ struct file* file_open_read(const char* path) {
 }
 
 void file_close(struct file* file) {
-    filp_close(file, NULL);
+	filp_close(file, NULL);
 }
 
 
@@ -241,16 +241,16 @@ void perf_display_result(void)
 
 void perf_init (void)
 {
-    /* procfs를 통해, 커널 정보를 사용자 영역에서 접근 가능하다.
-     * proc_create(...): /proc 에다가 파일 생성하는 함수
-     * 파일명, 권한, 디렉토리, file_operation 구조체 */
+	// procfs를 통해, 커널 정보를 사용자 영역에서 접근 가능하다.
+	// proc_create(...): /proc 에다가 파일 생성하는 함수
+	// 파일명, 권한, 디렉토리, file_operation 구조체
 
-    proc_dir = proc_create ("summary", 0444, NULL, &fb_proc_fops);
+	proc_dir = proc_create ("summary", 0444, NULL, &fb_proc_fops);
 
-    if (proc_dir == NULL) {
-        printk (KERN_INFO "proc summary creation failed \n");
-        return -EEXIST;
-    }
+	if (proc_dir == NULL) {
+		printk (KERN_INFO "proc summary creation failed \n");
+		return -EEXIST;
+	}
 }
 
 void perf_exit(void)

@@ -33,7 +33,7 @@ typedef struct fb_context_t
 
 	void *ptr_mapping_context;
 
-    struct fb_lbs_mngr_t *ptr_lbs_mngr;
+	struct fb_lbs_mngr_t *ptr_lbs_mngr;
 
 	struct ssd_info_t	*ptr_ssd_info;
 	struct vdevice_t 	*ptr_vdevice;
