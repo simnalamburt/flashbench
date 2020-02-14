@@ -351,14 +351,12 @@ static int fb_bus_ctrl_thread(void *arg)
 AGAIN:
 		while(signal_pending(current))
 		{
-			siginfo_t info;
-
 			if(try_to_freeze())
 			{
 				goto AGAIN;
 			}
 
-			signr = dequeue_signal_lock(current, &current->blocked, &info);
+			signr = kernel_dequeue_signal(NULL);
 
 			switch(signr)
 			{
@@ -719,7 +717,7 @@ static void release_busy_lock(
 		//if(ptr_bus_controller->chip_busies[chip].ptr_fb_bio->req_count == 0)
 		if(dec_bio_req_count (ptr_bus_controller->chip_busies[chip].ptr_fb_bio) == 0)
 		{
-			bio_endio(ptr_bus_controller->chip_busies[chip].ptr_fb_bio->bio, 0);
+			bio_endio(ptr_bus_controller->chip_busies[chip].ptr_fb_bio->bio);
 			vfree(ptr_bus_controller->chip_busies[chip].ptr_fb_bio);
 		}
 		ptr_bus_controller->chip_busies[chip].ptr_fb_bio = NULL;

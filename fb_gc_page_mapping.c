@@ -3,6 +3,7 @@
 #include <linux/completion.h>
 #include <linux/interrupt.h>
 #include <linux/time.h>
+#include <linux/vmalloc.h>
 
 #include "fb.h"
 #include "fb_option.h"

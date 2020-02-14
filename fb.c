@@ -37,7 +37,7 @@ uint32_t dec_bio_req_count (fb_bio_t *ptr_bio);
 uint32_t get_bio_req_count (fb_bio_t *ptr_bio);
 static fb_bio_t *fb_build_bio (struct bio *bio);
 static void fb_destroy_bio (fb_bio_t *fbio);
-static void make_request(struct request_queue *ptr_req_queue, struct bio *bio);
+static blk_qc_t make_request(struct request_queue *ptr_req_queue, struct bio *bio);
 static int __init fb_init(void);
 static void __exit fb_exit(void);
 
@@ -48,7 +48,7 @@ struct block_device_operations bdops = {
 	.owner = THIS_MODULE,
 };
 
-static void make_request(struct request_queue *ptr_req_queue, struct bio *bio)
+static blk_qc_t make_request(struct request_queue *ptr_req_queue, struct bio *bio)
 {
 	const int rw = bio_data_dir(bio); // data direction을 돌려줌. read인지 write인지
 	uint32_t ret_value = 0;
@@ -86,7 +86,7 @@ static void make_request(struct request_queue *ptr_req_queue, struct bio *bio)
 		case READ:
 
 			if (fb_bio_get_req_count (fbio) == 0 ) {
-				bio_endio (fbio->bio, 0);
+				bio_endio (fbio->bio);
 				fb_destroy_bio (fbio);
 
 				goto REQ_FINISH;
@@ -98,7 +98,7 @@ static void make_request(struct request_queue *ptr_req_queue, struct bio *bio)
 							fb_bio_get_kpage (fbio, loop),
 							fbio) == -1) {
 					if (dec_bio_req_count (fbio) == 0) {
-						bio_endio (fbio->bio, 0);
+						bio_endio (fbio->bio);
 						fb_destroy_bio (fbio);
 					}
 				}
@@ -140,7 +140,7 @@ static void make_request(struct request_queue *ptr_req_queue, struct bio *bio)
 
 REQ_FINISH:
 	if (rw != READ && rw != READA) {
-		bio_endio (bio, 0);
+		bio_endio (bio);
 		if (fbio != NULL)
 			fb_destroy_bio (fbio);
 	}
@@ -149,16 +149,17 @@ REQ_FINISH:
 
 	fb_unlock (&_fb->dev_lock);
 
-	return;
+	return BLK_QC_T_NONE;
 
 FAIL:
 	_fb->err = TRUE;
 
-	bio_endio(bio, ret_value);
+	bio->bi_error = ret_value;
+	bio_endio(bio);
 	if (fbio != NULL)
 		fb_destroy_bio (fbio);
 	fb_unlock (&_fb->dev_lock);
-	return;
+	return BLK_QC_T_NONE;
 }
 
 /* 처음 insmod 시 flashbench 초기화 */
@@ -418,14 +419,12 @@ static int fb_write_buffer_thread(void *arg)
 AGAIN:
 		while(signal_pending(current))
 		{
-			siginfo_t info;
-
 			if(try_to_freeze())
 			{
 				goto AGAIN;
 			}
 
-			signr = dequeue_signal_lock(current, &current->blocked, &info);
+			signr = kernel_dequeue_signal(NULL);
 
 			switch(signr)
 			{
