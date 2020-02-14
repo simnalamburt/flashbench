@@ -24,6 +24,8 @@ cat /proc/summary
 # If you want to clear the cache
 # Reference: https://www.kernel.org/doc/Documentation/sysctl/vm.txt
 echo 3 | sudo tee /proc/sys/vm/drop_caches
+# Infinitely clear the cache
+while :; do echo 3 | sudo tee /proc/sys/vm/drop_caches; sleep 1; done
 
 # Unmount the virtual SSD
 sudo umount /dev/fbSSD
