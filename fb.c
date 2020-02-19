@@ -63,12 +63,12 @@ static blk_qc_t make_request(struct request_queue *ptr_req_queue, struct bio *bi
 	if (_fb->err == TRUE)
 		goto FAIL;
 
-	if(unlikely (bio->bi_rw & REQ_FLUSH)) {
+	if(unlikely (bio->bi_opf & REQ_PREFLUSH)) {
 		_fb->make_flush_request(_fb, bio);
 		goto REQ_FINISH;
 	}
 
-	if(unlikely(bio->bi_rw & REQ_DISCARD)) {
+	if(unlikely(bio_op(bio) == REQ_OP_DISCARD)) {
 		_fb->make_discard_request(_fb, bio);
 		goto REQ_FINISH;
 	}
@@ -82,7 +82,6 @@ static blk_qc_t make_request(struct request_queue *ptr_req_queue, struct bio *bi
 	req_count = fb_bio_get_req_count (fbio);
 
 	switch (rw) {
-		case READA:
 		case READ:
 
 			if (fb_bio_get_req_count (fbio) == 0 ) {
@@ -139,7 +138,7 @@ static blk_qc_t make_request(struct request_queue *ptr_req_queue, struct bio *bi
 	}
 
 REQ_FINISH:
-	if (rw != READ && rw != READA) {
+	if (rw != READ) {
 		bio_endio (bio);
 		if (fbio != NULL)
 			fb_destroy_bio (fbio);
@@ -552,7 +551,7 @@ static fb_bio_t *fb_build_bio (struct bio *bio) {
 		lpa_curr = sec_start >> 3;
 		ptr_page_buffer = (uint8_t *) page_address (bvec.bv_page);
 
-		if (rw == READA || rw == READ) {
+		if (rw == READ) {
 			if (fb_get_pg_data(
 						get_write_buffer (_fb),
 						lpa_curr, ptr_page_buffer) != -1) {

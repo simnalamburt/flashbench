@@ -4,11 +4,11 @@ SSD firmware emulator for Linux, developed by Seoul National University,
 [CARES] Lab.
 
 ### Requirements
-- Linux 4.4.0
+- Linux 4.9.0
 
 ```bash
 # Build
-sudo apt-get install make linux-headers-4.4.0-174-generic
+sudo apt-get install make linux-headers-4.9.0-12-amd64
 make
 
 # Start flashbench
