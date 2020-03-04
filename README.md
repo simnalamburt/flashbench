@@ -11,7 +11,7 @@ SSD firmware emulator for Linux, developed by Seoul National University,
 sudo apt-get install make linux-headers-4.9.0-12-amd64
 make
 
-# Start flashbench
+# Start flashbench, check `dmesg`
 sudo insmod flashBench.ko
 # Format the created virtual SSD
 sudo mkfs -t ext4 -b 4096 /dev/fbSSD
