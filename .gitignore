@@ -1,0 +1,12 @@
+# Build results
+/*.mod.c
+/*.o
+/*.ko
+# Log of executed commands used to build the corresponding file
+/*.cmd
+# Symbols
+/Module.symvers
+# Lists of files that export symbols
+/.tmp_versions/
+# Order in which modules appear in Makefiles
+/modules.order
