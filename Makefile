@@ -5,7 +5,7 @@
 ccflags-y := -I$(src)/libs
 obj-m += flashBench.o
 
-flashBench-y += \
+flashBench-objs += \
 	fb.o \
 	fb_util.o \
 	fb_ftl_algorithm.o \
