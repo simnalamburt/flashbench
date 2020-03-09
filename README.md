@@ -39,8 +39,8 @@ sudo rmmod flashBench
 --------
 
 *flashbench* is distributed under the terms of the [GNU General Public License
-v3.0] or any later version. See [COPYRIGHT] for details.
+v2.0] or any later version. See [COPYRIGHT] for details.
 
 [CARES]: http://davinci.snu.ac.kr
-[GNU General Public License v3.0]: LICENSE
+[GNU General Public License v2.0]: LICENSE
 [COPYRIGHT]: COPYRIGHT
