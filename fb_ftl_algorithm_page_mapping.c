@@ -23,11 +23,8 @@ static int make_read_request_page_mapping(
 static int make_write_request_page_mapping(
 		struct fb_context_t *ptr_fb_context,
 		uint32_t *logical_page_address,
-		uint8_t *ptr_page_buffer,
-		fb_bio_t *ptr_fb_bio);
-static int make_flush_request_page_mapping(
-		struct fb_context_t *ptr_fb_context,
-		struct bio *bio);
+		uint8_t *ptr_page_buffer);
+static int make_flush_request_page_mapping(void);
 static int make_discard_request_page_mapping(
 		struct fb_context_t *ptr_fb_context,
 		struct bio *bio);
@@ -37,8 +34,8 @@ static void destroy_mapping_table (struct page_mapping_table_t *mt);
 static fb_act_blk_mngr_t *create_act_blk_mngr (fb_t *fb);
 static void destroy_act_blk_mngr (fb_act_blk_mngr_t *abm);
 
-fb_del_mngr_t *create_del_mngr (fb_t *fb);
-void destroy_del_mngr (fb_del_mngr_t *delm);
+static fb_del_mngr_t *create_del_mngr (void);
+static void destroy_del_mngr (fb_del_mngr_t *delm);
 
 static int fb_background_gc (fb_t *fb) {
 	return trigger_bg_gc (fb);
@@ -122,7 +119,7 @@ void *create_pg_ftl (fb_t* fb)
 		goto FAIL;
 	}
 
-	if ((ftl->delm = create_del_mngr (fb)) == NULL) {
+	if ((ftl->delm = create_del_mngr ()) == NULL) {
 		printk(KERN_ERR "[FlashBench] fb_page_mapping: Creating del manager failed.\n");
 		goto FAIL;
 	}
@@ -250,7 +247,7 @@ inline void init_delm (fb_del_mngr_t *delm) {
 	fb_del_set_nr_pgs_to_copy (delm, 0);
 }
 
-fb_del_mngr_t *create_del_mngr (fb_t *fb) {
+fb_del_mngr_t *create_del_mngr (void) {
 	fb_del_mngr_t *delm = NULL;
 
 	uint32_t i;
@@ -549,8 +546,7 @@ static int is_fgc_needed (fb_t *fb, uint8_t bus, uint8_t chip) {
 static int make_write_request_page_mapping(
 		fb_t *fb,
 		uint32_t *lpa,
-		uint8_t *src,
-		fb_bio_t *ptr_fb_bio)
+		uint8_t *src)
 {
 	fb_pg_ftl_t *ftl = (fb_pg_ftl_t *) get_ftl (fb);
 
@@ -609,9 +605,7 @@ FAILED:
 	return -1;
 }
 
-static int make_flush_request_page_mapping(
-		struct fb_context_t *ptr_fb_context,
-		struct bio *bio)
+static int make_flush_request_page_mapping(void)
 {
 	printk ("FLUSH\n");
 	return 0;
@@ -751,7 +745,7 @@ int fb_wb_flush (fb_t *fb) {
 
 	while (fb_get_pgs_to_write (wb, NR_LP_IN_PP, lpas, fb_wb_get_pg_buf (wb)) != -1) {
 		if (make_write_request_page_mapping (
-					fb, lpas, fb_wb_get_pg_buf (wb), NULL) == -1) {
+					fb, lpas, fb_wb_get_pg_buf (wb)) == -1) {
 			fb_print_err ("Handling a write request filed.\n");
 
 			return -1;

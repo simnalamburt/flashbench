@@ -48,7 +48,7 @@ struct block_device_operations bdops = {
 	.owner = THIS_MODULE,
 };
 
-static blk_qc_t make_request(struct request_queue *ptr_req_queue, struct bio *bio)
+static blk_qc_t make_request(__attribute__((unused)) struct request_queue *ptr_req_queue, struct bio *bio)
 {
 	const int rw = bio_data_dir(bio); // data direction을 돌려줌. read인지 write인지
 	uint32_t ret_value = 0;
@@ -64,7 +64,7 @@ static blk_qc_t make_request(struct request_queue *ptr_req_queue, struct bio *bi
 		goto FAIL;
 
 	if(unlikely (bio->bi_opf & REQ_PREFLUSH)) {
-		_fb->make_flush_request(_fb, bio);
+		_fb->make_flush_request();
 		goto REQ_FINISH;
 	}
 
@@ -394,7 +394,7 @@ static void fb_stop_write_buffer_thread(void)
 	}
 }
 
-static int fb_write_buffer_thread(void *arg)
+static int fb_write_buffer_thread(__attribute__((unused)) void *arg)
 {
 	uint32_t signr;
 	int ret = 0;

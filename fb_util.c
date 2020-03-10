@@ -38,7 +38,7 @@ static uint32_t _perf_nr_blocks = 0;
 
 static struct proc_dir_entry *proc_dir;
 
-static int fb_proc_summary (struct seq_file *m, void *v) {
+static int fb_proc_summary (struct seq_file *m, __attribute__((unused)) void *v) {
 	seq_printf(m, "===================Total read/write requests summary=================\n");
 	seq_printf(m, "FlashBench: # of total write from OS: %u\n", _perf_nr_incomming_write);
 	seq_printf(m, "FlashBench: # of read pages: %u\n", _perf_nr_page_reads);
@@ -138,7 +138,7 @@ uint32_t timer_get_timestamp_in_us(void)
 	return tv.tv_sec * 1000000 + tv.tv_usec;
 }
 
-static int fb_proc_open (struct inode *inode, struct file *file) {
+static int fb_proc_open (__attribute__((unused)) struct inode *inode, struct file *file) {
 	return single_open (file, fb_proc_summary, NULL);
 }
 

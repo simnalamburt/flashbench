@@ -38,7 +38,7 @@ typedef struct fb_context_t
 	struct ssd_info_t	*ptr_ssd_info;
 	struct vdevice_t 	*ptr_vdevice;
 
-	int (*make_flush_request) 	(struct fb_context_t *ptr_fb_context, struct bio *bio);
+	int (*make_flush_request) 	(void);
 	int (*make_discard_request) (struct fb_context_t *ptr_fb_context, struct bio *bio);
 	int (*make_read_request) 	(struct fb_context_t *ptr_fb_context,
 										uint32_t lpa_curr,
@@ -46,8 +46,7 @@ typedef struct fb_context_t
 										fb_bio_t *ptr_fb_bio);
 	int (*make_write_request) 	(struct fb_context_t *ptr_fb_context,
 										uint32_t *lpa_curr,
-										uint8_t *ptr_page_buffer,
-										fb_bio_t *ptr_fb_bio);
+										uint8_t *ptr_page_buffer);
 	int (*background_gc) (struct fb_context_t *ptr_fb_context);
 
 	int (*wb_flush) (struct fb_context_t *ptr_fb_context);
