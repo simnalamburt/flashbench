@@ -179,7 +179,7 @@ void file_close(struct file* file) {
 }
 
 
-int file_read(struct file* file, unsigned long long offset, unsigned char* data, unsigned int size) {
+static int file_read(struct file* file, unsigned long long offset, unsigned char* data, unsigned int size) {
 	mm_segment_t oldfs;
 	int ret;
 
@@ -192,7 +192,7 @@ int file_read(struct file* file, unsigned long long offset, unsigned char* data,
 	return ret;
 }
 
-int file_write(struct file* file, unsigned long long offset, unsigned char* data, unsigned int size) {
+static int file_write(struct file* file, unsigned long long offset, unsigned char* data, unsigned int size) {
 	mm_segment_t oldfs;
 	int ret;
 

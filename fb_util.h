@@ -21,8 +21,6 @@ void fb_file_log (char* filename, char* string);
 struct file* file_open(const char* path, int flags, int rights);
 struct file* file_open_read(const char* path);
 void file_close(struct file* file);
-int file_read(struct file* file, unsigned long long offset, unsigned char* data, unsigned int size);
-int file_write(struct file* file, unsigned long long offset, unsigned char* data, unsigned int size) ;
 int file_sync(struct file* file);
 void perf_init (void);
 int proc_read_summary(char *page, char **start, off_t off,  int count, int *eof, void *data);
