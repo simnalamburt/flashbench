@@ -77,10 +77,10 @@ typedef struct page_mapping_context_t
 
 void *create_pg_ftl (fb_t *fb);
 void destroy_pg_ftl (fb_pg_ftl_t *ftl);
-inline fb_gc_mngr_t *get_gcm (fb_pg_ftl_t *ftl);
-inline fb_act_blk_mngr_t *get_abm (fb_pg_ftl_t *ftl);
+fb_gc_mngr_t *get_gcm (fb_pg_ftl_t *ftl);
+fb_act_blk_mngr_t *get_abm (fb_pg_ftl_t *ftl);
 void print_blk_mgmt (fb_t *fb);
 int fb_del_invalid_data (fb_t *fb, fb_bio_t  *fb_bio);
 
-inline fb_del_mngr_t *get_delm (fb_pg_ftl_t *ftl);
+fb_del_mngr_t *get_delm (fb_pg_ftl_t *ftl);
 

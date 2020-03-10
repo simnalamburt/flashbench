@@ -33,7 +33,7 @@ fb_wb_t *fb_create_write_buffer (uint32_t nr_max_entries, uint32_t pg_size);
 
 void fb_destroy_write_buffer (fb_wb_t *wb);
 
-inline uint32_t fb_get_nr_pgs_in_wb (fb_wb_t *wb, int lock);
+uint32_t fb_get_nr_pgs_in_wb (fb_wb_t *wb, int lock);
 
 int fb_get_pg_data (fb_wb_t *wb, uint32_t lpa, uint8_t* dest);
 

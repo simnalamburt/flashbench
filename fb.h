@@ -65,7 +65,7 @@ typedef struct fb_context_t
 	uint64_t background_gc_time_stamp;
 } fb_t;
 
-inline struct fb_wb *get_write_buffer (fb_t *fb);
-inline struct ssd_info_t *get_ssd_inf (fb_t *fb);
-inline struct vdevice_t *get_vdev (fb_t *fb);
-inline void *get_ftl (fb_t *fb);
+struct fb_wb *get_write_buffer (fb_t *fb);
+struct ssd_info_t *get_ssd_inf (fb_t *fb);
+struct vdevice_t *get_vdev (fb_t *fb);
+void *get_ftl (fb_t *fb);

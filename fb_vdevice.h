@@ -89,17 +89,17 @@ void vdevice_block (
 		uint8_t chip);
 
 
-inline int is_valid_address_range(uint32_t logical_page_address);
+int is_valid_address_range(uint32_t logical_page_address);
 
-inline uint32_t convert_to_physical_address(
+uint32_t convert_to_physical_address(
 		uint32_t bus, uint32_t chip, uint32_t block, uint32_t page);
 
-inline uint32_t convert_to_wl_idx (
+uint32_t convert_to_wl_idx (
 		uint32_t bus, uint32_t chip, uint32_t block, uint32_t pg_idx);
 
-inline void convert_to_ssd_layout(uint32_t logical_page_address,
+void convert_to_ssd_layout(uint32_t logical_page_address,
 		uint32_t *ptr_bus, uint32_t *ptr_chip, uint32_t *ptr_block, uint32_t *ptr_page);
 
 #if (VDEVICE_TIME_MODELED==TRUE)
-inline uint32_t operation_time (fb_dev_op_t op);
+uint32_t operation_time (fb_dev_op_t op);
 #endif

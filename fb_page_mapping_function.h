@@ -26,28 +26,28 @@ void update_act_blk (fb_t* fb, uint8_t bus, uint8_t chip);
 
 uint32_t invalidate_lpg (fb_t *fb, uint32_t lpa);
 
-inline struct flash_block_t* get_curr_gc_block(
+struct flash_block_t* get_curr_gc_block(
 		struct fb_context_t *ptr_fb_context,
 		uint32_t bus, uint32_t chip);
 
-inline struct flash_block_t* get_curr_active_block(
+struct flash_block_t* get_curr_active_block(
 		struct fb_context_t *ptr_fb_context,
 		uint32_t bus, uint32_t chip);
 
-inline void set_curr_gc_block(
+void set_curr_gc_block(
 		struct fb_context_t *ptr_fb_context,
 		uint32_t bus, uint32_t chip, struct flash_block_t* ptr_new_block);
 
-inline void set_curr_active_block(
+void set_curr_active_block(
 		struct fb_context_t *ptr_fb_context,
 		uint32_t bus, uint32_t chip, struct flash_block_t* ptr_new_block);
 
-inline void set_prev_bus_chip(
+void set_prev_bus_chip(
 		struct fb_context_t *ptr_fb_context,
 		uint8_t bus,
 		uint8_t chip);
 
-inline void get_prev_bus_chip (
+void get_prev_bus_chip (
 		struct fb_context_t *ptr_fb_context,
 		uint8_t *bus, uint8_t *chip);
 
