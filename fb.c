@@ -42,9 +42,9 @@ static int __init fb_init(void);
 static void __exit fb_exit(void);
 
 
-struct fb_context_t *_fb;
+static struct fb_context_t *_fb;
 
-struct block_device_operations bdops = {
+static struct block_device_operations bdops = {
 	.owner = THIS_MODULE,
 };
 

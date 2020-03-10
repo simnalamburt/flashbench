@@ -240,7 +240,7 @@ inline void init_delm (struct fb_del_mngr_t *delm) {
 	fb_del_set_nr_pgs_to_copy (delm, 0);
 }
 
-struct fb_del_mngr_t *create_del_mngr (void) {
+static struct fb_del_mngr_t *create_del_mngr (void) {
 	struct fb_del_mngr_t *delm = NULL;
 
 	u32 i;
@@ -305,7 +305,7 @@ FAIL:
 }
 
 
-void destroy_del_mngr (struct fb_del_mngr_t *delm) {
+static void destroy_del_mngr (struct fb_del_mngr_t *delm) {
 	if (delm != NULL) {
 		if (delm->hash_btod != NULL) {
 			HASH_CLEAR (hh, delm->hash_btod);
@@ -396,7 +396,7 @@ inline u8* fb_del_get_data_to_copy (struct fb_del_mngr_t *delm) {
 	return delm->data_to_copy;
 }
 
-int _fb_del_invalidate_pgs (struct fb_context_t* fb, u32 nr_reqs, u32 *req_lpas) {
+static int _fb_del_invalidate_pgs (struct fb_context_t* fb, u32 nr_reqs, u32 *req_lpas) {
 	struct page_mapping_context_t *ftl = get_ftl (fb);
 	struct fb_del_mngr_t *delm = get_delm (ftl);
 
@@ -731,7 +731,7 @@ void print_blk_mgmt (struct fb_context_t *fb) {
 	}
 }
 
-int fb_wb_flush (struct fb_context_t *fb) {
+static int fb_wb_flush (struct fb_context_t *fb) {
 	struct fb_wb *wb = get_write_buffer (fb);
 
 	u32 lpas[NR_LP_IN_PP];

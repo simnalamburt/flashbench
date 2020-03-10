@@ -404,7 +404,7 @@ int trigger_gc_page_mapping (struct fb_context_t *fb) {
 	return 0;
 }
 
-int fb_bgc_prepare_act_blks (struct fb_context_t *fb) {
+static int fb_bgc_prepare_act_blks (struct fb_context_t *fb) {
 	struct ssd_info *ssdi = get_ssd_inf (fb);
 	struct flash_block *blki;
 
@@ -496,7 +496,7 @@ static int fb_bgc_set_vic_blks (struct fb_context_t *fb) {
 	return 0;
 }
 
-int fb_bgc_read_valid_pgs (struct fb_context_t *fb) {
+static int fb_bgc_read_valid_pgs (struct fb_context_t *fb) {
 	struct page_mapping_context_t *ftl = (struct page_mapping_context_t *) get_ftl (fb);
 	struct fb_gc_mngr_t *gcm = get_gcm (ftl);
 
@@ -554,8 +554,7 @@ int fb_bgc_read_valid_pgs (struct fb_context_t *fb) {
 	return 0;
 }
 
-int fb_bgc_write_valid_pgs (struct fb_context_t *fb) {
-
+static int fb_bgc_write_valid_pgs (struct fb_context_t *fb) {
 	return prog_valid_pgs_to_gc_blks (fb);
 }
 
