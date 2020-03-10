@@ -17,7 +17,7 @@ void perf_inc_nr_discard_lpgs (u32 nr_lpgs);
 u32 get_nr_incomming_write (void);
 u32 get_nr_wordline_prog_fg (void);
 u32 timer_get_timestamp_in_us(void);
-void fb_file_log (char* filename, char* string);
+void fb_file_log (const char* filename, const char* string);
 struct file* file_open(const char* path, int flags, int rights);
 struct file* file_open_read(const char* path);
 void file_close(struct file* file);

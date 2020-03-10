@@ -179,7 +179,7 @@ void file_close(struct file* file) {
 }
 
 
-static int file_write(struct file* file, unsigned long long offset, unsigned char* data, unsigned int size) {
+static int file_write(struct file* file, unsigned long long offset, const unsigned char* data, unsigned int size) {
 	mm_segment_t oldfs;
 	int ret;
 
@@ -197,7 +197,7 @@ int file_sync(struct file* file) {
 	return 0;
 }
 
-void fb_file_log (char* filename, char* string)
+void fb_file_log (const char* filename, const char* string)
 {
 	struct file* fp = NULL;
 
