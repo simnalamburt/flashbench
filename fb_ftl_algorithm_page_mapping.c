@@ -619,7 +619,7 @@ static inline void set_lpa_to_discard (
 
 static int make_discard_request_page_mapping (struct fb_context_t *fb, struct bio *bio) {
 	struct page_mapping_context_t *ftl = (struct page_mapping_context_t *) get_ftl (fb);
-	fb_wb_t *wb = get_write_buffer (fb);
+	struct fb_wb *wb = get_write_buffer (fb);
 	uint64_t sec_start, sec_end, lpa_start, nr_lpgs;
 	uint32_t lp_loop, bio_loop;
 
@@ -732,7 +732,7 @@ void print_blk_mgmt (struct fb_context_t *fb) {
 }
 
 int fb_wb_flush (struct fb_context_t *fb) {
-	fb_wb_t *wb = get_write_buffer (fb);
+	struct fb_wb *wb = get_write_buffer (fb);
 
 	uint32_t lpas[NR_LP_IN_PP];
 
