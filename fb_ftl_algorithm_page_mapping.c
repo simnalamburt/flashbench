@@ -336,58 +336,6 @@ static void destroy_del_mngr (struct fb_del_mngr_t *delm) {
 }
 
 
-// return:	0 if add new one,
-//			1 otherwise (already exist)
-void fb_del_add_blk_to_del (struct fb_del_mngr_t *delm, struct flash_block *blki) {
-	struct fb_btod_t *btod = NULL;
-	struct fb_btod_t *new = fb_del_get_btod (delm, fb_del_get_nr_btod (delm));
-
-	HASH_FIND (hh, delm->hash_btod, &blki, sizeof (struct flash_block*), btod);
-
-	//printk (KERN_INFO "blki: %p\n", blki);
-
-	if (btod == NULL) {
-		fb_del_set_btod (new, blki);
-		HASH_ADD (hh, delm->hash_btod, blki, sizeof (struct flash_block*), new);
-		fb_del_inc_nr_btod (delm);
-
-		//printk (KERN_INFO "Blk (%p) is added (%u).\n",
-				//blki, fb_del_get_nr_btod (delm));
-	}
-
-	//printk (KERN_INFO "Blk (%p) is exist (%u).\n",
-			//blki, fb_del_get_nr_btod (delm));
-
-}
-
-// return:	0 if add new one,
-//			1 otherwise (already exist)
-void fb_del_add_wl_to_del (struct fb_del_mngr_t *delm,
-		u32 bus, u32 chip, u32 blk, u32 pg) {
-	struct fb_wtod_t *wtod = NULL;
-	struct fb_wtod_t *new = fb_del_get_wtod (delm, fb_del_get_nr_wtod (delm));
-
-	u32 wl_idx = convert_to_wl_idx (bus, chip, blk, pg);
-
-	HASH_FIND (hh, delm->hash_wtod, &wl_idx, sizeof (u32), wtod);
-
-	//printk (KERN_INFO "pg: %u\n", pg);
-	//printk (KERN_INFO "wl: %u\n", wl_idx);
-	//printk (KERN_INFO "bus: %u, chip: %u\n", bus, chip);
-
-	if (wtod == NULL) {
-		fb_del_init_wtod (new, bus, chip, wl_idx);
-		HASH_ADD (hh, delm->hash_wtod, wl_idx, sizeof (u32), new);
-		fb_del_inc_nr_wtod (delm);
-		//printk (KERN_INFO "WL (%u, %u, %u, %u) is added (%u).\n",
-				//new->bus, new->chip, blk, pg, fb_del_get_nr_wtod (delm));
-	} else {
-		new = wtod;
-		//printk (KERN_INFO "WL (%u, %u, %u, %u) is exist (%u).\n",
-				//new->bus, new->chip, blk, pg, fb_del_get_nr_wtod (delm));
-	}
-}
-
 inline u32* fb_del_get_lpas_to_copy (struct fb_del_mngr_t *delm) {
 	return delm->lpas_to_copy;
 }
