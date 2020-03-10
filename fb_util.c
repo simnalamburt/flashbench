@@ -179,19 +179,6 @@ void file_close(struct file* file) {
 }
 
 
-static int file_read(struct file* file, unsigned long long offset, unsigned char* data, unsigned int size) {
-	mm_segment_t oldfs;
-	int ret;
-
-	oldfs = get_fs();
-	set_fs(get_ds());
-
-	ret = vfs_read(file, data, size, &offset);
-
-	set_fs(oldfs);
-	return ret;
-}
-
 static int file_write(struct file* file, unsigned long long offset, unsigned char* data, unsigned int size) {
 	mm_segment_t oldfs;
 	int ret;
