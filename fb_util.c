@@ -179,14 +179,14 @@ void file_close(struct file* file) {
 }
 
 
-static int file_write(struct file* file, unsigned long long offset, const unsigned char* data, unsigned int size) {
+static int file_write(struct file* file, const char* data, size_t size, loff_t offset) {
 	mm_segment_t oldfs;
 	int ret;
 
 	oldfs = get_fs();
 	set_fs(get_ds());
 
-	ret = vfs_write(file, data, size, &offset);
+	ret = kernel_write(file, data, size, offset);
 
 	set_fs(oldfs);
 	return ret;
@@ -206,7 +206,7 @@ void fb_file_log (const char* filename, const char* string)
 		return;
 	}
 
-	file_write (fp, 0, string, strlen (string));
+	file_write (fp, string, strlen (string), 0);
 
 	file_close (fp);
 }
