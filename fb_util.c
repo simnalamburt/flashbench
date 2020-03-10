@@ -22,18 +22,18 @@ static const struct file_operations fb_proc_fops = {
 	.read = seq_read,       // 파일(/proc/summary)을 읽을 때 불리는 함수
 };
 
-static uint32_t _perf_nr_incomming_write = 0;
-static uint32_t _perf_nr_wordline_prog_fg = 0;
-static uint32_t _perf_nr_wordline_prog_bg = 0;
-static uint32_t _perf_nr_page_reads = 0;
-static uint32_t _perf_nr_blk_erasures = 0;
-static uint32_t _perf_nr_gc_trigger_fg = 0;
-static uint32_t _perf_nr_gc_trigger_bg = 0;
-static uint32_t _perf_nr_lsb_pg_backup = 0;
-static uint32_t _perf_nr_discard_reqs = 0;
-static uint32_t _perf_nr_discarded_lpgs = 0;
-static uint32_t _perf_nr_plocks = 0;
-static uint32_t _perf_nr_blocks = 0;
+static u32 _perf_nr_incomming_write = 0;
+static u32 _perf_nr_wordline_prog_fg = 0;
+static u32 _perf_nr_wordline_prog_bg = 0;
+static u32 _perf_nr_page_reads = 0;
+static u32 _perf_nr_blk_erasures = 0;
+static u32 _perf_nr_gc_trigger_fg = 0;
+static u32 _perf_nr_gc_trigger_bg = 0;
+static u32 _perf_nr_lsb_pg_backup = 0;
+static u32 _perf_nr_discard_reqs = 0;
+static u32 _perf_nr_discarded_lpgs = 0;
+static u32 _perf_nr_plocks = 0;
+static u32 _perf_nr_blocks = 0;
 
 
 static struct proc_dir_entry *proc_dir;
@@ -58,11 +58,11 @@ static int fb_proc_summary (struct seq_file *m, __attribute__((unused)) void *v)
 	return 0;
 }
 
-uint32_t get_nr_plocks (void) {
+u32 get_nr_plocks (void) {
 	return _perf_nr_plocks;
 }
 
-uint32_t get_nr_blocks (void) {
+u32 get_nr_blocks (void) {
 	return _perf_nr_blocks;
 }
 
@@ -74,11 +74,11 @@ void perf_inc_nr_blocks (void) {
 	_perf_nr_blocks++;
 }
 
-uint32_t get_nr_incomming_write (void) {
+u32 get_nr_incomming_write (void) {
 	return _perf_nr_incomming_write;
 }
 
-uint32_t get_nr_wordline_prog_fg (void) {
+u32 get_nr_wordline_prog_fg (void) {
 	return _perf_nr_wordline_prog_fg;
 }
 
@@ -125,11 +125,11 @@ void perf_inc_nr_discard_reqs (void) {
 	_perf_nr_discard_reqs++;
 }
 
-void perf_inc_nr_discard_lpgs (uint32_t nr_lpgs) {
+void perf_inc_nr_discard_lpgs (u32 nr_lpgs) {
 	_perf_nr_discarded_lpgs += nr_lpgs;
 }
 
-uint32_t timer_get_timestamp_in_us(void)
+u32 timer_get_timestamp_in_us(void)
 {
 	struct timeval tv;
 

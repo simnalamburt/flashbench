@@ -8,9 +8,9 @@ extern struct fb_bio_t fb_bio;
 #define NR_MAX_REQ_BIO 256
 
 struct fb_bio_t {
-	uint32_t req_count;
-	uint32_t lpas[NR_MAX_REQ_BIO];
-	uint8_t* kpages[NR_MAX_REQ_BIO];
+	u32 req_count;
+	u32 lpas[NR_MAX_REQ_BIO];
+	u8* kpages[NR_MAX_REQ_BIO];
 	struct bio *bio;
 	struct completion bio_lock;
 };
@@ -23,8 +23,8 @@ struct fb_bio_t {
 #define fb_bio_get_kpage(a,b) (a->kpages[b])
 #define fb_bio_get_lock(a) (&a->bio_lock)
 
-uint32_t dec_bio_req_count (struct fb_bio_t *ptr_bio);
-uint32_t get_bio_req_count (struct fb_bio_t *ptr_bio);
+u32 dec_bio_req_count (struct fb_bio_t *ptr_bio);
+u32 get_bio_req_count (struct fb_bio_t *ptr_bio);
 
 struct fb_context_t {
 	int err;
@@ -39,12 +39,12 @@ struct fb_context_t {
 	int (*make_flush_request) 	(void);
 	int (*make_discard_request) (struct fb_context_t *ptr_fb_context, struct bio *bio);
 	int (*make_read_request) 	(struct fb_context_t *ptr_fb_context,
-										uint32_t lpa_curr,
-										uint8_t *ptr_page_buffer,
+										u32 lpa_curr,
+										u8 *ptr_page_buffer,
 										struct fb_bio_t *ptr_fb_bio);
 	int (*make_write_request) 	(struct fb_context_t *ptr_fb_context,
-										uint32_t *lpa_curr,
-										uint8_t *ptr_page_buffer);
+										u32 *lpa_curr,
+										u8 *ptr_page_buffer);
 	int (*background_gc) (struct fb_context_t *ptr_fb_context);
 
 	int (*wb_flush) (struct fb_context_t *ptr_fb_context);
@@ -57,9 +57,9 @@ struct fb_context_t {
 
 	struct fb_wb *wb; //write_buffer
 	struct task_struct *ptr_wb_task;
-	uint32_t flag_enable_wb_thread;
+	u32 flag_enable_wb_thread;
 
-	uint64_t background_gc_time_stamp;
+	u64 background_gc_time_stamp;
 };
 
 struct fb_wb *get_write_buffer (struct fb_context_t *fb);

@@ -1,7 +1,7 @@
 
 #define MAX_SUMMARY_BUFFER 4096
-uint32_t get_nr_plocks (void);
-uint32_t get_nr_blocks (void);
+u32 get_nr_plocks (void);
+u32 get_nr_blocks (void);
 void perf_inc_nr_plocks (void);
 void perf_inc_nr_blocks (void);
 void perf_inc_nr_incomming_write(void);
@@ -13,10 +13,10 @@ void perf_inc_nr_gc_trigger_fg(void);
 void perf_inc_nr_gc_trigger_bg(void);
 void perf_inc_nr_lsb_pg_backup (void);
 void perf_inc_nr_discard_reqs (void);
-void perf_inc_nr_discard_lpgs (uint32_t nr_lpgs);
-uint32_t get_nr_incomming_write (void);
-uint32_t get_nr_wordline_prog_fg (void);
-uint32_t timer_get_timestamp_in_us(void);
+void perf_inc_nr_discard_lpgs (u32 nr_lpgs);
+u32 get_nr_incomming_write (void);
+u32 get_nr_wordline_prog_fg (void);
+u32 timer_get_timestamp_in_us(void);
 void fb_file_log (char* filename, char* string);
 struct file* file_open(const char* path, int flags, int rights);
 struct file* file_open_read(const char* path);

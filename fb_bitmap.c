@@ -21,11 +21,11 @@
 						( n==6 ? 0xFD : \
 						( n==7 ? 0xFE : 0))))))))
 
-struct fb_bitmap_t *fb_create_bitmap(uint32_t num_entries)
+struct fb_bitmap_t *fb_create_bitmap(u32 num_entries)
 {
 	struct fb_bitmap_t *ptr_bitmap = NULL;
 
-	uint32_t num_8bit = (num_entries + 7) >> 3;
+	u32 num_8bit = (num_entries + 7) >> 3;
 
 	if((ptr_bitmap = (struct fb_bitmap_t *) kmalloc(sizeof(struct fb_bitmap_t), GFP_ATOMIC)) == NULL)
 	{
@@ -33,7 +33,7 @@ struct fb_bitmap_t *fb_create_bitmap(uint32_t num_entries)
 		goto PTR_ALLOC_FAIL;
 	}
 
-	if((ptr_bitmap->ptr_bits = (uint8_t *) kmalloc(sizeof(uint8_t) * num_8bit, GFP_ATOMIC)) == NULL)
+	if((ptr_bitmap->ptr_bits = (u8 *) kmalloc(sizeof(u8) * num_8bit, GFP_ATOMIC)) == NULL)
 	{
 		printk(KERN_ERR "fb_bitmap: Memory allocation for bits failed\n");
 		goto BIT_ALLOC_FAIL;
@@ -68,11 +68,11 @@ void fb_destroy_bitmap(struct fb_bitmap_t *ptr_bitmap)
 	}
 }
 
-int set_bitmap(struct fb_bitmap_t *ptr_bitmap, uint32_t idx, int value)
+int set_bitmap(struct fb_bitmap_t *ptr_bitmap, u32 idx, int value)
 {
-	uint8_t new_value = (value == 0) ? 0 : 0xFF;
-	uint32_t bit_idx = idx >> 3;
-	uint32_t offset = idx & 0x7;
+	u8 new_value = (value == 0) ? 0 : 0xFF;
+	u32 bit_idx = idx >> 3;
+	u32 offset = idx & 0x7;
 
 	int ret_value = 0;
 
@@ -99,11 +99,11 @@ int set_bitmap(struct fb_bitmap_t *ptr_bitmap, uint32_t idx, int value)
 	return ret_value;
 }
 
-int get_bitmap(struct fb_bitmap_t* ptr_bitmap, uint32_t idx)
+int get_bitmap(struct fb_bitmap_t* ptr_bitmap, u32 idx)
 {
-	uint32_t bit_idx = idx >> 3;
-	uint32_t offset = idx & 0x07;
-	uint8_t value;
+	u32 bit_idx = idx >> 3;
+	u32 offset = idx & 0x07;
+	u8 value;
 
 	int ret_value = 0;
 
@@ -124,5 +124,5 @@ int get_bitmap(struct fb_bitmap_t* ptr_bitmap, uint32_t idx)
 
 void clear_bitmap(struct fb_bitmap_t* ptr_bitmap)
 {
-	memset(ptr_bitmap->ptr_bits, 0, sizeof(uint8_t) * ((ptr_bitmap->num_entries + 7) >> 3));
+	memset(ptr_bitmap->ptr_bits, 0, sizeof(u8) * ((ptr_bitmap->num_entries + 7) >> 3));
 }

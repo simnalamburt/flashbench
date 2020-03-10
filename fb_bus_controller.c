@@ -16,18 +16,18 @@
 #include "fb_bus_controller.h"
 
 #if (LOG_TIMING==TRUE)
-static uint32_t nr_timer_log_delay_records[NUM_BUSES] = {0, };
-static uint32_t max_timer_log_delay_records = 1000000;
-static uint32_t timer_log_delay_records[NUM_BUSES][1000000];
+static u32 nr_timer_log_delay_records[NUM_BUSES] = {0, };
+static u32 max_timer_log_delay_records = 1000000;
+static u32 timer_log_delay_records[NUM_BUSES][1000000];
 
-static uint32_t nr_timer_log_resp_records[NUM_BUSES] = {0, };
-static uint32_t max_timer_log_resp_records = 1000000;
-static uint32_t timer_log_resp_records[NUM_BUSES][1000000];
+static u32 nr_timer_log_resp_records[NUM_BUSES] = {0, };
+static u32 max_timer_log_resp_records = 1000000;
+static u32 timer_log_resp_records[NUM_BUSES][1000000];
 #endif
 
 // ---------------- prototypes of static functions: bus controller ----------------------------
 // Creating an bus controller for a bus
-static struct fb_bus_controller_t *create_bus_controller(uint32_t num_max_entries_per_chip);
+static struct fb_bus_controller_t *create_bus_controller(u32 num_max_entries_per_chip);
 
 // Destroying the bus controller
 static void destroy_bus_controller(struct fb_bus_controller_t *ptr_bus_controller);
@@ -36,18 +36,18 @@ static void destroy_bus_controller(struct fb_bus_controller_t *ptr_bus_controlle
 // Phase 1: Release bus locks whose conditions are satisfied
 // Phase 2: Acquire bus locks for requests waiting for avaliable chips
 static int fb_bus_ctrl_thread(void *arg);
-static int fb_init_bus_ctrl_thread(struct fb_bus_controller_t *ptr_bus_controller, uint32_t bus);
+static int fb_init_bus_ctrl_thread(struct fb_bus_controller_t *ptr_bus_controller, u32 bus);
 void fb_stop_bus_ctrl_thread(struct fb_bus_controller_t *ptr_bus_controller);
 // ---------------- prototypes of static functions: operation queue ----------------------------
 
 // Creating an operation queue for a chip
-static struct fb_opr_queue_t *create_opr_queue(uint32_t num_max_entries);
+static struct fb_opr_queue_t *create_opr_queue(u32 num_max_entries);
 
 // Destroying the operation queue
 static void destroy_opr_queue(struct fb_opr_queue_t *ptr_opr_queue);
 
 // Get the current number of entries in the target operation queue
-static inline uint32_t opr_queue_num_entries(struct fb_opr_queue_t *ptr_opr_queue);
+static inline u32 opr_queue_num_entries(struct fb_opr_queue_t *ptr_opr_queue);
 
 // Check whether the operation queue is full or not(full: TRUE, otherwise: FASLE)
 static inline int opr_queue_full(struct fb_opr_queue_t *ptr_opr_queue);
@@ -58,13 +58,13 @@ static inline int opr_queue_empty(struct fb_opr_queue_t *ptr_opr_queue);
 // Put an entry into the target operation queue(success: 0, error: -1)
 static int opr_queue_put_entry(
 		struct fb_opr_queue_t *ptr_opr_queue,
-		uint32_t operation,
+		u32 operation,
 		struct fb_bio_t *ptr_fb_bio);
 
 // Get informations of the first entry in the target operation queue(success: 0, error: -1)
 static int opr_queue_get_first(
 		struct fb_opr_queue_t *ptr_opr_queue,
-		uint32_t *ptr_operation,
+		u32 *ptr_operation,
 		struct fb_bio_t **ptr_fb_bio);
 
 // Remove informations of the first entry in the target operation queue(success: 0, error: -1)
@@ -73,27 +73,27 @@ static int opr_queue_remove_first(
 
 static void release_busy_lock(
 		struct fb_bus_controller_t *ptr_bus_controller,
-		uint32_t chip);
+		u32 chip);
 
 static void acquire_busy_lock(
 		struct fb_bus_controller_t *ptr_bus_controller,
-		uint32_t chip,
-		uint32_t operation,
+		u32 chip,
+		u32 operation,
 		struct fb_bio_t *ptr_fb_bio);
 
 static int chip_status_busy(
-		struct fb_bus_controller_t *ptr_bus_controller, uint32_t chip);
+		struct fb_bus_controller_t *ptr_bus_controller, u32 chip);
 
-static inline uint32_t get_chip_wakeup_time(
-		struct fb_bus_controller_t *ptr_bus_controller, uint32_t chip);
+static inline u32 get_chip_wakeup_time(
+		struct fb_bus_controller_t *ptr_bus_controller, u32 chip);
 
-static inline uint32_t get_chip_issue_time(
-		struct fb_bus_controller_t *ptr_bus_controller, uint32_t chip);
+static inline u32 get_chip_issue_time(
+		struct fb_bus_controller_t *ptr_bus_controller, u32 chip);
 // ----------------- Public functions ----------------------------------------
 // Creating and initialize bus controllers in the virtual device structure
-int fb_bus_controller_init(struct vdevice_t *ptr_vdevice, uint32_t num_max_entries_per_chip)
+int fb_bus_controller_init(struct vdevice_t *ptr_vdevice, u32 num_max_entries_per_chip)
 {
-	uint32_t loop_bus;
+	u32 loop_bus;
 
 	struct fb_bus_controller_t **ptr_bus_controller = NULL;
 
@@ -162,7 +162,7 @@ ALLOC_PTR_BUS_CTRL_FAIL:
 // Destory bus controllers
 void fb_bus_controller_destroy(struct fb_bus_controller_t **ptr_bus_controller)
 {
-	uint32_t loop_bus;
+	u32 loop_bus;
 
 	if(ptr_bus_controller != NULL)
 	{
@@ -192,7 +192,7 @@ void fb_bus_controller_destroy(struct fb_bus_controller_t **ptr_bus_controller)
 // Issue an operation for the target chip of the target bus
 int fb_issue_operation(
 		struct fb_bus_controller_t *ptr_bus_controller,
-		uint32_t chip, uint32_t operation, struct fb_bio_t *ptr_bio)
+		u32 chip, u32 operation, struct fb_bio_t *ptr_bio)
 {
 	while(opr_queue_put_entry(ptr_bus_controller->ptr_opr_queue[chip], operation, ptr_bio) == -1);
 
@@ -201,10 +201,10 @@ int fb_issue_operation(
 
 // ---------------- Static functions: Bus contorller ----------------------------
 // Creating an bus controller for a bus
-static struct fb_bus_controller_t *create_bus_controller(uint32_t num_max_entries_per_chip)
+static struct fb_bus_controller_t *create_bus_controller(u32 num_max_entries_per_chip)
 {
 	struct fb_bus_controller_t *ptr_bus_controller;
-	uint32_t loop_chip;
+	u32 loop_chip;
 
 	// Allocating a pointer of bus contorller structure
 	if((ptr_bus_controller =
@@ -286,7 +286,7 @@ ALLOC_BUS_CTRL_FAIL:
 // Destroying the bus controller
 static void destroy_bus_controller(struct fb_bus_controller_t *ptr_bus_controller)
 {
-	uint32_t loop_chip;
+	u32 loop_chip;
 
 	if(ptr_bus_controller != NULL)
 	{
@@ -324,12 +324,12 @@ static int fb_bus_ctrl_thread(void *arg)
 {
 	struct fb_bus_controller_t *ptr_bus_controller =
 		(struct fb_bus_controller_t *) arg;
-	uint32_t loop_chip;
-	uint32_t wakeup_time_in_us, current_time_in_us;
-	uint32_t operation;
+	u32 loop_chip;
+	u32 wakeup_time_in_us, current_time_in_us;
+	u32 operation;
 	struct fb_bio_t *ptr_fb_bio = NULL;
 
-	uint32_t signr;
+	u32 signr;
 	int ret = 0;
 
 	allow_signal(SIGKILL);
@@ -450,7 +450,7 @@ FINISH:
 	return 0;
 }
 
-static int fb_init_bus_ctrl_thread(struct fb_bus_controller_t *ptr_bus_controller, uint32_t bus)
+static int fb_init_bus_ctrl_thread(struct fb_bus_controller_t *ptr_bus_controller, u32 bus)
 {
 	int rc;
 	int ret = 0;
@@ -478,7 +478,7 @@ void fb_stop_bus_ctrl_thread(struct fb_bus_controller_t *ptr_bus_controller)
 {
 #if (LOG_TIMING==TRUE)
 	int i;
-	uint32_t bus = ptr_bus_controller->num_bus;
+	u32 bus = ptr_bus_controller->num_bus;
 
 	char dest[512];
 	char src[128];
@@ -508,7 +508,7 @@ void fb_stop_bus_ctrl_thread(struct fb_bus_controller_t *ptr_bus_controller)
 
 // ---------------- Static functions: Operation queue ----------------------------
 // Creating an operation queue for a chip
-static struct fb_opr_queue_t *create_opr_queue(uint32_t num_max_entries)
+static struct fb_opr_queue_t *create_opr_queue(u32 num_max_entries)
 {
 	struct fb_opr_queue_t *ptr_opr_queue;
 
@@ -565,7 +565,7 @@ static void destroy_opr_queue(struct fb_opr_queue_t *ptr_opr_queue)
 }
 
 // Get the current number of entries in the target operation queue
-static inline uint32_t opr_queue_num_entries(struct fb_opr_queue_t *ptr_opr_queue)
+static inline u32 opr_queue_num_entries(struct fb_opr_queue_t *ptr_opr_queue)
 {
 	return ptr_opr_queue->num_entries;
 }
@@ -585,7 +585,7 @@ static inline int opr_queue_empty(struct fb_opr_queue_t *ptr_opr_queue)
 // Put an entry into the target operation queue(success: 0, error: -1)
 static int opr_queue_put_entry(
 		struct fb_opr_queue_t *ptr_opr_queue,
-		uint32_t operation,
+		u32 operation,
 		struct fb_bio_t *ptr_fb_bio)
 {
 	int ret = 0;
@@ -632,7 +632,7 @@ FINISH:
 // (The first entry means that it is the oldes entry(first come).)
 static int opr_queue_get_first(
 		struct fb_opr_queue_t *ptr_opr_queue,
-		uint32_t *ptr_operation,
+		u32 *ptr_operation,
 		struct fb_bio_t **ptr_fb_bio)
 {
 	int ret = 0;
@@ -701,7 +701,7 @@ FINISH:
 
 static void release_busy_lock(
 		struct fb_bus_controller_t *ptr_bus_controller,
-		uint32_t chip)
+		u32 chip)
 {
 	// Reset time values
 	ptr_bus_controller->chip_busies[chip].wakeup_time_in_us = 0;
@@ -726,8 +726,8 @@ static void release_busy_lock(
 
 static void acquire_busy_lock(
 		struct fb_bus_controller_t *ptr_bus_controller,
-		uint32_t chip,
-		uint32_t operation,
+		u32 chip,
+		u32 operation,
 		struct fb_bio_t *ptr_fb_bio)
 {
 	// Set time values
@@ -740,20 +740,20 @@ static void acquire_busy_lock(
 }
 
 static int chip_status_busy(
-		struct fb_bus_controller_t *ptr_bus_controller, uint32_t chip)
+		struct fb_bus_controller_t *ptr_bus_controller, u32 chip)
 {
 	return (ptr_bus_controller->chip_busies[chip].wakeup_time_in_us == 0 &&
 			ptr_bus_controller->chip_busies[chip].issue_time_in_us == 0) ? FALSE : TRUE;
 }
 
-static inline uint32_t get_chip_wakeup_time(
-		struct fb_bus_controller_t *ptr_bus_controller, uint32_t chip)
+static inline u32 get_chip_wakeup_time(
+		struct fb_bus_controller_t *ptr_bus_controller, u32 chip)
 {
 	return ptr_bus_controller->chip_busies[chip].wakeup_time_in_us;
 }
 
-static inline uint32_t get_chip_issue_time(
-		struct fb_bus_controller_t *ptr_bus_controller, uint32_t chip)
+static inline u32 get_chip_issue_time(
+		struct fb_bus_controller_t *ptr_bus_controller, u32 chip)
 {
 	return ptr_bus_controller->chip_busies[chip].issue_time_in_us;
 }

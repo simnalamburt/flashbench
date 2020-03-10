@@ -1,13 +1,13 @@
 
 struct fb_bitmap_t
 {
-	uint32_t num_entries;
+	u32 num_entries;
 
-	uint8_t *ptr_bits;
+	u8 *ptr_bits;
 };
 
-struct fb_bitmap_t *fb_create_bitmap(uint32_t num_entries);
+struct fb_bitmap_t *fb_create_bitmap(u32 num_entries);
 void fb_destroy_bitmap(struct fb_bitmap_t *ptr_bitmap);
-int set_bitmap(struct fb_bitmap_t* ptr_bitmap, uint32_t idx, int value);
-int get_bitmap(struct fb_bitmap_t* ptr_bitmap, uint32_t idx);
+int set_bitmap(struct fb_bitmap_t* ptr_bitmap, u32 idx, int value);
+int get_bitmap(struct fb_bitmap_t* ptr_bitmap, u32 idx);
 void clear_bitmap(struct fb_bitmap_t* ptr_bitmap);

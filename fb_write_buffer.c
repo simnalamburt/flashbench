@@ -8,11 +8,11 @@
 #include "fb_macro.h"
 #include "fb_write_buffer.h"
 
-static inline void fb_wb_set_pg_lpa (struct fb_wb_pg_t *wb_pg, uint32_t lpa) {
+static inline void fb_wb_set_pg_lpa (struct fb_wb_pg_t *wb_pg, u32 lpa) {
 	wb_pg->lpa = lpa;
 }
 
-static inline uint32_t fb_wb_get_pg_lpa (struct fb_wb_pg_t *wb_pg) {
+static inline u32 fb_wb_get_pg_lpa (struct fb_wb_pg_t *wb_pg) {
 	return wb_pg->lpa;
 }
 
@@ -33,7 +33,7 @@ static void fb_destroy_wb_entry (struct fb_wb_pg_t *wb_pg) {
 	}
 }
 
-static struct fb_wb_pg_t *fb_create_wb_entry (uint32_t pg_size) {
+static struct fb_wb_pg_t *fb_create_wb_entry (u32 pg_size) {
 	struct fb_wb_pg_t *wb_pg;
 
 	if ((wb_pg = (struct fb_wb_pg_t *) vmalloc (sizeof (struct fb_wb_pg_t))) == NULL) {
@@ -41,7 +41,7 @@ static struct fb_wb_pg_t *fb_create_wb_entry (uint32_t pg_size) {
 		goto FAIL;
 	}
 
-	if ((wb_pg->data = (uint8_t *) vmalloc (sizeof (uint8_t) * pg_size)) == NULL) {
+	if ((wb_pg->data = (u8 *) vmalloc (sizeof (u8) * pg_size)) == NULL) {
 		printk(KERN_ERR "fb_write_buffer: Allocating data buffer failed.\n");
 		goto FAIL;
 
@@ -84,7 +84,7 @@ static inline void fb_wb_reset_writing_pg (struct fb_wb *wb, struct fb_wb_pg_t *
 	fb_wb_set_pg_wflag (wb_pg, FALSE);
 }
 
-static inline uint32_t fb_wb_set_buf_pg (struct fb_wb *wb, struct fb_wb_pg_t *wb_pg) {
+static inline u32 fb_wb_set_buf_pg (struct fb_wb *wb, struct fb_wb_pg_t *wb_pg) {
 	DL_APPEND (wb->buf_pgs, wb_pg);
 	return ++(wb->nr_entries);
 }
@@ -93,23 +93,23 @@ static inline struct fb_wb_pg_t *fb_wb_get_buf_pg_head (struct fb_wb *wb) {
 	return wb->buf_pgs;
 }
 
-static inline struct fb_wb_pg_t *fb_wb_get_buf_pg (struct fb_wb *wb, uint32_t lpa) {
+static inline struct fb_wb_pg_t *fb_wb_get_buf_pg (struct fb_wb *wb, u32 lpa) {
 	struct fb_wb_pg_t *wb_pg = NULL;
 
-	HASH_FIND (hh, wb->hash_pgs, &lpa, sizeof (uint32_t), wb_pg);
+	HASH_FIND (hh, wb->hash_pgs, &lpa, sizeof (u32), wb_pg);
 
 	return wb_pg;
 }
 
-static inline uint32_t fb_wb_reset_buf_pg (struct fb_wb *wb, struct fb_wb_pg_t *wb_pg) {
+static inline u32 fb_wb_reset_buf_pg (struct fb_wb *wb, struct fb_wb_pg_t *wb_pg) {
 	DL_DELETE (wb->buf_pgs, wb_pg);
 	return --(wb->nr_entries);
 }
 
-struct fb_wb *fb_create_write_buffer (uint32_t nr_max_entries, uint32_t pg_size) {
+struct fb_wb *fb_create_write_buffer (u32 nr_max_entries, u32 pg_size) {
 	struct fb_wb *wb;
 	struct fb_wb_pg_t *wb_pg;
-	uint32_t i;
+	u32 i;
 
 	if ((wb = (struct fb_wb *) vmalloc (sizeof (struct fb_wb))) == NULL) {
 		printk (KERN_ERR "fb_write_buffer: Allocating write buffer failed.\n");
@@ -134,8 +134,8 @@ struct fb_wb *fb_create_write_buffer (uint32_t nr_max_entries, uint32_t pg_size)
 		fb_wb_set_free_pg (wb, wb_pg);
 	}
 
-	if ((fb_wb_get_pg_buf (wb) = (uint8_t *) fb_malloc (
-					sizeof (uint8_t) * PHYSICAL_PAGE_SIZE)) == NULL) {
+	if ((fb_wb_get_pg_buf (wb) = (u8 *) fb_malloc (
+					sizeof (u8) * PHYSICAL_PAGE_SIZE)) == NULL) {
 		fb_print_err ("WB - Allocating page buffer failed.\n");
 		goto FAIL;
 	}
@@ -183,8 +183,8 @@ void fb_destroy_write_buffer (struct fb_wb *wb) {
 	}
 }
 
-inline uint32_t fb_get_nr_pgs_in_wb (struct fb_wb *wb, int lock) {
-	uint32_t ret;
+inline u32 fb_get_nr_pgs_in_wb (struct fb_wb *wb, int lock) {
+	u32 ret;
 
 	if (lock == TRUE) {
 		//spin_lock_irqsave (&wb->wb_lock, flag);
@@ -201,7 +201,7 @@ inline uint32_t fb_get_nr_pgs_in_wb (struct fb_wb *wb, int lock) {
 	return ret;
 }
 
-int fb_get_pg_data (struct fb_wb *wb, uint32_t lpa, uint8_t* dest) {
+int fb_get_pg_data (struct fb_wb *wb, u32 lpa, u8* dest) {
 	struct fb_wb_pg_t *wb_pg;
 	int ret = -1;
 
@@ -220,11 +220,11 @@ int fb_get_pg_data (struct fb_wb *wb, uint32_t lpa, uint8_t* dest) {
 	return ret;
 }
 
-int fb_get_pgs_to_write (struct fb_wb *wb, uint32_t nr_pgs, uint32_t *lpas, uint8_t *dest) {
+int fb_get_pgs_to_write (struct fb_wb *wb, u32 nr_pgs, u32 *lpas, u8 *dest) {
 
 	struct fb_wb_pg_t *wb_pg;
 	int ret = -1;
-	uint32_t i;
+	u32 i;
 
 	wait_for_completion (&wb->wb_lock);
 	reinit_completion (&wb->wb_lock);
@@ -249,7 +249,7 @@ int fb_get_pgs_to_write (struct fb_wb *wb, uint32_t nr_pgs, uint32_t *lpas, uint
 	return ret;
 }
 
-int fb_put_pg (struct fb_wb *wb, uint32_t lpa, uint8_t* src) {
+int fb_put_pg (struct fb_wb *wb, u32 lpa, u8* src) {
 	struct fb_wb_pg_t *wb_pg;
 	int ret = -1;
 
@@ -260,7 +260,7 @@ int fb_put_pg (struct fb_wb *wb, uint32_t lpa, uint8_t* src) {
 		fb_wb_reset_free_pg (wb, wb_pg);
 
 		fb_wb_set_pg_lpa (wb_pg, lpa);
-		HASH_ADD (hh, wb->hash_pgs, lpa, sizeof (uint32_t), wb_pg);
+		HASH_ADD (hh, wb->hash_pgs, lpa, sizeof (u32), wb_pg);
 	} else {
 		if (fb_wb_get_pg_wflag (wb_pg) == TRUE)
 			fb_wb_reset_writing_pg (wb, wb_pg);
@@ -289,7 +289,7 @@ void fb_rm_written_pgs (struct fb_wb *wb) {
 	}
 }
 
-void fb_rm_buf_pg (struct fb_wb *wb, uint32_t lpa) {
+void fb_rm_buf_pg (struct fb_wb *wb, u32 lpa) {
 	struct fb_wb_pg_t *wb_pg;
 
 	if ((wb_pg = fb_wb_get_buf_pg (wb, lpa)) != NULL) {

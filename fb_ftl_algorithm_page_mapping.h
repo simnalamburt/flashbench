@@ -2,15 +2,15 @@
 #define PAGE_UNMAPPED -1
 
 struct page_mapping_table_t {
-	uint32_t nr_entries;
-	uint32_t* mappings;
+	u32 nr_entries;
+	u32* mappings;
 };
 
 struct fb_act_blk_mngr_t {
 	struct flash_block **act_blks;
 
-	uint32_t mru_bus;
-	uint32_t mru_chip;
+	u32 mru_bus;
+	u32 mru_chip;
 };
 
 struct fb_btod_t { // block to del
@@ -20,9 +20,9 @@ struct fb_btod_t { // block to del
 };
 
 struct fb_wtod_t { // wordline to del
-	uint32_t wl_idx;
-	uint32_t bus;
-	uint32_t chip;
+	u32 wl_idx;
+	u32 bus;
+	u32 chip;
 
 	UT_hash_handle hh;
 };
@@ -32,19 +32,19 @@ struct fb_del_mngr_t {
 	// list of pages (blocks) to lock - physical address base
 	// list of pages to copy - logical address base
 	// data buffers for pages to copy
-	uint32_t *ppas;
+	u32 *ppas;
 
-	uint32_t nr_btod;
+	u32 nr_btod;
 	struct fb_btod_t *btod;
 	struct fb_btod_t *hash_btod;
 
-	uint32_t nr_wtod;
+	u32 nr_wtod;
 	struct fb_wtod_t *wtod;
 	struct fb_wtod_t *hash_wtod;
 
-	uint32_t nr_pgs_to_copy;
-	uint32_t *lpas_to_copy;
-	uint8_t *data_to_copy;
+	u32 nr_pgs_to_copy;
+	u32 *lpas_to_copy;
+	u8 *data_to_copy;
 
 };
 
@@ -52,12 +52,12 @@ struct fb_gc_mngr_t {
 	struct flash_block **gc_blks;
 
 	struct flash_block **vic_blks;
-	uint32_t *first_valid_pg;
+	u32 *first_valid_pg;
 
-	uint32_t *lpas_to_copy;
-	uint8_t *data_to_copy;
+	u32 *lpas_to_copy;
+	u8 *data_to_copy;
 
-	uint32_t nr_pgs_to_copy;
+	u32 nr_pgs_to_copy;
 };
 
 struct page_mapping_context_t
@@ -72,7 +72,7 @@ struct page_mapping_context_t
 
 	struct fb_del_mngr_t *delm;
 
-	uint32_t *lpas_to_discard;
+	u32 *lpas_to_discard;
 };
 
 void *create_pg_ftl (struct fb_context_t *fb);

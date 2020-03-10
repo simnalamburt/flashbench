@@ -10,24 +10,24 @@
 
 int __map_logical_to_physical(
 		struct fb_context_t *ptr_fb_context,
-		uint32_t logical_page_address,
-		uint32_t bus,
-		uint32_t chip,
-		uint32_t block,
-		uint32_t page,
-		uint8_t page_offset);
+		u32 logical_page_address,
+		u32 bus,
+		u32 chip,
+		u32 block,
+		u32 page,
+		u8 page_offset);
 
-uint32_t get_mapped_physical_address(
+u32 get_mapped_physical_address(
 		struct fb_context_t *ptr_fb_context,
-		uint32_t logical_page_address,
-		uint32_t *ptr_bus,
-		uint32_t *ptr_chip,
-		uint32_t *ptr_block,
-		uint32_t *ptr_page)
+		u32 logical_page_address,
+		u32 *ptr_bus,
+		u32 *ptr_chip,
+		u32 *ptr_block,
+		u32 *ptr_page)
 {
 	struct page_mapping_context_t *ptr_mapping_context =
 		(struct page_mapping_context_t *) ptr_fb_context->ptr_mapping_context;
-	uint32_t physical_page_address = PAGE_UNMAPPED;
+	u32 physical_page_address = PAGE_UNMAPPED;
 
 	if(is_valid_address_range(logical_page_address) == FALSE)
 	{
@@ -46,8 +46,8 @@ FINISH:
 
 inline void set_prev_bus_chip(
 		struct fb_context_t *ptr_fb_context,
-		uint8_t bus,
-		uint8_t chip)
+		u8 bus,
+		u8 chip)
 {
 	struct page_mapping_context_t *ptr_mapping_context =
 		(struct page_mapping_context_t *) ptr_fb_context->ptr_mapping_context;
@@ -57,7 +57,7 @@ inline void set_prev_bus_chip(
 	abm->mru_chip = chip;
 }
 
-inline void get_prev_bus_chip (struct fb_context_t *fb, uint8_t *bus, uint8_t *chip) {
+inline void get_prev_bus_chip (struct fb_context_t *fb, u8 *bus, u8 *chip) {
 	struct page_mapping_context_t *ftl = (struct page_mapping_context_t *) get_ftl (fb);
 	struct fb_act_blk_mngr_t *abm = get_abm (ftl);
 
@@ -67,8 +67,8 @@ inline void get_prev_bus_chip (struct fb_context_t *fb, uint8_t *bus, uint8_t *c
 
 void get_next_bus_chip(
 		struct fb_context_t *ptr_fb_context,
-		uint8_t *ptr_bus,
-		uint8_t *ptr_chip)
+		u8 *ptr_bus,
+		u8 *ptr_chip)
 {
 	struct page_mapping_context_t *ptr_mapping_context =
 		(struct page_mapping_context_t *) ptr_fb_context->ptr_mapping_context;
@@ -83,7 +83,7 @@ void get_next_bus_chip(
 	}
 }
 
-int alloc_new_page (struct fb_context_t *fb, uint8_t bus, uint8_t chip, uint32_t *blk, uint32_t *pg) {
+int alloc_new_page (struct fb_context_t *fb, u8 bus, u8 chip, u32 *blk, u32 *pg) {
 	struct ssd_info *ssdi = get_ssd_inf (fb);
 
 	struct flash_block *blki;
@@ -108,13 +108,13 @@ int alloc_new_page (struct fb_context_t *fb, uint8_t bus, uint8_t chip, uint32_t
 
 int map_logical_to_physical(
 		struct fb_context_t *ptr_fb_context,
-		uint32_t *logical_page_address,
-		uint32_t bus,
-		uint32_t chip,
-		uint32_t block,
-		uint32_t page) {
+		u32 *logical_page_address,
+		u32 bus,
+		u32 chip,
+		u32 block,
+		u32 page) {
 
-	uint8_t lp_loop;
+	u8 lp_loop;
 
 	int ret = -1;
 
@@ -129,7 +129,7 @@ int map_logical_to_physical(
 	return ret;
 }
 
-void update_act_blk (struct fb_context_t* fb, uint8_t bus, uint8_t chip) {
+void update_act_blk (struct fb_context_t* fb, u8 bus, u8 chip) {
 	struct flash_block *blki = get_curr_active_block (fb, bus, chip);
 
 	if (get_nr_free_pgs (blki) == 0) {
@@ -144,22 +144,22 @@ void update_act_blk (struct fb_context_t* fb, uint8_t bus, uint8_t chip) {
 	}
 }
 
-inline uint32_t get_mapped_ppa (struct page_mapping_context_t *ftl, uint32_t lpa) {
+inline u32 get_mapped_ppa (struct page_mapping_context_t *ftl, u32 lpa) {
 	return ftl->ptr_mapping_table->mappings[lpa];
 }
 
-inline void set_mapped_ppa (struct page_mapping_context_t *ftl, uint32_t lpa, uint32_t ppa) {
+inline void set_mapped_ppa (struct page_mapping_context_t *ftl, u32 lpa, u32 ppa) {
 	ftl->ptr_mapping_table->mappings[lpa] = ppa;
 }
 
-uint32_t invalidate_lpg (struct fb_context_t *fb, uint32_t lpa) {
+u32 invalidate_lpg (struct fb_context_t *fb, u32 lpa) {
 	struct page_mapping_context_t *ftl = (struct page_mapping_context_t *) get_ftl (fb);
 	struct ssd_info *ssdi = get_ssd_inf (fb);
 
-	uint32_t ppa = get_mapped_ppa (ftl, lpa);
+	u32 ppa = get_mapped_ppa (ftl, lpa);
 
 	if (ppa != PAGE_UNMAPPED) {
-		uint32_t bus, chip, blk, pg;
+		u32 bus, chip, blk, pg;
 		struct flash_block *blki; //, *vic_blki;
 		struct flash_page *pgi;
 
@@ -202,12 +202,12 @@ uint32_t invalidate_lpg (struct fb_context_t *fb, uint32_t lpa) {
 
 int __map_logical_to_physical(
 		struct fb_context_t *fb,
-		uint32_t lpa,
-		uint32_t bus,
-		uint32_t chip,
-		uint32_t blk,
-		uint32_t pg,
-		uint8_t lp_ofs)
+		u32 lpa,
+		u32 bus,
+		u32 chip,
+		u32 blk,
+		u32 pg,
+		u8 lp_ofs)
 {
 	struct page_mapping_context_t *ftl = (struct page_mapping_context_t *) get_ftl (fb);
 	struct ssd_info *ssdi = get_ssd_inf (fb);
@@ -238,14 +238,14 @@ int __map_logical_to_physical(
 	return 0;
 }
 
-inline struct flash_block* get_curr_gc_block (struct fb_context_t *fb, uint32_t bus, uint32_t chip) {
+inline struct flash_block* get_curr_gc_block (struct fb_context_t *fb, u32 bus, u32 chip) {
 	struct page_mapping_context_t *ftl = (struct page_mapping_context_t *) get_ftl (fb);
 
 	return ftl->gcm->gc_blks[bus * NUM_CHIPS_PER_BUS + chip];
 }
 
 inline void  set_curr_gc_block (
-		struct fb_context_t *fb, uint32_t bus, uint32_t chip, struct flash_block *blki) {
+		struct fb_context_t *fb, u32 bus, u32 chip, struct flash_block *blki) {
 	struct page_mapping_context_t *ftl = (struct page_mapping_context_t *) get_ftl (fb);
 
 	*(ftl->gcm->gc_blks + (bus * NUM_CHIPS_PER_BUS + chip)) = blki;
@@ -254,14 +254,14 @@ inline void  set_curr_gc_block (
 		set_rsv_blk_flag (blki, TRUE);
 }
 
-inline struct flash_block* get_curr_active_block (struct fb_context_t *fb, uint32_t bus, uint32_t chip) {
+inline struct flash_block* get_curr_active_block (struct fb_context_t *fb, u32 bus, u32 chip) {
 	struct page_mapping_context_t *ftl = (struct page_mapping_context_t *) get_ftl (fb);
 
 	return ftl->abm->act_blks[bus * NUM_CHIPS_PER_BUS + chip];
 }
 
 inline void set_curr_active_block (
-		struct fb_context_t *fb, uint32_t bus, uint32_t chip, struct flash_block *blki) {
+		struct fb_context_t *fb, u32 bus, u32 chip, struct flash_block *blki) {
 	struct page_mapping_context_t *ftl = (struct page_mapping_context_t *) get_ftl (fb);
 
 	*(ftl->abm->act_blks + (bus * NUM_CHIPS_PER_BUS + chip)) = blki;

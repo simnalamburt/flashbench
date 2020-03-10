@@ -29,12 +29,12 @@ static void fb_stop_write_buffer_thread(void);
 static int fb_write_buffer_thread(void *arg);
 #endif
 static void fb_init_bgc_ts (struct fb_context_t* fb);
-static inline uint64_t fb_get_time_in_us (void);
-static inline uint64_t fb_get_bgc_ts (struct fb_context_t *fb);
+static inline u64 fb_get_time_in_us (void);
+static inline u64 fb_get_bgc_ts (struct fb_context_t *fb);
 static inline void fb_update_bgc_ts (struct fb_context_t* fb);
-static inline int fb_is_bgc_ts_expired (struct fb_context_t* fb, uint64_t threshold);
-uint32_t dec_bio_req_count (struct fb_bio_t *ptr_bio);
-uint32_t get_bio_req_count (struct fb_bio_t *ptr_bio);
+static inline int fb_is_bgc_ts_expired (struct fb_context_t* fb, u64 threshold);
+u32 dec_bio_req_count (struct fb_bio_t *ptr_bio);
+u32 get_bio_req_count (struct fb_bio_t *ptr_bio);
 static struct fb_bio_t *fb_build_bio (struct bio *bio);
 static void fb_destroy_bio (struct fb_bio_t *fbio);
 static blk_qc_t make_request(struct request_queue *ptr_req_queue, struct bio *bio);
@@ -51,8 +51,8 @@ struct block_device_operations bdops = {
 static blk_qc_t make_request(__attribute__((unused)) struct request_queue *ptr_req_queue, struct bio *bio)
 {
 	const int rw = bio_data_dir(bio); // data direction을 돌려줌. read인지 write인지
-	uint32_t ret_value = 0;
-	uint32_t loop, req_count;
+	u32 ret_value = 0;
+	u32 loop, req_count;
 
 	struct fb_bio_t *fbio = NULL;
 
@@ -396,7 +396,7 @@ static void fb_stop_write_buffer_thread(void)
 
 static int fb_write_buffer_thread(__attribute__((unused)) void *arg)
 {
-	uint32_t signr;
+	u32 signr;
 	int ret = 0;
 
 	allow_signal(SIGKILL);
@@ -485,11 +485,11 @@ static void fb_init_bgc_ts (struct fb_context_t* fb) {
 	fb->background_gc_time_stamp = 0;
 }
 
-static inline uint64_t fb_get_time_in_us (void) {
+static inline u64 fb_get_time_in_us (void) {
 	return ktime_to_us (ktime_get ());
 }
 
-static inline uint64_t fb_get_bgc_ts (struct fb_context_t *fb) {
+static inline u64 fb_get_bgc_ts (struct fb_context_t *fb) {
 	return fb->background_gc_time_stamp;
 }
 
@@ -497,12 +497,12 @@ static inline void fb_update_bgc_ts (struct fb_context_t* fb) {
 	fb->background_gc_time_stamp = fb_get_time_in_us();
 }
 
-static inline int fb_is_bgc_ts_expired (struct fb_context_t* fb, uint64_t threshold) {
+static inline int fb_is_bgc_ts_expired (struct fb_context_t* fb, u64 threshold) {
 	return ((fb_get_time_in_us() - fb_get_bgc_ts (fb)) > threshold) ? TRUE : FALSE;
 }
 
-uint32_t dec_bio_req_count (struct fb_bio_t *fbio) {
-	uint32_t ret;
+u32 dec_bio_req_count (struct fb_bio_t *fbio) {
+	u32 ret;
 
 	fb_lock (fb_bio_get_lock (fbio));
 
@@ -514,8 +514,8 @@ uint32_t dec_bio_req_count (struct fb_bio_t *fbio) {
 	return ret;
 }
 
-uint32_t get_bio_req_count (struct fb_bio_t *fbio) {
-	uint32_t ret;
+u32 get_bio_req_count (struct fb_bio_t *fbio) {
+	u32 ret;
 
 	fb_lock (fb_bio_get_lock (fbio));
 
@@ -530,9 +530,9 @@ static struct fb_bio_t *fb_build_bio (struct bio *bio) {
 	struct bio_vec bvec;
 	const int rw = bio_data_dir(bio);
 	struct bvec_iter bio_loop;
-	uint64_t sec_start, lpa_curr;
+	u64 sec_start, lpa_curr;
 	struct fb_bio_t *fbio = NULL;
-	uint8_t *ptr_page_buffer;
+	u8 *ptr_page_buffer;
 
 
 	if ((fbio = (struct fb_bio_t *) vmalloc (sizeof (struct fb_bio_t))) == NULL) {
@@ -549,7 +549,7 @@ static struct fb_bio_t *fb_build_bio (struct bio *bio) {
 	bio_for_each_segment(bvec, bio, bio_loop) {
 
 		lpa_curr = sec_start >> 3;
-		ptr_page_buffer = (uint8_t *) page_address (bvec.bv_page);
+		ptr_page_buffer = (u8 *) page_address (bvec.bv_page);
 
 		if (rw == READ) {
 			if (fb_get_pg_data(

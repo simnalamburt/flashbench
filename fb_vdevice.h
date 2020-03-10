@@ -10,7 +10,7 @@ enum fb_dev_op_t {
 
 struct vdevice_page_t
 {
-	uint8_t* ptr_data;
+	u8* ptr_data;
 };
 
 struct vdevice_block_t
@@ -29,10 +29,10 @@ struct vdevice_bus_t
 };
 
 struct vdevice_t {
-	uint64_t device_capacity;
-	uint64_t logical_capacity;
+	u64 device_capacity;
+	u64 logical_capacity;
 
-	uint8_t *ptr_vdisk[NUM_BUSES];
+	u8 *ptr_vdisk[NUM_BUSES];
 	struct vdevice_bus_t buses[NUM_BUSES];
 
 #if (VDEVICE_TIME_MODELED==TRUE)
@@ -45,53 +45,53 @@ void destroy_vdevice(struct vdevice_t *ptr_vdevice);
 
 void vdevice_read(
 		struct vdevice_t *ptr_vdevice,
-		uint8_t bus,
-		uint8_t chip,
-		uint32_t block,
-		uint32_t page,
-		uint8_t *page_bitmap,
-		uint8_t *ptr_dest,
+		u8 bus,
+		u8 chip,
+		u32 block,
+		u32 page,
+		u8 *page_bitmap,
+		u8 *ptr_dest,
 		struct fb_bio_t *ptr_fb_bio);
 
 void vdevice_write(
 		struct vdevice_t *ptr_vdevice,
-		uint8_t bus,
-		uint8_t chip,
-		uint32_t block,
-		uint32_t page,
-		const uint8_t *ptr_src,
+		u8 bus,
+		u8 chip,
+		u32 block,
+		u32 page,
+		const u8 *ptr_src,
 		struct fb_bio_t *ptr_fb_bio);
 
 void vdevice_erase(
 		struct vdevice_t *ptr_vdevice,
-		uint8_t bus,
-		uint8_t chip,
-		uint32_t block,
+		u8 bus,
+		u8 chip,
+		u32 block,
 		struct fb_bio_t *ptr_fb_bio);
 
 void vdevice_plock (
 		struct vdevice_t *ptr_vdevice,
-		uint8_t bus,
-		uint8_t chip);
+		u8 bus,
+		u8 chip);
 
 
 void vdevice_block (
 		struct vdevice_t *ptr_vdevice,
-		uint8_t bus,
-		uint8_t chip);
+		u8 bus,
+		u8 chip);
 
 
-int is_valid_address_range(uint32_t logical_page_address);
+int is_valid_address_range(u32 logical_page_address);
 
-uint32_t convert_to_physical_address(
-		uint32_t bus, uint32_t chip, uint32_t block, uint32_t page);
+u32 convert_to_physical_address(
+		u32 bus, u32 chip, u32 block, u32 page);
 
-uint32_t convert_to_wl_idx (
-		uint32_t bus, uint32_t chip, uint32_t block, uint32_t pg_idx);
+u32 convert_to_wl_idx (
+		u32 bus, u32 chip, u32 block, u32 pg_idx);
 
-void convert_to_ssd_layout(uint32_t logical_page_address,
-		uint32_t *ptr_bus, uint32_t *ptr_chip, uint32_t *ptr_block, uint32_t *ptr_page);
+void convert_to_ssd_layout(u32 logical_page_address,
+		u32 *ptr_bus, u32 *ptr_chip, u32 *ptr_block, u32 *ptr_page);
 
 #if (VDEVICE_TIME_MODELED==TRUE)
-uint32_t operation_time (enum fb_dev_op_t op);
+u32 operation_time (enum fb_dev_op_t op);
 #endif

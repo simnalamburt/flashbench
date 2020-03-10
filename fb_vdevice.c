@@ -11,8 +11,8 @@
 struct vdevice_t *create_vdevice(void)
 {
 	struct vdevice_t *ptr_vdevice = NULL;
-	uint64_t bus_loop, chip_loop, block_loop, page_loop;
-	uint64_t bus_capacity;
+	u64 bus_loop, chip_loop, block_loop, page_loop;
+	u64 bus_capacity;
 
 
 	if((ptr_vdevice = (struct vdevice_t *)vmalloc(sizeof(struct vdevice_t))) == NULL)
@@ -38,7 +38,7 @@ struct vdevice_t *create_vdevice(void)
 
 	for(bus_loop = 0 ; bus_loop < NUM_BUSES ; bus_loop++)
 	{
-		if((ptr_vdevice->ptr_vdisk[bus_loop] = (uint8_t *)vmalloc(sizeof(uint8_t) * bus_capacity)) == NULL)
+		if((ptr_vdevice->ptr_vdisk[bus_loop] = (u8 *)vmalloc(sizeof(u8) * bus_capacity)) == NULL)
 		{
 			printk(KERN_ERR "[FlashBench] Allocating virtual disk failed.\n");
 			goto FAIL_ALLOC_VDISK;
@@ -92,7 +92,7 @@ FAIL_ALLOC_VDEVICE:
 
 void destroy_vdevice(struct vdevice_t *ptr_vdevice)
 {
-	uint32_t loop_bus;
+	u32 loop_bus;
 	if(ptr_vdevice != NULL)
 	{
 		fb_bus_controller_destroy(ptr_vdevice->ptr_bus_controller);
@@ -111,17 +111,17 @@ void destroy_vdevice(struct vdevice_t *ptr_vdevice)
 
 void vdevice_read(
 		struct vdevice_t *ptr_vdevice,
-		uint8_t bus,
-		uint8_t chip,
-		uint32_t block,
-		uint32_t page,
-		uint8_t* page_bitmap,
-		uint8_t* ptr_dest,
+		u8 bus,
+		u8 chip,
+		u32 block,
+		u32 page,
+		u8* page_bitmap,
+		u8* ptr_dest,
 		struct fb_bio_t *ptr_fb_bio)
 {
-	uint8_t* ptr_src = ptr_vdevice->buses[bus].chips[chip].blocks[block].pages[page].ptr_data;
-	uint8_t lp_loop;
-	uint8_t* ptr_curr = ptr_dest;
+	u8* ptr_src = ptr_vdevice->buses[bus].chips[chip].blocks[block].pages[page].ptr_data;
+	u8 lp_loop;
+	u8* ptr_curr = ptr_dest;
 	//memcpy(ptr_dest, ptr_src, PHYSICAL_PAGE_SIZE);
 	for (lp_loop = 0 ; lp_loop < NR_LP_IN_PP ; lp_loop++) {
 		if (page_bitmap[lp_loop] == 1) {
@@ -139,14 +139,14 @@ void vdevice_read(
 
 void vdevice_write(
 		struct vdevice_t *ptr_vdevice,
-		uint8_t bus,
-		uint8_t chip,
-		uint32_t block,
-		uint32_t page,
-		const uint8_t* ptr_src,
+		u8 bus,
+		u8 chip,
+		u32 block,
+		u32 page,
+		const u8* ptr_src,
 		struct fb_bio_t *ptr_fb_bio)
 {
-	uint8_t* ptr_dest = ptr_vdevice->buses[bus].chips[chip].blocks[block].pages[page].ptr_data;
+	u8* ptr_dest = ptr_vdevice->buses[bus].chips[chip].blocks[block].pages[page].ptr_data;
 
 	memcpy(ptr_dest, ptr_src, PHYSICAL_PAGE_SIZE);
 
@@ -159,8 +159,8 @@ void vdevice_write(
 // for plock and block, all we have to do is making chip busy.
 void vdevice_plock (
 		struct vdevice_t *ptr_vdevice,
-		uint8_t bus,
-		uint8_t chip) {
+		u8 bus,
+		u8 chip) {
 #if (VDEVICE_TIME_MODELED==TRUE)
 	fb_issue_operation(ptr_vdevice->ptr_bus_controller[bus], chip,
 			OP_PLOCK, NULL);
@@ -169,8 +169,8 @@ void vdevice_plock (
 
 void vdevice_block (
 		struct vdevice_t *ptr_vdevice,
-		uint8_t bus,
-		uint8_t chip) {
+		u8 bus,
+		u8 chip) {
 #if (VDEVICE_TIME_MODELED==TRUE)
 	fb_issue_operation(ptr_vdevice->ptr_bus_controller[bus], chip,
 			OP_BLOCK, NULL);
@@ -179,12 +179,12 @@ void vdevice_block (
 
 void vdevice_erase(
 		struct vdevice_t *ptr_vdevice,
-		uint8_t bus,
-		uint8_t chip,
-		uint32_t block,
+		u8 bus,
+		u8 chip,
+		u32 block,
 		struct fb_bio_t *ptr_fb_bio)
 {
-	uint8_t* ptr_dest = ptr_vdevice->buses[bus].chips[chip].blocks[block].pages[0].ptr_data;
+	u8* ptr_dest = ptr_vdevice->buses[bus].chips[chip].blocks[block].pages[0].ptr_data;
 
 	memset(ptr_dest, 0xFF, NUM_PAGES_PER_BLOCK * PHYSICAL_PAGE_SIZE);
 #if (VDEVICE_TIME_MODELED==TRUE)
@@ -193,13 +193,13 @@ void vdevice_erase(
 }
 #endif
 
-inline int is_valid_address_range(uint32_t logical_page_address)
+inline int is_valid_address_range(u32 logical_page_address)
 {
 	return logical_page_address < NUM_LOG_PAGES;
 }
 
-inline uint32_t convert_to_physical_address(
-		uint32_t bus, uint32_t chip, uint32_t block, uint32_t page)
+inline u32 convert_to_physical_address(
+		u32 bus, u32 chip, u32 block, u32 page)
 {
 	//return (bus << 27) | (chip << 21) | (block << 8) | page;
 	// Max buses: 16 - 4
@@ -209,13 +209,13 @@ inline uint32_t convert_to_physical_address(
 	return (bus << 28) | (chip << 24) | (block << 12) | page;
 }
 
-inline uint32_t convert_to_wl_idx (
-		uint32_t bus, uint32_t chip, uint32_t block, uint32_t pg_idx) {
+inline u32 convert_to_wl_idx (
+		u32 bus, u32 chip, u32 block, u32 pg_idx) {
 	return convert_to_physical_address (bus, chip, block, (pg_idx / 3));
 }
 
-inline void convert_to_ssd_layout(uint32_t logical_page_address,
-		uint32_t *ptr_bus, uint32_t *ptr_chip, uint32_t *ptr_block, uint32_t *ptr_page)
+inline void convert_to_ssd_layout(u32 logical_page_address,
+		u32 *ptr_bus, u32 *ptr_chip, u32 *ptr_block, u32 *ptr_page)
 {
 	*ptr_bus = (0xF & logical_page_address >> 28);
 	*ptr_chip = (0xF & logical_page_address >> 24);
@@ -224,7 +224,7 @@ inline void convert_to_ssd_layout(uint32_t logical_page_address,
 }
 
 #if (VDEVICE_TIME_MODELED==TRUE)
-inline uint32_t operation_time (enum fb_dev_op_t op) {
+inline u32 operation_time (enum fb_dev_op_t op) {
 	switch (op) {
 		case OP_READ:
 			return TREAD;

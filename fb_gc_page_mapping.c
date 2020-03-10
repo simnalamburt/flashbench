@@ -22,18 +22,18 @@ static inline void init_gcm (struct fb_gc_mngr_t *gcm) {
 }
 
 static inline struct flash_block *get_vic_blk (
-		struct fb_gc_mngr_t *gcm, uint32_t bus, uint32_t chip) {
+		struct fb_gc_mngr_t *gcm, u32 bus, u32 chip) {
 	return gcm->vic_blks[bus * NUM_CHIPS_PER_BUS + chip];
 }
 
 static inline void set_vic_blk (
-		struct fb_gc_mngr_t *gcm, uint32_t bus, uint32_t chip, struct flash_block *blki) {
+		struct fb_gc_mngr_t *gcm, u32 bus, u32 chip, struct flash_block *blki) {
 	gcm->vic_blks[bus * NUM_CHIPS_PER_BUS + chip] = blki;
 }
 
-inline uint32_t find_first_valid_pg (struct flash_block *blki, uint32_t start_pg) {
+inline u32 find_first_valid_pg (struct flash_block *blki, u32 start_pg) {
 	struct flash_page *pgi;
-	uint32_t pg;
+	u32 pg;
 
 	for (pg = start_pg ; pg < NUM_PAGES_PER_BLOCK ; pg++) {
 		pgi = get_pgi_from_blki (blki, pg);
@@ -46,19 +46,19 @@ inline uint32_t find_first_valid_pg (struct flash_block *blki, uint32_t start_pg
 }
 
 inline void set_first_valid_pg (
-		struct fb_gc_mngr_t *gcm, uint32_t bus, uint32_t chip, uint32_t pg) {
+		struct fb_gc_mngr_t *gcm, u32 bus, u32 chip, u32 pg) {
 	gcm->first_valid_pg[bus * NUM_CHIPS_PER_BUS + chip] = pg;
 }
 
-inline uint32_t get_first_valid_pg (struct fb_gc_mngr_t *gcm, uint32_t bus, uint32_t chip) {
+inline u32 get_first_valid_pg (struct fb_gc_mngr_t *gcm, u32 bus, u32 chip) {
 	return gcm->first_valid_pg[bus * NUM_CHIPS_PER_BUS + chip];
 }
 
 static struct flash_block* select_vic_blk_from_used (
 		struct ssd_info *ssdi,
-		uint32_t bus, uint32_t chip) {
+		u32 bus, u32 chip) {
 	struct flash_block *vic_blki = NULL, *blki;
-	uint32_t nr_max_invalid_lpgs = 0, nr_invalid_lpgs;
+	u32 nr_max_invalid_lpgs = 0, nr_invalid_lpgs;
 
 	blk_list_for_each (get_used_block (ssdi, bus, chip), blki) {
 		if ((nr_invalid_lpgs = get_nr_invalid_lps_in_blk (blki)) > nr_max_invalid_lpgs) {
@@ -72,9 +72,9 @@ static struct flash_block* select_vic_blk_from_used (
 
 static struct flash_block* select_vic_blk_greedy (
 		struct ssd_info *ssdi,
-		uint32_t bus, uint32_t chip) {
+		u32 bus, u32 chip) {
 	struct flash_block *vic_blki = NULL, *blki;
-	uint32_t nr_max_invalid_lpgs = 0, nr_invalid_lpgs;
+	u32 nr_max_invalid_lpgs = 0, nr_invalid_lpgs;
 
 	if ((vic_blki = get_dirt_block (ssdi, bus, chip)) != NULL)
 		return vic_blki;
@@ -96,7 +96,7 @@ static int set_vic_blks (struct fb_context_t *fb) {
 
 	struct flash_block *blki;
 
-	uint32_t bus, chip;
+	u32 bus, chip;
 
 	for (bus = 0 ; bus < NUM_BUSES ; bus++) {
 		for( chip = 0 ; chip < NUM_CHIPS_PER_BUS ; chip++) {
@@ -133,12 +133,12 @@ static void get_valid_pgs_in_vic_blks (struct fb_context_t *fb) {
 	struct flash_block *blki;
 	struct flash_page *pgi;
 
-	uint32_t nr_read_pgs = 0;
-	uint32_t *ptr_lpa = gcm->lpas_to_copy;
-	uint8_t *ptr_data = gcm->data_to_copy;
-	uint8_t lp_bitmap[NR_LP_IN_PP];
-	uint8_t bus, chip;
-	uint32_t pg, lp, nr_pgs_to_read;
+	u32 nr_read_pgs = 0;
+	u32 *ptr_lpa = gcm->lpas_to_copy;
+	u8 *ptr_data = gcm->data_to_copy;
+	u8 lp_bitmap[NR_LP_IN_PP];
+	u8 bus, chip;
+	u32 pg, lp, nr_pgs_to_read;
 
 	while (gcm->nr_pgs_to_copy > nr_read_pgs) {
 		for (pg = 0 ; pg < NUM_PAGES_PER_BLOCK ; pg++) {
@@ -181,11 +181,11 @@ static int prog_valid_pgs_to_gc_blks (struct fb_context_t *fb) {
 	struct fb_gc_mngr_t *gcm = get_gcm (ftl);
 	struct vdevice_t *vdev = get_vdev (fb);
 
-	int32_t nr_pgs_to_prog = gcm->nr_pgs_to_copy;
-	uint32_t *ptr_lpa = gcm->lpas_to_copy;
-	uint8_t *ptr_data = gcm->data_to_copy;
-	uint8_t bus, chip;
-	uint32_t blk, pg, lp;
+	s32 nr_pgs_to_prog = gcm->nr_pgs_to_copy;
+	u32 *ptr_lpa = gcm->lpas_to_copy;
+	u8 *ptr_data = gcm->data_to_copy;
+	u8 bus, chip;
+	u32 blk, pg, lp;
 
 	while (nr_pgs_to_prog > 0) {
 		get_next_bus_chip (fb, &bus, &chip);
@@ -227,7 +227,7 @@ static int prepare_act_blks (struct fb_context_t *fb) {
 
 	struct flash_block *blki;
 
-	uint8_t bus, chip;
+	u8 bus, chip;
 
 	for (chip = 0 ; chip < NUM_CHIPS_PER_BUS ; chip++) {
 		for (bus = 0 ; bus < NUM_BUSES ; bus++) {
@@ -258,7 +258,7 @@ static int prepare_act_blks (struct fb_context_t *fb) {
 static int update_gc_blks (struct fb_context_t *fb) {
 	struct flash_block *gc_blki;
 
-	uint32_t bus, chip;
+	u32 bus, chip;
 
 	for (bus = 0 ; bus < NUM_BUSES ; bus++) {
 		for (chip = 0 ; chip < NUM_CHIPS_PER_BUS ; chip++) {
@@ -284,7 +284,7 @@ struct fb_gc_mngr_t *create_gc_mngr (struct fb_context_t *fb) {
 	struct ssd_info *ssdi = get_ssd_inf (fb);
 	struct fb_gc_mngr_t *gcm = NULL;
 	struct flash_block *blki;
-	uint32_t bus, chip;
+	u32 bus, chip;
 
 	if ((gcm = (struct fb_gc_mngr_t *) vmalloc (sizeof (struct fb_gc_mngr_t))) == NULL) {
 		printk (KERN_ERR "Allocating GC manager failed.\n");
@@ -306,16 +306,16 @@ struct fb_gc_mngr_t *create_gc_mngr (struct fb_context_t *fb) {
 	}
 
 	if ((gcm->lpas_to_copy =
-				(uint32_t *) vmalloc (
-					sizeof (uint32_t) *
+				(u32 *) vmalloc (
+					sizeof (u32) *
 					NUM_CHIPS * NUM_PAGES_PER_BLOCK * NR_LP_IN_PP)) == NULL) {
 		printk (KERN_ERR "Allocating LPA list failed.\n");
 		goto FAIL;
 	}
 
 	if ((gcm->data_to_copy =
-				(uint8_t *) vmalloc (
-					sizeof (uint32_t) *
+				(u8 *) vmalloc (
+					sizeof (u32) *
 					NUM_CHIPS * NUM_PAGES_PER_BLOCK * NR_LP_IN_PP *
 					LOGICAL_PAGE_SIZE)) == NULL) {
 		printk (KERN_ERR "Allocating valid page buffer failed.\n");
@@ -323,7 +323,7 @@ struct fb_gc_mngr_t *create_gc_mngr (struct fb_context_t *fb) {
 	}
 
 	if ((gcm->first_valid_pg =
-				(uint32_t *) vmalloc (sizeof (uint32_t) * NUM_CHIPS)) == NULL) {
+				(u32 *) vmalloc (sizeof (u32) * NUM_CHIPS)) == NULL) {
 		printk (KERN_ERR "Allocating page_offset failed.\n");
 		goto FAIL;
 	}
@@ -408,8 +408,8 @@ int fb_bgc_prepare_act_blks (struct fb_context_t *fb) {
 	struct ssd_info *ssdi = get_ssd_inf (fb);
 	struct flash_block *blki;
 
-	uint8_t bus, chip;
-	uint32_t i;
+	u8 bus, chip;
+	u32 i;
 
 	for (i = 0 ; i < NUM_CHIPS ; i++) {
 		get_next_bus_chip (fb, &bus, &chip);
@@ -452,7 +452,7 @@ static int fb_bgc_set_vic_blks (struct fb_context_t *fb) {
 	struct flash_chip *chipi;
 	struct flash_block *blki;
 
-	uint8_t bus, chip;
+	u8 bus, chip;
 
 	/* if necesary, find a new victim block for each chip */
 	for (bus = 0 ; bus < NUM_BUSES ; bus++) {
@@ -503,14 +503,14 @@ int fb_bgc_read_valid_pgs (struct fb_context_t *fb) {
 	struct flash_block *vic_blki = NULL;
 	struct flash_page *pgi = NULL;
 
-	uint8_t bus, chip, lp;
-	uint32_t pg, nr_pgs_to_read;
-	uint8_t lp_bitmap[NR_LP_IN_PP];
+	u8 bus, chip, lp;
+	u32 pg, nr_pgs_to_read;
+	u8 lp_bitmap[NR_LP_IN_PP];
 
-	uint32_t *ptr_lpas = gcm->lpas_to_copy;
-	uint8_t *ptr_data = gcm->data_to_copy;
+	u32 *ptr_lpas = gcm->lpas_to_copy;
+	u8 *ptr_data = gcm->data_to_copy;
 
-	uint32_t i;
+	u32 i;
 
 	for (i = 0 ; i < NUM_CHIPS ; i++) {
 		get_next_bus_chip (fb, &bus, &chip);
@@ -563,7 +563,7 @@ int trigger_bg_gc (struct fb_context_t *fb) {
 	struct page_mapping_context_t *ftl = (struct page_mapping_context_t *) get_ftl (fb);
 	struct fb_gc_mngr_t *gcm = get_gcm (ftl);
 
-	uint8_t bus, chip;
+	u8 bus, chip;
 
 	wait_for_completion (&ftl->mapping_context_lock);
 	reinit_completion (&ftl->mapping_context_lock);
