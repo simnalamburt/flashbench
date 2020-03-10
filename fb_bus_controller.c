@@ -483,8 +483,7 @@ void fb_stop_bus_ctrl_thread(struct fb_bus_controller_t *ptr_bus_controller)
 	char dest[512];
 	char src[128];
 
-	// TODO: Change this path
-	sprintf(dest, "/home/mult/flashBench/src/log/log_delay_%d.dat", bus);
+	sprintf(dest, "/var/log/flashbench/delay_%d.log", bus);
 
 	for(i = 0 ; i < nr_timer_log_delay_records[bus] ; i++)
 	{
@@ -492,8 +491,7 @@ void fb_stop_bus_ctrl_thread(struct fb_bus_controller_t *ptr_bus_controller)
 		fb_file_log(dest, src);
 	}
 
-	// TODO: Change this path
-	sprintf(dest, "/home/mult/flashBench/src/log/log_resp_%d.dat", bus);
+	sprintf(dest, "/var/log/flashbench/resp_%d.log", bus);
 
 	for(i = 0 ; i < nr_timer_log_resp_records[bus] ; i++)
 	{
