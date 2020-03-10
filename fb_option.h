@@ -37,11 +37,6 @@
 #define SECTOR_SIZE 512
 #define SEC_SHIFT_FOR_LP 3
 
-#define PAGE_LEVEL_FTL 0
-#define BLOCK_LEVEL_FTL 1
-
-#define FTL_ALGORITHM PAGE_LEVEL_FTL
-
 #define RAM_DISK 0
 #define FILE_IO 1
 
