@@ -106,9 +106,6 @@ uint32_t inc_nr_invalid_lps (fb_pg_inf_t *pgi);
 int get_del_flag_pg (fb_pg_inf_t *pgi);
 void set_del_flag_pg (fb_pg_inf_t *pgi, int flag);
 
-/* word line interface */
-int is_invalid_wl (uint32_t ppa);
-
 /* block info interface */
 void init_blk_inf (fb_blk_inf_t *blki);
 uint32_t get_bus_idx (fb_blk_inf_t *blki);

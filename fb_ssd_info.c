@@ -377,11 +377,6 @@ inline void set_del_flag_pg (fb_pg_inf_t *pgi, int flag) {
 	pgi->del_flag = flag;
 }
 
-
-inline int is_invalid_wl (uint32_t ppa) {
-	return TRUE;
-}
-
 inline void init_blk_inf (fb_blk_inf_t *blki) {
 	uint8_t lp;
 	uint32_t pg;
