@@ -17,17 +17,17 @@
 #include "utlist.h"
 
 
-static inline void init_gcm (fb_gc_mngr_t *gcm) {
+static inline void init_gcm (struct fb_gc_mngr_t *gcm) {
 	gcm->nr_pgs_to_copy = 0;
 }
 
 static inline fb_blk_inf_t *get_vic_blk (
-		fb_gc_mngr_t *gcm, uint32_t bus, uint32_t chip) {
+		struct fb_gc_mngr_t *gcm, uint32_t bus, uint32_t chip) {
 	return gcm->vic_blks[bus * NUM_CHIPS_PER_BUS + chip];
 }
 
 static inline void set_vic_blk (
-		fb_gc_mngr_t *gcm, uint32_t bus, uint32_t chip, fb_blk_inf_t *blki) {
+		struct fb_gc_mngr_t *gcm, uint32_t bus, uint32_t chip, fb_blk_inf_t *blki) {
 	gcm->vic_blks[bus * NUM_CHIPS_PER_BUS + chip] = blki;
 }
 
@@ -46,11 +46,11 @@ inline uint32_t find_first_valid_pg (fb_blk_inf_t *blki, uint32_t start_pg) {
 }
 
 inline void set_first_valid_pg (
-		fb_gc_mngr_t *gcm, uint32_t bus, uint32_t chip, uint32_t pg) {
+		struct fb_gc_mngr_t *gcm, uint32_t bus, uint32_t chip, uint32_t pg) {
 	gcm->first_valid_pg[bus * NUM_CHIPS_PER_BUS + chip] = pg;
 }
 
-inline uint32_t get_first_valid_pg (fb_gc_mngr_t *gcm, uint32_t bus, uint32_t chip) {
+inline uint32_t get_first_valid_pg (struct fb_gc_mngr_t *gcm, uint32_t bus, uint32_t chip) {
 	return gcm->first_valid_pg[bus * NUM_CHIPS_PER_BUS + chip];
 }
 
@@ -90,8 +90,8 @@ static fb_blk_inf_t* select_vic_blk_greedy (
 }
 
 static int set_vic_blks (struct fb_context_t *fb) {
-	fb_pg_ftl_t *ftl = (fb_pg_ftl_t *) get_ftl (fb);
-	fb_gc_mngr_t *gcm = get_gcm (ftl);
+	struct page_mapping_context_t *ftl = (struct page_mapping_context_t *) get_ftl (fb);
+	struct fb_gc_mngr_t *gcm = get_gcm (ftl);
 	fb_ssd_inf_t *ssdi = get_ssd_inf (fb);
 
 	fb_blk_inf_t *blki;
@@ -126,8 +126,8 @@ static int set_vic_blks (struct fb_context_t *fb) {
 }
 
 static void get_valid_pgs_in_vic_blks (struct fb_context_t *fb) {
-	fb_pg_ftl_t *ftl = (fb_pg_ftl_t *) get_ftl (fb);
-	fb_gc_mngr_t *gcm = get_gcm (ftl);
+	struct page_mapping_context_t *ftl = (struct page_mapping_context_t *) get_ftl (fb);
+	struct fb_gc_mngr_t *gcm = get_gcm (ftl);
 	struct vdevice_t *vdev = get_vdev (fb);
 
 	fb_blk_inf_t *blki;
@@ -177,8 +177,8 @@ static void get_valid_pgs_in_vic_blks (struct fb_context_t *fb) {
 }
 
 static int prog_valid_pgs_to_gc_blks (struct fb_context_t *fb) {
-	fb_pg_ftl_t *ftl = (fb_pg_ftl_t *) get_ftl (fb);
-	fb_gc_mngr_t *gcm = get_gcm (ftl);
+	struct page_mapping_context_t *ftl = (struct page_mapping_context_t *) get_ftl (fb);
+	struct fb_gc_mngr_t *gcm = get_gcm (ftl);
 	struct vdevice_t *vdev = get_vdev (fb);
 
 	int32_t nr_pgs_to_prog = gcm->nr_pgs_to_copy;
@@ -280,13 +280,13 @@ static int update_gc_blks (struct fb_context_t *fb) {
 	return 0;
 }
 
-fb_gc_mngr_t *create_gc_mngr (struct fb_context_t *fb) {
+struct fb_gc_mngr_t *create_gc_mngr (struct fb_context_t *fb) {
 	fb_ssd_inf_t *ssdi = get_ssd_inf (fb);
-	fb_gc_mngr_t *gcm = NULL;
+	struct fb_gc_mngr_t *gcm = NULL;
 	fb_blk_inf_t *blki;
 	uint32_t bus, chip;
 
-	if ((gcm = (fb_gc_mngr_t *) vmalloc (sizeof (fb_gc_mngr_t))) == NULL) {
+	if ((gcm = (struct fb_gc_mngr_t *) vmalloc (sizeof (struct fb_gc_mngr_t))) == NULL) {
 		printk (KERN_ERR "Allocating GC manager failed.\n");
 		goto FAIL;
 	}
@@ -351,7 +351,7 @@ FAIL:
 	return NULL;
 }
 
-void destroy_gc_mngr (fb_gc_mngr_t *gcm) {
+void destroy_gc_mngr (struct fb_gc_mngr_t *gcm) {
 	if (gcm != NULL) {
 		if (gcm->gc_blks != NULL)
 			vfree (gcm->gc_blks);
@@ -367,8 +367,8 @@ void destroy_gc_mngr (fb_gc_mngr_t *gcm) {
 }
 
 int trigger_gc_page_mapping (struct fb_context_t *fb) {
-	fb_pg_ftl_t *ftl = (fb_pg_ftl_t *) get_ftl (fb);
-	fb_gc_mngr_t *gcm = get_gcm (ftl);
+	struct page_mapping_context_t *ftl = (struct page_mapping_context_t *) get_ftl (fb);
+	struct fb_gc_mngr_t *gcm = get_gcm (ftl);
 
 	// initialize GC context
 	init_gcm (gcm);
@@ -445,9 +445,9 @@ int fb_bgc_prepare_act_blks (struct fb_context_t *fb) {
 
 
 static int fb_bgc_set_vic_blks (struct fb_context_t *fb) {
-	fb_pg_ftl_t *ftl = (fb_pg_ftl_t *) get_ftl (fb);
+	struct page_mapping_context_t *ftl = (struct page_mapping_context_t *) get_ftl (fb);
 	fb_ssd_inf_t *ssdi = get_ssd_inf (fb);
-	fb_gc_mngr_t *gcm = get_gcm (ftl);
+	struct fb_gc_mngr_t *gcm = get_gcm (ftl);
 
 	fb_chip_inf_t *chipi;
 	fb_blk_inf_t *blki;
@@ -497,8 +497,8 @@ static int fb_bgc_set_vic_blks (struct fb_context_t *fb) {
 }
 
 int fb_bgc_read_valid_pgs (struct fb_context_t *fb) {
-	fb_pg_ftl_t *ftl = (fb_pg_ftl_t *) get_ftl (fb);
-	fb_gc_mngr_t *gcm = get_gcm (ftl);
+	struct page_mapping_context_t *ftl = (struct page_mapping_context_t *) get_ftl (fb);
+	struct fb_gc_mngr_t *gcm = get_gcm (ftl);
 
 	fb_blk_inf_t *vic_blki = NULL;
 	fb_pg_inf_t *pgi = NULL;
@@ -560,8 +560,8 @@ int fb_bgc_write_valid_pgs (struct fb_context_t *fb) {
 }
 
 int trigger_bg_gc (struct fb_context_t *fb) {
-	fb_pg_ftl_t *ftl = (fb_pg_ftl_t *) get_ftl (fb);
-	fb_gc_mngr_t *gcm = get_gcm (ftl);
+	struct page_mapping_context_t *ftl = (struct page_mapping_context_t *) get_ftl (fb);
+	struct fb_gc_mngr_t *gcm = get_gcm (ftl);
 
 	uint8_t bus, chip;
 

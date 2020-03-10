@@ -31,23 +31,23 @@ static int make_discard_request_page_mapping(
 static int fb_wb_flush (struct fb_context_t *fb);
 static struct page_mapping_table_t *create_page_mapping_table(void);
 static void destroy_mapping_table (struct page_mapping_table_t *mt);
-static fb_act_blk_mngr_t *create_act_blk_mngr (struct fb_context_t *fb);
-static void destroy_act_blk_mngr (fb_act_blk_mngr_t *abm);
+static struct fb_act_blk_mngr_t *create_act_blk_mngr (struct fb_context_t *fb);
+static void destroy_act_blk_mngr (struct fb_act_blk_mngr_t *abm);
 
-static fb_del_mngr_t *create_del_mngr (void);
-static void destroy_del_mngr (fb_del_mngr_t *delm);
+static struct fb_del_mngr_t *create_del_mngr (void);
+static void destroy_del_mngr (struct fb_del_mngr_t *delm);
 
 static int fb_background_gc (struct fb_context_t *fb) {
 	return trigger_bg_gc (fb);
 }
 
-static fb_act_blk_mngr_t *create_act_blk_mngr (struct fb_context_t *fb) {
-	fb_act_blk_mngr_t *abm = NULL;
+static struct fb_act_blk_mngr_t *create_act_blk_mngr (struct fb_context_t *fb) {
+	struct fb_act_blk_mngr_t *abm = NULL;
 	fb_ssd_inf_t *ssdi = get_ssd_inf (fb);
 	fb_blk_inf_t *blki;
 	uint32_t bus, chip;
 
-	if ((abm = (fb_act_blk_mngr_t *) vmalloc (sizeof (fb_act_blk_mngr_t))) == NULL) {
+	if ((abm = (struct fb_act_blk_mngr_t *) vmalloc (sizeof (struct fb_act_blk_mngr_t))) == NULL) {
 		printk (KERN_ERR "Allocating active block manager failed.\n");
 		goto FAIL;
 	}
@@ -83,7 +83,7 @@ FAIL:
 	return NULL;
 }
 
-static void destroy_act_blk_mngr (fb_act_blk_mngr_t *abm) {
+static void destroy_act_blk_mngr (struct fb_act_blk_mngr_t *abm) {
 	if (abm != NULL) {
 		if (abm->act_blks != NULL) {
 			vfree (abm->act_blks);
@@ -92,19 +92,19 @@ static void destroy_act_blk_mngr (fb_act_blk_mngr_t *abm) {
 	}
 }
 
-inline fb_gc_mngr_t *get_gcm (fb_pg_ftl_t *ftl) {
+inline struct fb_gc_mngr_t *get_gcm (struct page_mapping_context_t *ftl) {
 	return ftl->gcm;
 }
 
-inline fb_act_blk_mngr_t *get_abm (fb_pg_ftl_t *ftl) {
+inline struct fb_act_blk_mngr_t *get_abm (struct page_mapping_context_t *ftl) {
 	return ftl->abm;
 }
 
 void *create_pg_ftl (struct fb_context_t* fb)
 {
-	fb_pg_ftl_t *ftl;
+	struct page_mapping_context_t *ftl;
 
-	if ((ftl = (fb_pg_ftl_t *) vmalloc (sizeof (fb_pg_ftl_t))) == NULL) {
+	if ((ftl = (struct page_mapping_context_t *) vmalloc (sizeof (struct page_mapping_context_t))) == NULL) {
 		printk(KERN_ERR "[FlashBench] fb_page_mapping: Allocating mapping table failed.\n");
 		goto FAIL;
 	}
@@ -157,78 +157,78 @@ FAIL:
 	return NULL;
 }
 
-inline fb_del_mngr_t *get_delm (fb_pg_ftl_t *ftl) {
+inline struct fb_del_mngr_t *get_delm (struct page_mapping_context_t *ftl) {
 	return ftl->delm;
 }
 
-inline fb_btod_t *fb_del_get_btod (fb_del_mngr_t *delm, uint32_t idx) {
+inline struct fb_btod_t *fb_del_get_btod (struct fb_del_mngr_t *delm, uint32_t idx) {
 	return &delm->btod[idx];
 }
 
-inline void fb_del_set_btod (fb_btod_t *btod, fb_blk_inf_t *blki) {
+inline void fb_del_set_btod (struct fb_btod_t *btod, fb_blk_inf_t *blki) {
 	btod->blki = blki;
 }
 
 inline void fb_del_get_bus_chip_btod (
-		fb_del_mngr_t *delm, uint32_t idx, uint32_t *bus, uint32_t *chip) {
+		struct fb_del_mngr_t *delm, uint32_t idx, uint32_t *bus, uint32_t *chip) {
 	*bus = delm->btod[idx].blki->no_bus;
 	*chip = delm->btod[idx].blki->no_chip;
 }
 
-inline void fb_del_inc_nr_btod (fb_del_mngr_t *delm) {
+inline void fb_del_inc_nr_btod (struct fb_del_mngr_t *delm) {
 	delm->nr_btod++;
 }
 
-inline uint32_t fb_del_get_nr_btod (fb_del_mngr_t *delm){
+inline uint32_t fb_del_get_nr_btod (struct fb_del_mngr_t *delm){
 	return delm->nr_btod;
 }
 
-inline void fb_del_set_nr_btod (fb_del_mngr_t *delm, uint32_t new) {
+inline void fb_del_set_nr_btod (struct fb_del_mngr_t *delm, uint32_t new) {
 	delm->nr_btod = new;
 }
 
-inline fb_wtod_t *fb_del_get_wtod (fb_del_mngr_t *delm, uint32_t idx) {
+inline struct fb_wtod_t *fb_del_get_wtod (struct fb_del_mngr_t *delm, uint32_t idx) {
 	return &delm->wtod[idx];
 }
 
 inline void fb_del_init_wtod (
-		fb_wtod_t *wtod, uint32_t bus, uint32_t chip, uint32_t wl_idx) {
+		struct fb_wtod_t *wtod, uint32_t bus, uint32_t chip, uint32_t wl_idx) {
 	wtod->wl_idx = wl_idx;
 	wtod->bus = bus;
 	wtod->chip = chip;
 }
 
 inline void fb_del_get_bus_chip_wtod (
-		fb_del_mngr_t *delm, uint32_t idx, uint32_t *bus, uint32_t *chip) {
+		struct fb_del_mngr_t *delm, uint32_t idx, uint32_t *bus, uint32_t *chip) {
 	*bus = delm->wtod[idx].bus;
 	*chip = delm->wtod[idx].chip;
 }
 
-inline void fb_del_inc_nr_wtod (fb_del_mngr_t *delm) {
+inline void fb_del_inc_nr_wtod (struct fb_del_mngr_t *delm) {
 	delm->nr_wtod++;
 }
 
-inline uint32_t fb_del_get_nr_wtod (fb_del_mngr_t *delm){
+inline uint32_t fb_del_get_nr_wtod (struct fb_del_mngr_t *delm){
 	return delm->nr_wtod;
 }
 
-inline void fb_del_set_nr_wtod (fb_del_mngr_t *delm, uint32_t new) {
+inline void fb_del_set_nr_wtod (struct fb_del_mngr_t *delm, uint32_t new) {
 	delm->nr_wtod = new;
 }
 
-inline uint32_t fb_del_get_nr_pgs_to_copy (fb_del_mngr_t *delm) {
+inline uint32_t fb_del_get_nr_pgs_to_copy (struct fb_del_mngr_t *delm) {
 	return delm->nr_pgs_to_copy;
 }
 
-inline void fb_del_set_nr_pgs_to_copy (fb_del_mngr_t *delm, uint32_t new) {
+inline void fb_del_set_nr_pgs_to_copy (struct fb_del_mngr_t *delm, uint32_t new) {
 	delm->nr_pgs_to_copy = new;
 }
 
-inline void fb_del_inc_nr_pgs_to_copy (fb_del_mngr_t *delm) {
+inline void fb_del_inc_nr_pgs_to_copy (struct fb_del_mngr_t *delm) {
 	delm->nr_pgs_to_copy++;
 }
 
-inline void init_delm (fb_del_mngr_t *delm) {
+inline void init_delm (struct fb_del_mngr_t *delm) {
 	fb_del_set_nr_btod (delm, 0);
 	HASH_CLEAR (hh, delm->hash_btod);
 	delm->hash_btod = NULL;
@@ -240,18 +240,18 @@ inline void init_delm (fb_del_mngr_t *delm) {
 	fb_del_set_nr_pgs_to_copy (delm, 0);
 }
 
-fb_del_mngr_t *create_del_mngr (void) {
-	fb_del_mngr_t *delm = NULL;
+struct fb_del_mngr_t *create_del_mngr (void) {
+	struct fb_del_mngr_t *delm = NULL;
 
 	uint32_t i;
 
-	if ((delm = (fb_del_mngr_t *) vmalloc (sizeof (fb_del_mngr_t))) == NULL) {
+	if ((delm = (struct fb_del_mngr_t *) vmalloc (sizeof (struct fb_del_mngr_t))) == NULL) {
 		printk (KERN_ERR "Allocating DEL manager failed.\n");
 		goto FAIL;
 	}
 
-	if ((delm->btod = (fb_btod_t *) vmalloc (
-					sizeof (fb_btod_t) * NUM_BTODS)) == NULL) {
+	if ((delm->btod = (struct fb_btod_t *) vmalloc (
+					sizeof (struct fb_btod_t) * NUM_BTODS)) == NULL) {
 		printk (KERN_ERR "Allocating DEL block list failed.\n");
 		goto FAIL;
 	}
@@ -260,8 +260,8 @@ fb_del_mngr_t *create_del_mngr (void) {
 		delm->btod[i].blki = NULL;
 	}
 
-	if ((delm->wtod = (fb_wtod_t *) vmalloc (
-					sizeof (fb_wtod_t) * NUM_WTODS)) == NULL) {
+	if ((delm->wtod = (struct fb_wtod_t *) vmalloc (
+					sizeof (struct fb_wtod_t) * NUM_WTODS)) == NULL) {
 		printk (KERN_ERR "Allocating DEL WL list failed.\n");
 		goto FAIL;
 	}
@@ -305,7 +305,7 @@ FAIL:
 }
 
 
-void destroy_del_mngr (fb_del_mngr_t *delm) {
+void destroy_del_mngr (struct fb_del_mngr_t *delm) {
 	if (delm != NULL) {
 		if (delm->hash_btod != NULL) {
 			HASH_CLEAR (hh, delm->hash_btod);
@@ -338,9 +338,9 @@ void destroy_del_mngr (fb_del_mngr_t *delm) {
 
 // return:	0 if add new one,
 //			1 otherwise (already exist)
-void fb_del_add_blk_to_del (fb_del_mngr_t *delm, fb_blk_inf_t *blki) {
-	fb_btod_t *btod = NULL;
-	fb_btod_t *new = fb_del_get_btod (delm, fb_del_get_nr_btod (delm));
+void fb_del_add_blk_to_del (struct fb_del_mngr_t *delm, fb_blk_inf_t *blki) {
+	struct fb_btod_t *btod = NULL;
+	struct fb_btod_t *new = fb_del_get_btod (delm, fb_del_get_nr_btod (delm));
 
 	HASH_FIND (hh, delm->hash_btod, &blki, sizeof (fb_blk_inf_t*), btod);
 
@@ -362,10 +362,10 @@ void fb_del_add_blk_to_del (fb_del_mngr_t *delm, fb_blk_inf_t *blki) {
 
 // return:	0 if add new one,
 //			1 otherwise (already exist)
-void fb_del_add_wl_to_del (fb_del_mngr_t *delm,
+void fb_del_add_wl_to_del (struct fb_del_mngr_t *delm,
 		uint32_t bus, uint32_t chip, uint32_t blk, uint32_t pg) {
-	fb_wtod_t *wtod = NULL;
-	fb_wtod_t *new = fb_del_get_wtod (delm, fb_del_get_nr_wtod (delm));
+	struct fb_wtod_t *wtod = NULL;
+	struct fb_wtod_t *new = fb_del_get_wtod (delm, fb_del_get_nr_wtod (delm));
 
 	uint32_t wl_idx = convert_to_wl_idx (bus, chip, blk, pg);
 
@@ -388,17 +388,17 @@ void fb_del_add_wl_to_del (fb_del_mngr_t *delm,
 	}
 }
 
-inline uint32_t* fb_del_get_lpas_to_copy (fb_del_mngr_t *delm) {
+inline uint32_t* fb_del_get_lpas_to_copy (struct fb_del_mngr_t *delm) {
 	return delm->lpas_to_copy;
 }
 
-inline uint8_t* fb_del_get_data_to_copy (fb_del_mngr_t *delm) {
+inline uint8_t* fb_del_get_data_to_copy (struct fb_del_mngr_t *delm) {
 	return delm->data_to_copy;
 }
 
 int _fb_del_invalidate_pgs (struct fb_context_t* fb, uint32_t nr_reqs, uint32_t *req_lpas) {
-	fb_pg_ftl_t *ftl = get_ftl (fb);
-	fb_del_mngr_t *delm = get_delm (ftl);
+	struct page_mapping_context_t *ftl = get_ftl (fb);
+	struct fb_del_mngr_t *delm = get_delm (ftl);
 
 	uint32_t loop = 0;
 	init_delm (delm);
@@ -423,8 +423,8 @@ int _fb_del_invalidate_pgs (struct fb_context_t* fb, uint32_t nr_reqs, uint32_t 
 
 /*
 int fb_del_put_live_pgs_to_wb (struct fb_context_t *fb) {
-	fb_pg_ftl_t *ftl = get_ftl (fb);
-	fb_del_mngr_t *delm = get_delm (ftl);
+	struct page_mapping_context_t *ftl = get_ftl (fb);
+	struct fb_del_mngr_t *delm = get_delm (ftl);
 
 	uint32_t loop;
 	uint32_t nr_pgs_to_copy = fb_del_get_nr_pgs_to_copy (delm);
@@ -463,7 +463,7 @@ int fb_del_invalid_data (struct fb_context_t *fb, struct fb_bio_t  *fb_bio) {
 }
 
 
-void destroy_pg_ftl (fb_pg_ftl_t *ftl)
+void destroy_pg_ftl (struct page_mapping_context_t *ftl)
 {
 	if (ftl != NULL) {
 		destroy_act_blk_mngr (ftl->abm);
@@ -541,7 +541,7 @@ static int make_write_request_page_mapping(
 		uint32_t *lpa,
 		uint8_t *src)
 {
-	fb_pg_ftl_t *ftl = (fb_pg_ftl_t *) get_ftl (fb);
+	struct page_mapping_context_t *ftl = (struct page_mapping_context_t *) get_ftl (fb);
 
 	uint8_t bus, chip;
 	uint32_t blk, pg;
@@ -604,21 +604,21 @@ static int make_flush_request_page_mapping(void)
 	return 0;
 }
 
-static inline uint32_t *get_lpas_to_discard (fb_pg_ftl_t *ftl) {
+static inline uint32_t *get_lpas_to_discard (struct page_mapping_context_t *ftl) {
 	return ftl->lpas_to_discard;
 }
 
-static inline uint32_t get_lpa_to_discard (fb_pg_ftl_t *ftl, uint32_t idx) {
+static inline uint32_t get_lpa_to_discard (struct page_mapping_context_t *ftl, uint32_t idx) {
 	return ftl->lpas_to_discard[idx];
 }
 
 static inline void set_lpa_to_discard (
-		fb_pg_ftl_t *ftl, uint32_t idx, uint32_t new) {
+		struct page_mapping_context_t *ftl, uint32_t idx, uint32_t new) {
 	ftl->lpas_to_discard[idx] = new;
 }
 
 static int make_discard_request_page_mapping (struct fb_context_t *fb, struct bio *bio) {
-	fb_pg_ftl_t *ftl = (fb_pg_ftl_t *) get_ftl (fb);
+	struct page_mapping_context_t *ftl = (struct page_mapping_context_t *) get_ftl (fb);
 	fb_wb_t *wb = get_write_buffer (fb);
 	uint64_t sec_start, sec_end, lpa_start, nr_lpgs;
 	uint32_t lp_loop, bio_loop;
