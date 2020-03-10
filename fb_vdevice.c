@@ -195,11 +195,7 @@ void vdevice_erase(
 
 inline int is_valid_address_range(uint32_t logical_page_address)
 {
-
-	return (logical_page_address >= 0
-			&& logical_page_address <
-					NUM_LOG_PAGES) ?
-		TRUE : FALSE;
+	return logical_page_address < NUM_LOG_PAGES;
 }
 
 inline uint32_t convert_to_physical_address(
