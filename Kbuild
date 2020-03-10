@@ -18,7 +18,7 @@ flashBench-objs += \
 	fb_bitmap.o \
 	fb_bus_controller.o
 
-ccflags-y := -I$(src)/libs
+ccflags-y := -I$(src)/libs -std=gnu11 -Wextra -Wpedantic
 
 # To disable warnings in header files
 LINUXINCLUDE := $(subst -I, -isystem, $(LINUXINCLUDE))
