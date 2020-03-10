@@ -14,7 +14,7 @@
 #include "fb_page_mapping_function.h"
 #include "fb_gc_page_mapping.h"
 #include "fb_util.h"
-#include "libs/utlist.h"
+#include "uthash/utlist.h"
 
 
 static inline void init_gcm (struct fb_gc_mngr_t *gcm) {

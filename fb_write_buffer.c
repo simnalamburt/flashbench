@@ -2,8 +2,8 @@
 #include <linux/mm.h>
 #include <linux/vmalloc.h>
 
-#include "libs/uthash.h"
-#include "libs/utlist.h"
+#include "uthash/uthash.h"
+#include "uthash/utlist.h"
 #include "fb_option.h"
 #include "fb_macro.h"
 #include "fb_write_buffer.h"

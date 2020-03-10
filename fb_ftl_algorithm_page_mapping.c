@@ -12,8 +12,8 @@
 #include "fb_page_mapping_function.h"
 #include "fb_gc_page_mapping.h"
 #include "fb_util.h"
-#include "libs/utlist.h"
-#include "libs/uthash.h"
+#include "uthash/utlist.h"
+#include "uthash/uthash.h"
 
 static int make_read_request_page_mapping(
 		struct fb_context_t *ptr_fb_context,

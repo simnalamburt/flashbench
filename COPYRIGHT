@@ -24,7 +24,7 @@ The flashbench project includes packages written by third parties. The following
 third party packages are included, and carry their own copyright notices and
 license terms:
 
-* The 'libs/uthash.h' and 'libs/utlist.h' are derived from uthash
+* The 'uthash/uthash.h' and 'uthash/utlist.h' are derived from uthash
   <https://troydhanson.github.io/uthash/> project.
   uthash project carries the following license.
 
