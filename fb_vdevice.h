@@ -59,7 +59,7 @@ void vdevice_read(
 		uint32_t page,
 		uint8_t *page_bitmap,
 		uint8_t *ptr_dest,
-		fb_bio_t *ptr_fb_bio);
+		struct fb_bio_t *ptr_fb_bio);
 
 void vdevice_write(
 		struct vdevice_t *ptr_vdevice,
@@ -68,14 +68,14 @@ void vdevice_write(
 		uint32_t block,
 		uint32_t page,
 		const uint8_t *ptr_src,
-		fb_bio_t *ptr_fb_bio);
+		struct fb_bio_t *ptr_fb_bio);
 
 void vdevice_erase(
 		struct vdevice_t *ptr_vdevice,
 		uint8_t bus,
 		uint8_t chip,
 		uint32_t block,
-		fb_bio_t *ptr_fb_bio);
+		struct fb_bio_t *ptr_fb_bio);
 
 void vdevice_plock (
 		struct vdevice_t *ptr_vdevice,

@@ -59,13 +59,13 @@ static inline int opr_queue_empty(struct fb_opr_queue_t *ptr_opr_queue);
 static int opr_queue_put_entry(
 		struct fb_opr_queue_t *ptr_opr_queue,
 		uint32_t operation,
-		fb_bio_t *ptr_fb_bio);
+		struct fb_bio_t *ptr_fb_bio);
 
 // Get informations of the first entry in the target operation queue(success: 0, error: -1)
 static int opr_queue_get_first(
 		struct fb_opr_queue_t *ptr_opr_queue,
 		uint32_t *ptr_operation,
-		fb_bio_t **ptr_fb_bio);
+		struct fb_bio_t **ptr_fb_bio);
 
 // Remove informations of the first entry in the target operation queue(success: 0, error: -1)
 static int opr_queue_remove_first(
@@ -79,7 +79,7 @@ static void acquire_busy_lock(
 		struct fb_bus_controller_t *ptr_bus_controller,
 		uint32_t chip,
 		uint32_t operation,
-		fb_bio_t *ptr_fb_bio);
+		struct fb_bio_t *ptr_fb_bio);
 
 static int chip_status_busy(
 		struct fb_bus_controller_t *ptr_bus_controller, uint32_t chip);
@@ -192,7 +192,7 @@ void fb_bus_controller_destroy(struct fb_bus_controller_t **ptr_bus_controller)
 // Issue an operation for the target chip of the target bus
 int fb_issue_operation(
 		struct fb_bus_controller_t *ptr_bus_controller,
-		uint32_t chip, uint32_t operation, fb_bio_t *ptr_bio)
+		uint32_t chip, uint32_t operation, struct fb_bio_t *ptr_bio)
 {
 	while(opr_queue_put_entry(ptr_bus_controller->ptr_opr_queue[chip], operation, ptr_bio) == -1);
 
@@ -327,7 +327,7 @@ static int fb_bus_ctrl_thread(void *arg)
 	uint32_t loop_chip;
 	uint32_t wakeup_time_in_us, current_time_in_us;
 	uint32_t operation;
-	fb_bio_t *ptr_fb_bio = NULL;
+	struct fb_bio_t *ptr_fb_bio = NULL;
 
 	uint32_t signr;
 	int ret = 0;
@@ -586,7 +586,7 @@ static inline int opr_queue_empty(struct fb_opr_queue_t *ptr_opr_queue)
 static int opr_queue_put_entry(
 		struct fb_opr_queue_t *ptr_opr_queue,
 		uint32_t operation,
-		fb_bio_t *ptr_fb_bio)
+		struct fb_bio_t *ptr_fb_bio)
 {
 	int ret = 0;
 	struct fb_operation_t *ptr_opr_entry;
@@ -633,7 +633,7 @@ FINISH:
 static int opr_queue_get_first(
 		struct fb_opr_queue_t *ptr_opr_queue,
 		uint32_t *ptr_operation,
-		fb_bio_t **ptr_fb_bio)
+		struct fb_bio_t **ptr_fb_bio)
 {
 	int ret = 0;
 	struct fb_operation_t *ptr_opr_entry;
@@ -728,7 +728,7 @@ static void acquire_busy_lock(
 		struct fb_bus_controller_t *ptr_bus_controller,
 		uint32_t chip,
 		uint32_t operation,
-		fb_bio_t *ptr_fb_bio)
+		struct fb_bio_t *ptr_fb_bio)
 {
 	// Set time values
 	ptr_bus_controller->chip_busies[chip].issue_time_in_us =

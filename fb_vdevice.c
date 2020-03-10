@@ -117,7 +117,7 @@ void vdevice_read(
 		uint32_t page,
 		uint8_t* page_bitmap,
 		uint8_t* ptr_dest,
-		fb_bio_t *ptr_fb_bio)
+		struct fb_bio_t *ptr_fb_bio)
 {
 	uint8_t* ptr_src = ptr_vdevice->buses[bus].chips[chip].blocks[block].pages[page].ptr_data;
 	uint8_t lp_loop;
@@ -144,7 +144,7 @@ void vdevice_write(
 		uint32_t block,
 		uint32_t page,
 		const uint8_t* ptr_src,
-		fb_bio_t *ptr_fb_bio)
+		struct fb_bio_t *ptr_fb_bio)
 {
 	uint8_t* ptr_dest = ptr_vdevice->buses[bus].chips[chip].blocks[block].pages[page].ptr_data;
 
@@ -182,7 +182,7 @@ void vdevice_erase(
 		uint8_t bus,
 		uint8_t chip,
 		uint32_t block,
-		fb_bio_t *ptr_fb_bio)
+		struct fb_bio_t *ptr_fb_bio)
 {
 	uint8_t* ptr_dest = ptr_vdevice->buses[bus].chips[chip].blocks[block].pages[0].ptr_data;
 

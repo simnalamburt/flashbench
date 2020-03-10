@@ -89,7 +89,7 @@ static fb_blk_inf_t* select_vic_blk_greedy (
 	return vic_blki;
 }
 
-static int set_vic_blks (fb_t *fb) {
+static int set_vic_blks (struct fb_context_t *fb) {
 	fb_pg_ftl_t *ftl = (fb_pg_ftl_t *) get_ftl (fb);
 	fb_gc_mngr_t *gcm = get_gcm (ftl);
 	fb_ssd_inf_t *ssdi = get_ssd_inf (fb);
@@ -125,7 +125,7 @@ static int set_vic_blks (fb_t *fb) {
 	return 0;
 }
 
-static void get_valid_pgs_in_vic_blks (fb_t *fb) {
+static void get_valid_pgs_in_vic_blks (struct fb_context_t *fb) {
 	fb_pg_ftl_t *ftl = (fb_pg_ftl_t *) get_ftl (fb);
 	fb_gc_mngr_t *gcm = get_gcm (ftl);
 	fb_vdev_t *vdev = get_vdev (fb);
@@ -176,7 +176,7 @@ static void get_valid_pgs_in_vic_blks (fb_t *fb) {
 	}
 }
 
-static int prog_valid_pgs_to_gc_blks (fb_t *fb) {
+static int prog_valid_pgs_to_gc_blks (struct fb_context_t *fb) {
 	fb_pg_ftl_t *ftl = (fb_pg_ftl_t *) get_ftl (fb);
 	fb_gc_mngr_t *gcm = get_gcm (ftl);
 	fb_vdev_t *vdev = get_vdev (fb);
@@ -222,7 +222,7 @@ static int prog_valid_pgs_to_gc_blks (fb_t *fb) {
 	return 0;
 }
 
-static int prepare_act_blks (fb_t *fb) {
+static int prepare_act_blks (struct fb_context_t *fb) {
 	fb_vdev_t *vdev = get_vdev (fb);
 
 	fb_blk_inf_t *blki;
@@ -255,7 +255,7 @@ static int prepare_act_blks (fb_t *fb) {
 	return 0;
 }
 
-static int update_gc_blks (fb_t *fb) {
+static int update_gc_blks (struct fb_context_t *fb) {
 	fb_blk_inf_t *gc_blki;
 
 	uint32_t bus, chip;
@@ -280,7 +280,7 @@ static int update_gc_blks (fb_t *fb) {
 	return 0;
 }
 
-fb_gc_mngr_t *create_gc_mngr (fb_t *fb) {
+fb_gc_mngr_t *create_gc_mngr (struct fb_context_t *fb) {
 	fb_ssd_inf_t *ssdi = get_ssd_inf (fb);
 	fb_gc_mngr_t *gcm = NULL;
 	fb_blk_inf_t *blki;
@@ -366,7 +366,7 @@ void destroy_gc_mngr (fb_gc_mngr_t *gcm) {
 	}
 }
 
-int trigger_gc_page_mapping (fb_t *fb) {
+int trigger_gc_page_mapping (struct fb_context_t *fb) {
 	fb_pg_ftl_t *ftl = (fb_pg_ftl_t *) get_ftl (fb);
 	fb_gc_mngr_t *gcm = get_gcm (ftl);
 
@@ -404,7 +404,7 @@ int trigger_gc_page_mapping (fb_t *fb) {
 	return 0;
 }
 
-int fb_bgc_prepare_act_blks (fb_t *fb) {
+int fb_bgc_prepare_act_blks (struct fb_context_t *fb) {
 	fb_ssd_inf_t *ssdi = get_ssd_inf (fb);
 	fb_blk_inf_t *blki;
 
@@ -444,7 +444,7 @@ int fb_bgc_prepare_act_blks (fb_t *fb) {
 }
 
 
-static int fb_bgc_set_vic_blks (fb_t *fb) {
+static int fb_bgc_set_vic_blks (struct fb_context_t *fb) {
 	fb_pg_ftl_t *ftl = (fb_pg_ftl_t *) get_ftl (fb);
 	fb_ssd_inf_t *ssdi = get_ssd_inf (fb);
 	fb_gc_mngr_t *gcm = get_gcm (ftl);
@@ -496,7 +496,7 @@ static int fb_bgc_set_vic_blks (fb_t *fb) {
 	return 0;
 }
 
-int fb_bgc_read_valid_pgs (fb_t *fb) {
+int fb_bgc_read_valid_pgs (struct fb_context_t *fb) {
 	fb_pg_ftl_t *ftl = (fb_pg_ftl_t *) get_ftl (fb);
 	fb_gc_mngr_t *gcm = get_gcm (ftl);
 
@@ -554,12 +554,12 @@ int fb_bgc_read_valid_pgs (fb_t *fb) {
 	return 0;
 }
 
-int fb_bgc_write_valid_pgs (fb_t *fb) {
+int fb_bgc_write_valid_pgs (struct fb_context_t *fb) {
 
 	return prog_valid_pgs_to_gc_blks (fb);
 }
 
-int trigger_bg_gc (fb_t *fb) {
+int trigger_bg_gc (struct fb_context_t *fb) {
 	fb_pg_ftl_t *ftl = (fb_pg_ftl_t *) get_ftl (fb);
 	fb_gc_mngr_t *gcm = get_gcm (ftl);
 

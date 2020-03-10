@@ -19,7 +19,7 @@ static int make_read_request_page_mapping(
 		struct fb_context_t *ptr_fb_context,
 		uint32_t logical_page_address,
 		uint8_t *ptr_page_buffer,
-		fb_bio_t *ptr_fb_bio);
+		struct fb_bio_t *ptr_fb_bio);
 static int make_write_request_page_mapping(
 		struct fb_context_t *ptr_fb_context,
 		uint32_t *logical_page_address,
@@ -28,20 +28,20 @@ static int make_flush_request_page_mapping(void);
 static int make_discard_request_page_mapping(
 		struct fb_context_t *ptr_fb_context,
 		struct bio *bio);
-static int fb_wb_flush (fb_t *fb);
+static int fb_wb_flush (struct fb_context_t *fb);
 static struct page_mapping_table_t *create_page_mapping_table(void);
 static void destroy_mapping_table (struct page_mapping_table_t *mt);
-static fb_act_blk_mngr_t *create_act_blk_mngr (fb_t *fb);
+static fb_act_blk_mngr_t *create_act_blk_mngr (struct fb_context_t *fb);
 static void destroy_act_blk_mngr (fb_act_blk_mngr_t *abm);
 
 static fb_del_mngr_t *create_del_mngr (void);
 static void destroy_del_mngr (fb_del_mngr_t *delm);
 
-static int fb_background_gc (fb_t *fb) {
+static int fb_background_gc (struct fb_context_t *fb) {
 	return trigger_bg_gc (fb);
 }
 
-static fb_act_blk_mngr_t *create_act_blk_mngr (fb_t *fb) {
+static fb_act_blk_mngr_t *create_act_blk_mngr (struct fb_context_t *fb) {
 	fb_act_blk_mngr_t *abm = NULL;
 	fb_ssd_inf_t *ssdi = get_ssd_inf (fb);
 	fb_blk_inf_t *blki;
@@ -100,7 +100,7 @@ inline fb_act_blk_mngr_t *get_abm (fb_pg_ftl_t *ftl) {
 	return ftl->abm;
 }
 
-void *create_pg_ftl (fb_t* fb)
+void *create_pg_ftl (struct fb_context_t* fb)
 {
 	fb_pg_ftl_t *ftl;
 
@@ -403,7 +403,7 @@ inline uint8_t* fb_del_get_data_to_copy (fb_del_mngr_t *delm) {
 	return delm->data_to_copy;
 }
 
-int _fb_del_invalidate_pgs (fb_t* fb, uint32_t nr_reqs, uint32_t *req_lpas) {
+int _fb_del_invalidate_pgs (struct fb_context_t* fb, uint32_t nr_reqs, uint32_t *req_lpas) {
 	fb_pg_ftl_t *ftl = get_ftl (fb);
 	fb_del_mngr_t *delm = get_delm (ftl);
 
@@ -429,7 +429,7 @@ int _fb_del_invalidate_pgs (fb_t* fb, uint32_t nr_reqs, uint32_t *req_lpas) {
 }
 
 /*
-int fb_del_put_live_pgs_to_wb (fb_t *fb) {
+int fb_del_put_live_pgs_to_wb (struct fb_context_t *fb) {
 	fb_pg_ftl_t *ftl = get_ftl (fb);
 	fb_del_mngr_t *delm = get_delm (ftl);
 
@@ -458,11 +458,11 @@ int fb_del_put_live_pgs_to_wb (fb_t *fb) {
 }
 */
 
-inline int fb_del_invalidate_pgs (fb_t* fb, fb_bio_t* fb_bio) {
+inline int fb_del_invalidate_pgs (struct fb_context_t* fb, struct fb_bio_t* fb_bio) {
 	return _fb_del_invalidate_pgs (fb, fb_bio->req_count, fb_bio->lpas);
 }
 
-int fb_del_invalid_data (fb_t *fb, fb_bio_t  *fb_bio) {
+int fb_del_invalid_data (struct fb_context_t *fb, struct fb_bio_t  *fb_bio) {
 	// 1. Invalidate all LPAs in the request
 	fb_del_invalidate_pgs (fb, fb_bio);
 
@@ -490,7 +490,7 @@ static int make_read_request_page_mapping(
 		struct fb_context_t *ptr_fb_context,
 		uint32_t logical_page_address,
 		uint8_t *ptr_page_buffer,
-		fb_bio_t *ptr_fb_bio)
+		struct fb_bio_t *ptr_fb_bio)
 {
 	uint32_t bus, chip, block, page, page_offset;
 	uint32_t physical_page_address;
@@ -527,7 +527,7 @@ static int make_read_request_page_mapping(
 	return 0;
 }
 
-static int is_fgc_needed (fb_t *fb, uint8_t bus, uint8_t chip) {
+static int is_fgc_needed (struct fb_context_t *fb, uint8_t bus, uint8_t chip) {
 
 	uint8_t bus_idx, chip_idx;
 
@@ -544,7 +544,7 @@ static int is_fgc_needed (fb_t *fb, uint8_t bus, uint8_t chip) {
 }
 
 static int make_write_request_page_mapping(
-		fb_t *fb,
+		struct fb_context_t *fb,
 		uint32_t *lpa,
 		uint8_t *src)
 {
@@ -624,7 +624,7 @@ static inline void set_lpa_to_discard (
 	ftl->lpas_to_discard[idx] = new;
 }
 
-static int make_discard_request_page_mapping (fb_t *fb, struct bio *bio) {
+static int make_discard_request_page_mapping (struct fb_context_t *fb, struct bio *bio) {
 	fb_pg_ftl_t *ftl = (fb_pg_ftl_t *) get_ftl (fb);
 	fb_wb_t *wb = get_write_buffer (fb);
 	uint64_t sec_start, sec_end, lpa_start, nr_lpgs;
@@ -712,7 +712,7 @@ FAIL_ALLOC_TABLE:
 	return NULL;
 }
 
-void print_blk_mgmt (fb_t *fb) {
+void print_blk_mgmt (struct fb_context_t *fb) {
 	uint8_t bus, chip;
 
 	get_next_bus_chip (fb, &bus, &chip);
@@ -738,7 +738,7 @@ void print_blk_mgmt (fb_t *fb) {
 	}
 }
 
-int fb_wb_flush (fb_t *fb) {
+int fb_wb_flush (struct fb_context_t *fb) {
 	fb_wb_t *wb = get_write_buffer (fb);
 
 	uint32_t lpas[NR_LP_IN_PP];

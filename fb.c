@@ -28,21 +28,21 @@ static int fb_init_write_buffer_thread(void);
 static void fb_stop_write_buffer_thread(void);
 static int fb_write_buffer_thread(void *arg);
 #endif
-static void fb_init_bgc_ts (fb_t* fb);
+static void fb_init_bgc_ts (struct fb_context_t* fb);
 static inline uint64_t fb_get_time_in_us (void);
-static inline uint64_t fb_get_bgc_ts (fb_t *fb);
-static inline void fb_update_bgc_ts (fb_t* fb);
-static inline int fb_is_bgc_ts_expired (fb_t* fb, uint64_t threshold);
-uint32_t dec_bio_req_count (fb_bio_t *ptr_bio);
-uint32_t get_bio_req_count (fb_bio_t *ptr_bio);
-static fb_bio_t *fb_build_bio (struct bio *bio);
-static void fb_destroy_bio (fb_bio_t *fbio);
+static inline uint64_t fb_get_bgc_ts (struct fb_context_t *fb);
+static inline void fb_update_bgc_ts (struct fb_context_t* fb);
+static inline int fb_is_bgc_ts_expired (struct fb_context_t* fb, uint64_t threshold);
+uint32_t dec_bio_req_count (struct fb_bio_t *ptr_bio);
+uint32_t get_bio_req_count (struct fb_bio_t *ptr_bio);
+static struct fb_bio_t *fb_build_bio (struct bio *bio);
+static void fb_destroy_bio (struct fb_bio_t *fbio);
 static blk_qc_t make_request(struct request_queue *ptr_req_queue, struct bio *bio);
 static int __init fb_init(void);
 static void __exit fb_exit(void);
 
 
-fb_t *_fb;
+struct fb_context_t *_fb;
 
 struct block_device_operations bdops = {
 	.owner = THIS_MODULE,
@@ -54,7 +54,7 @@ static blk_qc_t make_request(__attribute__((unused)) struct request_queue *ptr_r
 	uint32_t ret_value = 0;
 	uint32_t loop, req_count;
 
-	fb_bio_t *fbio = NULL;
+	struct fb_bio_t *fbio = NULL;
 
 	fb_lock (&_fb->dev_lock);
 
@@ -465,23 +465,23 @@ FINISH:
 }
 #endif
 
-inline struct fb_wb *get_write_buffer (fb_t *fb) {
+inline struct fb_wb *get_write_buffer (struct fb_context_t *fb) {
 	return fb->wb;
 }
 
-inline struct ssd_info_t *get_ssd_inf (fb_t *fb) {
+inline struct ssd_info_t *get_ssd_inf (struct fb_context_t *fb) {
 	return fb->ptr_ssd_info;
 }
 
-struct vdevice_t *get_vdev (fb_t *fb) {
+struct vdevice_t *get_vdev (struct fb_context_t *fb) {
 	return fb->ptr_vdevice;
 }
 
-void *get_ftl (fb_t *fb) {
+void *get_ftl (struct fb_context_t *fb) {
 	return fb->ptr_mapping_context;
 }
 
-static void fb_init_bgc_ts (fb_t* fb) {
+static void fb_init_bgc_ts (struct fb_context_t* fb) {
 	fb->background_gc_time_stamp = 0;
 }
 
@@ -489,19 +489,19 @@ static inline uint64_t fb_get_time_in_us (void) {
 	return ktime_to_us (ktime_get ());
 }
 
-static inline uint64_t fb_get_bgc_ts (fb_t *fb) {
+static inline uint64_t fb_get_bgc_ts (struct fb_context_t *fb) {
 	return fb->background_gc_time_stamp;
 }
 
-static inline void fb_update_bgc_ts (fb_t* fb) {
+static inline void fb_update_bgc_ts (struct fb_context_t* fb) {
 	fb->background_gc_time_stamp = fb_get_time_in_us();
 }
 
-static inline int fb_is_bgc_ts_expired (fb_t* fb, uint64_t threshold) {
+static inline int fb_is_bgc_ts_expired (struct fb_context_t* fb, uint64_t threshold) {
 	return ((fb_get_time_in_us() - fb_get_bgc_ts (fb)) > threshold) ? TRUE : FALSE;
 }
 
-uint32_t dec_bio_req_count (fb_bio_t *fbio) {
+uint32_t dec_bio_req_count (struct fb_bio_t *fbio) {
 	uint32_t ret;
 
 	fb_lock (fb_bio_get_lock (fbio));
@@ -514,7 +514,7 @@ uint32_t dec_bio_req_count (fb_bio_t *fbio) {
 	return ret;
 }
 
-uint32_t get_bio_req_count (fb_bio_t *fbio) {
+uint32_t get_bio_req_count (struct fb_bio_t *fbio) {
 	uint32_t ret;
 
 	fb_lock (fb_bio_get_lock (fbio));
@@ -526,16 +526,16 @@ uint32_t get_bio_req_count (fb_bio_t *fbio) {
 	return ret;
 }
 
-static fb_bio_t *fb_build_bio (struct bio *bio) {
+static struct fb_bio_t *fb_build_bio (struct bio *bio) {
 	struct bio_vec bvec;
 	const int rw = bio_data_dir(bio);
 	struct bvec_iter bio_loop;
 	uint64_t sec_start, lpa_curr;
-	fb_bio_t *fbio = NULL;
+	struct fb_bio_t *fbio = NULL;
 	uint8_t *ptr_page_buffer;
 
 
-	if ((fbio = (fb_bio_t *) vmalloc (sizeof (fb_bio_t))) == NULL) {
+	if ((fbio = (struct fb_bio_t *) vmalloc (sizeof (struct fb_bio_t))) == NULL) {
 		printk (KERN_ERR "Allocating bio structure failed.\n");
 		return NULL;
 	}
@@ -573,7 +573,7 @@ static fb_bio_t *fb_build_bio (struct bio *bio) {
 	return fbio;
 }
 
-static void fb_destroy_bio (fb_bio_t *fbio) {
+static void fb_destroy_bio (struct fb_bio_t *fbio) {
 	vfree (fbio);
 }
 

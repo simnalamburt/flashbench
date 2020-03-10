@@ -4,7 +4,7 @@ struct fb_operation_t
 {
 	uint32_t operation;
 
-	fb_bio_t *ptr_fb_bio;
+	struct fb_bio_t *ptr_fb_bio;
 };
 
 struct fb_opr_queue_t
@@ -27,7 +27,7 @@ struct fb_chip_busy_t
 
 	struct completion chip_busy;
 
-	fb_bio_t *ptr_fb_bio;
+	struct fb_bio_t *ptr_fb_bio;
 };
 
 struct fb_bus_controller_t
@@ -47,4 +47,4 @@ int fb_bus_controller_init(struct vdevice_t *ptr_vdevice, uint32_t num_max_entri
 void fb_bus_controller_destroy(struct fb_bus_controller_t **ptr_bus_controller);
 int fb_issue_operation(
 		struct fb_bus_controller_t *ptr_bus_controller,
-		uint32_t chip, uint32_t operation, fb_bio_t *ptr_bio);
+		uint32_t chip, uint32_t operation, struct fb_bio_t *ptr_bio);

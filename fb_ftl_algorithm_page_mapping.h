@@ -75,12 +75,12 @@ typedef struct page_mapping_context_t
 	uint32_t *lpas_to_discard;
 } fb_pg_ftl_t;
 
-void *create_pg_ftl (fb_t *fb);
+void *create_pg_ftl (struct fb_context_t *fb);
 void destroy_pg_ftl (fb_pg_ftl_t *ftl);
 fb_gc_mngr_t *get_gcm (fb_pg_ftl_t *ftl);
 fb_act_blk_mngr_t *get_abm (fb_pg_ftl_t *ftl);
-void print_blk_mgmt (fb_t *fb);
-int fb_del_invalid_data (fb_t *fb, fb_bio_t  *fb_bio);
+void print_blk_mgmt (struct fb_context_t *fb);
+int fb_del_invalid_data (struct fb_context_t *fb, struct fb_bio_t  *fb_bio);
 
 fb_del_mngr_t *get_delm (fb_pg_ftl_t *ftl);
 

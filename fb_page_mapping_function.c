@@ -57,7 +57,7 @@ inline void set_prev_bus_chip(
 	abm->mru_chip = chip;
 }
 
-inline void get_prev_bus_chip (fb_t *fb, uint8_t *bus, uint8_t *chip) {
+inline void get_prev_bus_chip (struct fb_context_t *fb, uint8_t *bus, uint8_t *chip) {
 	fb_pg_ftl_t *ftl = (fb_pg_ftl_t *) get_ftl (fb);
 	fb_act_blk_mngr_t *abm = get_abm (ftl);
 
@@ -83,7 +83,7 @@ void get_next_bus_chip(
 	}
 }
 
-int alloc_new_page (fb_t *fb, uint8_t bus, uint8_t chip, uint32_t *blk, uint32_t *pg) {
+int alloc_new_page (struct fb_context_t *fb, uint8_t bus, uint8_t chip, uint32_t *blk, uint32_t *pg) {
 	fb_ssd_inf_t *ssdi = get_ssd_inf (fb);
 
 	fb_blk_inf_t *blki;
@@ -129,7 +129,7 @@ int map_logical_to_physical(
 	return ret;
 }
 
-void update_act_blk (fb_t* fb, uint8_t bus, uint8_t chip) {
+void update_act_blk (struct fb_context_t* fb, uint8_t bus, uint8_t chip) {
 	fb_blk_inf_t *blki = get_curr_active_block (fb, bus, chip);
 
 	if (get_nr_free_pgs (blki) == 0) {
@@ -152,7 +152,7 @@ inline void set_mapped_ppa (fb_pg_ftl_t *ftl, uint32_t lpa, uint32_t ppa) {
 	ftl->ptr_mapping_table->mappings[lpa] = ppa;
 }
 
-uint32_t invalidate_lpg (fb_t *fb, uint32_t lpa) {
+uint32_t invalidate_lpg (struct fb_context_t *fb, uint32_t lpa) {
 	fb_pg_ftl_t *ftl = (fb_pg_ftl_t *) get_ftl (fb);
 	fb_ssd_inf_t *ssdi = get_ssd_inf (fb);
 
@@ -201,7 +201,7 @@ uint32_t invalidate_lpg (fb_t *fb, uint32_t lpa) {
 }
 
 int __map_logical_to_physical(
-		fb_t *fb,
+		struct fb_context_t *fb,
 		uint32_t lpa,
 		uint32_t bus,
 		uint32_t chip,
@@ -238,14 +238,14 @@ int __map_logical_to_physical(
 	return 0;
 }
 
-inline fb_blk_inf_t* get_curr_gc_block (fb_t *fb, uint32_t bus, uint32_t chip) {
+inline fb_blk_inf_t* get_curr_gc_block (struct fb_context_t *fb, uint32_t bus, uint32_t chip) {
 	fb_pg_ftl_t *ftl = (fb_pg_ftl_t *) get_ftl (fb);
 
 	return ftl->gcm->gc_blks[bus * NUM_CHIPS_PER_BUS + chip];
 }
 
 inline void  set_curr_gc_block (
-		fb_t *fb, uint32_t bus, uint32_t chip, fb_blk_inf_t *blki) {
+		struct fb_context_t *fb, uint32_t bus, uint32_t chip, fb_blk_inf_t *blki) {
 	fb_pg_ftl_t *ftl = (fb_pg_ftl_t *) get_ftl (fb);
 
 	*(ftl->gcm->gc_blks + (bus * NUM_CHIPS_PER_BUS + chip)) = blki;
@@ -254,14 +254,14 @@ inline void  set_curr_gc_block (
 		set_rsv_blk_flag (blki, TRUE);
 }
 
-inline fb_blk_inf_t* get_curr_active_block (fb_t *fb, uint32_t bus, uint32_t chip) {
+inline fb_blk_inf_t* get_curr_active_block (struct fb_context_t *fb, uint32_t bus, uint32_t chip) {
 	fb_pg_ftl_t *ftl = (fb_pg_ftl_t *) get_ftl (fb);
 
 	return ftl->abm->act_blks[bus * NUM_CHIPS_PER_BUS + chip];
 }
 
 inline void set_curr_active_block (
-		fb_t *fb, uint32_t bus, uint32_t chip, fb_blk_inf_t *blki) {
+		struct fb_context_t *fb, uint32_t bus, uint32_t chip, fb_blk_inf_t *blki) {
 	fb_pg_ftl_t *ftl = (fb_pg_ftl_t *) get_ftl (fb);
 
 	*(ftl->abm->act_blks + (bus * NUM_CHIPS_PER_BUS + chip)) = blki;

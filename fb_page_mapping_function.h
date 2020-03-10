@@ -22,9 +22,9 @@ int map_logical_to_physical(
 		uint32_t block,
 		uint32_t page);
 
-void update_act_blk (fb_t* fb, uint8_t bus, uint8_t chip);
+void update_act_blk (struct fb_context_t* fb, uint8_t bus, uint8_t chip);
 
-uint32_t invalidate_lpg (fb_t *fb, uint32_t lpa);
+uint32_t invalidate_lpg (struct fb_context_t *fb, uint32_t lpa);
 
 struct flash_block_t* get_curr_gc_block(
 		struct fb_context_t *ptr_fb_context,
