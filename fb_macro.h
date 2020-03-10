@@ -19,14 +19,14 @@ do {							\
 } while (0)
 
 // Print Func
-#define fb_print_inf(fmt, ...)							\
+#define fb_print_inf(...)							\
 do { 													\
-	printk(KERN_INFO "[FB_INF]: " fmt,  ##__VA_ARGS__);	\
+	printk(KERN_INFO "[FB_INF]: " __VA_ARGS__);	\
 } while (0)
 
-#define fb_print_err(fmt, ...)									\
+#define fb_print_err(...)									\
 do { 													\
-	printk(KERN_INFO "[FB_ERR]: " fmt,  ##__VA_ARGS__);	\
+	printk(KERN_INFO "[FB_ERR]: " __VA_ARGS__);	\
 } while (0)
 
 //Memory
