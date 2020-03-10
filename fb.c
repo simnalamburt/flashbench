@@ -578,6 +578,6 @@ static void fb_destroy_bio (fb_bio_t *fbio) {
 }
 
 MODULE_LICENSE ("GPL");
-module_init (fb_init);
-module_exit (fb_exit);
+module_init (fb_init)
+module_exit (fb_exit)
 
