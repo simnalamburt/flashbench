@@ -33,7 +33,7 @@ struct fb_context_t {
 
 	struct fb_lbs_mngr_t *ptr_lbs_mngr;
 
-	struct ssd_info_t	*ptr_ssd_info;
+	struct ssd_info	*ptr_ssd_info;
 	struct vdevice_t 	*ptr_vdevice;
 
 	int (*make_flush_request) 	(void);
@@ -63,6 +63,6 @@ struct fb_context_t {
 };
 
 struct fb_wb *get_write_buffer (struct fb_context_t *fb);
-struct ssd_info_t *get_ssd_inf (struct fb_context_t *fb);
+struct ssd_info *get_ssd_inf (struct fb_context_t *fb);
 struct vdevice_t *get_vdev (struct fb_context_t *fb);
 void *get_ftl (struct fb_context_t *fb);

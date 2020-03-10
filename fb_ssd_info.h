@@ -4,22 +4,22 @@
 
 #define blk_list_for_each(head, el) DL_FOREACH(head, el)
 
-typedef enum {
+enum fb_pg_status_t {
 	PAGE_STATUS_FREE,
 	PAGE_STATUS_VALID,
 	PAGE_STATUS_INVALID,
 	PAGE_STATUS_DEL
-} fb_pg_status_t;
+};
 
-typedef struct flash_page_t {
-	fb_pg_status_t page_status[NR_LP_IN_PP];
+struct flash_page {
+	enum fb_pg_status_t page_status[NR_LP_IN_PP];
 	uint32_t no_logical_page_addr[NR_LP_IN_PP];
 	uint32_t nr_invalid_log_pages;
 
 	int del_flag;
-} fb_pg_inf_t;
+};
 
-typedef struct flash_block_t {
+struct flash_block {
 	/* block id */
 	uint32_t no_block;
 	uint32_t no_chip;
@@ -50,14 +50,14 @@ typedef struct flash_block_t {
 	int is_active_block;
 
 	/* for keeping the oob data (NOTE: it must be removed in real implementation) */
-	struct flash_page_t* list_pages;
+	struct flash_page* list_pages;
 
-	struct flash_block_t *prev, *next;
+	struct flash_block *prev, *next;
 
 	int del_flag;
-} fb_blk_inf_t;
+};
 
-typedef struct flash_chip_t {
+struct flash_chip {
 	struct completion chip_status_lock;
 
 	int chip_status;
@@ -66,24 +66,23 @@ typedef struct flash_chip_t {
 	uint32_t nr_used_blks;
 	uint32_t nr_dirt_blks;
 
-	fb_blk_inf_t *free_blks;
-	fb_blk_inf_t *used_blks;
-	fb_blk_inf_t *dirt_blks;
+	struct flash_block *free_blks;
+	struct flash_block *used_blks;
+	struct flash_block *dirt_blks;
 
 	/* the number of dirty blocks in a chip */
 	uint32_t nr_dirty_blocks;
 
 	/* block array */
-	struct flash_block_t* list_blocks;
+	struct flash_block* list_blocks;
+};
 
-} fb_chip_inf_t;
-
-typedef struct flash_bus_t {
+struct flash_bus {
 	/* chip array */
-	struct flash_chip_t* list_chips;
-} fb_bus_inf_t;
+	struct flash_chip* list_chips;
+};
 
-typedef struct ssd_info_t {
+struct ssd_info {
 	/* ssd information */
 	uint32_t nr_buses;
 	uint32_t nr_chips_per_bus;
@@ -91,125 +90,125 @@ typedef struct ssd_info_t {
 	uint32_t nr_pages_per_block;
 
 	/* bus array */
-	struct flash_bus_t* list_buses;
-} fb_ssd_inf_t;
+	struct flash_bus* list_buses;
+};
 
 
 /* page info interface */
-uint32_t get_mapped_lpa (fb_pg_inf_t *pgi, uint8_t ofs);
-void set_mapped_lpa (fb_pg_inf_t *pgi, uint8_t ofs, uint32_t lpa);
-fb_pg_status_t get_pg_status (fb_pg_inf_t *pgi, uint8_t ofs);
-void set_pg_status (fb_pg_inf_t *pgi, uint8_t ofs, fb_pg_status_t status);
-uint32_t get_nr_invalid_lps (fb_pg_inf_t *pgi);
-void set_nr_invalid_lps (fb_pg_inf_t *pgi, uint32_t value);
-uint32_t inc_nr_invalid_lps (fb_pg_inf_t *pgi);
-int get_del_flag_pg (fb_pg_inf_t *pgi);
-void set_del_flag_pg (fb_pg_inf_t *pgi, int flag);
+uint32_t get_mapped_lpa (struct flash_page *pgi, uint8_t ofs);
+void set_mapped_lpa (struct flash_page *pgi, uint8_t ofs, uint32_t lpa);
+enum fb_pg_status_t get_pg_status (struct flash_page *pgi, uint8_t ofs);
+void set_pg_status (struct flash_page *pgi, uint8_t ofs, enum fb_pg_status_t status);
+uint32_t get_nr_invalid_lps (struct flash_page *pgi);
+void set_nr_invalid_lps (struct flash_page *pgi, uint32_t value);
+uint32_t inc_nr_invalid_lps (struct flash_page *pgi);
+int get_del_flag_pg (struct flash_page *pgi);
+void set_del_flag_pg (struct flash_page *pgi, int flag);
 
 /* block info interface */
-void init_blk_inf (fb_blk_inf_t *blki);
-uint32_t get_bus_idx (fb_blk_inf_t *blki);
-uint32_t get_chip_idx (fb_blk_inf_t *blki);
-uint32_t get_blk_idx (fb_blk_inf_t *blki);
-void set_bus_idx (fb_blk_inf_t *blki, uint32_t value);
-void set_chip_idx (fb_blk_inf_t *blki, uint32_t value);
-void set_blk_idx (fb_blk_inf_t *blki, uint32_t value);
-fb_pg_inf_t *get_pgi_from_blki (fb_blk_inf_t *blki, uint32_t pg);
+void init_blk_inf (struct flash_block *blki);
+uint32_t get_bus_idx (struct flash_block *blki);
+uint32_t get_chip_idx (struct flash_block *blki);
+uint32_t get_blk_idx (struct flash_block *blki);
+void set_bus_idx (struct flash_block *blki, uint32_t value);
+void set_chip_idx (struct flash_block *blki, uint32_t value);
+void set_blk_idx (struct flash_block *blki, uint32_t value);
+struct flash_page *get_pgi_from_blki (struct flash_block *blki, uint32_t pg);
 
-uint32_t get_nr_valid_pgs (fb_blk_inf_t *blki);
-uint32_t get_nr_invalid_pgs (fb_blk_inf_t *blki);
-uint32_t get_nr_free_pgs (fb_blk_inf_t *blki);
-void set_nr_valid_pgs (fb_blk_inf_t *blki, uint32_t value);
-void set_nr_invalid_pgs (fb_blk_inf_t *blki, uint32_t value);
-void set_nr_free_pgs (fb_blk_inf_t *blki, uint32_t value);
-uint32_t inc_nr_valid_pgs (fb_blk_inf_t *blki);
-uint32_t inc_nr_invalid_pgs (fb_blk_inf_t *blki);
-uint32_t inc_nr_free_pgs (fb_blk_inf_t *blki);
-uint32_t dec_nr_valid_pgs (fb_blk_inf_t *blki);
-uint32_t dec_nr_invalid_pgs (fb_blk_inf_t *blki);
-uint32_t dec_nr_free_pgs (fb_blk_inf_t *blki);
+uint32_t get_nr_valid_pgs (struct flash_block *blki);
+uint32_t get_nr_invalid_pgs (struct flash_block *blki);
+uint32_t get_nr_free_pgs (struct flash_block *blki);
+void set_nr_valid_pgs (struct flash_block *blki, uint32_t value);
+void set_nr_invalid_pgs (struct flash_block *blki, uint32_t value);
+void set_nr_free_pgs (struct flash_block *blki, uint32_t value);
+uint32_t inc_nr_valid_pgs (struct flash_block *blki);
+uint32_t inc_nr_invalid_pgs (struct flash_block *blki);
+uint32_t inc_nr_free_pgs (struct flash_block *blki);
+uint32_t dec_nr_valid_pgs (struct flash_block *blki);
+uint32_t dec_nr_invalid_pgs (struct flash_block *blki);
+uint32_t dec_nr_free_pgs (struct flash_block *blki);
 
-uint32_t get_nr_valid_lps_in_blk (fb_blk_inf_t *blki);
-uint32_t get_nr_invalid_lps_in_blk (fb_blk_inf_t *blki);
-void set_nr_valid_lps_in_blk (fb_blk_inf_t *blki, uint32_t value);
-void set_nr_invalid_lps_in_blk (fb_blk_inf_t *blki, uint32_t value);
-uint32_t inc_nr_valid_lps_in_blk (fb_blk_inf_t *blk);
-uint32_t inc_nr_invalid_lps_in_blk (fb_blk_inf_t *blk);
-uint32_t dec_nr_valid_lps_in_blk (fb_blk_inf_t *blk);
-uint32_t dec_nr_invalid_lps_in_blk (fb_blk_inf_t *blk);
+uint32_t get_nr_valid_lps_in_blk (struct flash_block *blki);
+uint32_t get_nr_invalid_lps_in_blk (struct flash_block *blki);
+void set_nr_valid_lps_in_blk (struct flash_block *blki, uint32_t value);
+void set_nr_invalid_lps_in_blk (struct flash_block *blki, uint32_t value);
+uint32_t inc_nr_valid_lps_in_blk (struct flash_block *blk);
+uint32_t inc_nr_invalid_lps_in_blk (struct flash_block *blk);
+uint32_t dec_nr_valid_lps_in_blk (struct flash_block *blk);
+uint32_t dec_nr_invalid_lps_in_blk (struct flash_block *blk);
 
-uint32_t get_bers_cnt (fb_blk_inf_t *blki);
-void set_bers_cnt (fb_blk_inf_t *blki, uint32_t value);
-uint32_t inc_bers_cnt (fb_blk_inf_t *blki);
+uint32_t get_bers_cnt (struct flash_block *blki);
+void set_bers_cnt (struct flash_block *blki, uint32_t value);
+uint32_t inc_bers_cnt (struct flash_block *blki);
 
-int is_bad_blk (fb_blk_inf_t *blki);
-void set_bad_blk_flag (fb_blk_inf_t *blki, int flag);
+int is_bad_blk (struct flash_block *blki);
+void set_bad_blk_flag (struct flash_block *blki, int flag);
 
-int is_rsv_blk (fb_blk_inf_t *blki);
-void set_rsv_blk_flag (fb_blk_inf_t *blki, int flag);
+int is_rsv_blk (struct flash_block *blki);
+void set_rsv_blk_flag (struct flash_block *blki, int flag);
 
-int is_act_blk (fb_blk_inf_t *blki);
-void set_act_blk_flag (fb_blk_inf_t *blki, int flag);
+int is_act_blk (struct flash_block *blki);
+void set_act_blk_flag (struct flash_block *blki, int flag);
 
-int get_del_flag_blk (fb_blk_inf_t *blki);
-void set_del_flag_blk (fb_blk_inf_t *blki, int flag);
+int get_del_flag_blk (struct flash_block *blki);
+void set_del_flag_blk (struct flash_block *blki, int flag);
 
 
 /* chip info interface */
-void set_free_blk (fb_ssd_inf_t *ssdi, fb_blk_inf_t *bi);
-void reset_free_blk (fb_ssd_inf_t *ssdi, fb_blk_inf_t *bi);
-fb_blk_inf_t *get_free_block (fb_ssd_inf_t *ssdi, uint32_t bus, uint32_t chip);
-uint32_t get_nr_free_blks_in_chip (fb_chip_inf_t *ci);
-void set_used_blk (fb_ssd_inf_t* ssdi, fb_blk_inf_t *bi);
-void reset_used_blk (fb_ssd_inf_t* ssdi, fb_blk_inf_t *bi);
-fb_blk_inf_t *get_used_block (fb_ssd_inf_t *ssdi, uint32_t bus, uint32_t chip);
-uint32_t get_nr_used_blks_in_chip (fb_chip_inf_t *ci);
-void set_dirt_blk (fb_ssd_inf_t* ssdi, fb_blk_inf_t *bi);
-void reset_dirt_blk (fb_ssd_inf_t* ssdi, fb_blk_inf_t *bi);
-fb_blk_inf_t *get_dirt_block (fb_ssd_inf_t *ssdi, uint32_t bus, uint32_t chip);
-uint32_t get_nr_dirt_blks_in_chip (fb_chip_inf_t *ci);
-int is_dirt_blk (fb_blk_inf_t *blki);
+void set_free_blk (struct ssd_info *ssdi, struct flash_block *bi);
+void reset_free_blk (struct ssd_info *ssdi, struct flash_block *bi);
+struct flash_block *get_free_block (struct ssd_info *ssdi, uint32_t bus, uint32_t chip);
+uint32_t get_nr_free_blks_in_chip (struct flash_chip *ci);
+void set_used_blk (struct ssd_info* ssdi, struct flash_block *bi);
+void reset_used_blk (struct ssd_info* ssdi, struct flash_block *bi);
+struct flash_block *get_used_block (struct ssd_info *ssdi, uint32_t bus, uint32_t chip);
+uint32_t get_nr_used_blks_in_chip (struct flash_chip *ci);
+void set_dirt_blk (struct ssd_info* ssdi, struct flash_block *bi);
+void reset_dirt_blk (struct ssd_info* ssdi, struct flash_block *bi);
+struct flash_block *get_dirt_block (struct ssd_info *ssdi, uint32_t bus, uint32_t chip);
+uint32_t get_nr_dirt_blks_in_chip (struct flash_chip *ci);
+int is_dirt_blk (struct flash_block *blki);
 
-uint32_t get_nr_free_blks (fb_chip_inf_t *chipi);
-void set_nr_free_blks (fb_chip_inf_t *chipi, uint32_t value);
-uint32_t inc_nr_free_blks (fb_chip_inf_t *chipi);
-uint32_t dec_nr_free_blks (fb_chip_inf_t *chipi);
+uint32_t get_nr_free_blks (struct flash_chip *chipi);
+void set_nr_free_blks (struct flash_chip *chipi, uint32_t value);
+uint32_t inc_nr_free_blks (struct flash_chip *chipi);
+uint32_t dec_nr_free_blks (struct flash_chip *chipi);
 
 /* create the ftl information structure */
-struct ssd_info_t* create_ssd_info (void);
+struct ssd_info* create_ssd_info (void);
 
 /* destory the ftl information structure */
-void destroy_ssd_info (struct ssd_info_t *ptr_ssd_info);
+void destroy_ssd_info (struct ssd_info *ptr_ssd_info);
 
-struct flash_bus_t* get_bus_info(
-		struct ssd_info_t *ptr_ssd_info,
+struct flash_bus* get_bus_info(
+		struct ssd_info *ptr_ssd_info,
 		uint32_t bus);
 
-struct flash_chip_t* get_chip_info(
-		struct ssd_info_t *ptr_ssd_info,
+struct flash_chip* get_chip_info(
+		struct ssd_info *ptr_ssd_info,
 		uint32_t bus,
 		uint32_t chip);
 
-struct flash_block_t* get_block_info(
-		struct ssd_info_t *ptr_ssd_info,
+struct flash_block* get_block_info(
+		struct ssd_info *ptr_ssd_info,
 		uint32_t bus,
 		uint32_t chip,
 		uint32_t block);
 
-struct flash_page_t* get_page_info(
-		struct ssd_info_t *ptr_ssd_info,
+struct flash_page* get_page_info(
+		struct ssd_info *ptr_ssd_info,
 		uint32_t bus,
 		uint32_t chip,
 		uint32_t block,
 		uint32_t page);
 
 int get_chip_status(
-		struct ssd_info_t *ptr_ssd_info,
+		struct ssd_info *ptr_ssd_info,
 		uint8_t bus,
 		uint8_t chip);
 
 void set_chip_status(
-		struct ssd_info_t *ptr_ssd_info,
+		struct ssd_info *ptr_ssd_info,
 		uint8_t bus,
 		uint8_t chip,
 		int new_status);

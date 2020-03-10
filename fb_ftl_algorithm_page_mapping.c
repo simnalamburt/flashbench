@@ -43,8 +43,8 @@ static int fb_background_gc (struct fb_context_t *fb) {
 
 static struct fb_act_blk_mngr_t *create_act_blk_mngr (struct fb_context_t *fb) {
 	struct fb_act_blk_mngr_t *abm = NULL;
-	fb_ssd_inf_t *ssdi = get_ssd_inf (fb);
-	fb_blk_inf_t *blki;
+	struct ssd_info *ssdi = get_ssd_inf (fb);
+	struct flash_block *blki;
 	uint32_t bus, chip;
 
 	if ((abm = (struct fb_act_blk_mngr_t *) vmalloc (sizeof (struct fb_act_blk_mngr_t))) == NULL) {
@@ -53,8 +53,8 @@ static struct fb_act_blk_mngr_t *create_act_blk_mngr (struct fb_context_t *fb) {
 	}
 
 	if ((abm->act_blks =
-				(fb_blk_inf_t **) vmalloc (
-					sizeof (fb_blk_inf_t*) * NUM_CHIPS)) == NULL) {
+				(struct flash_block **) vmalloc (
+					sizeof (struct flash_block*) * NUM_CHIPS)) == NULL) {
 		printk (KERN_ERR "Allocating active block list failed.\n");
 		goto FAIL;
 	}
@@ -165,7 +165,7 @@ inline struct fb_btod_t *fb_del_get_btod (struct fb_del_mngr_t *delm, uint32_t i
 	return &delm->btod[idx];
 }
 
-inline void fb_del_set_btod (struct fb_btod_t *btod, fb_blk_inf_t *blki) {
+inline void fb_del_set_btod (struct fb_btod_t *btod, struct flash_block *blki) {
 	btod->blki = blki;
 }
 
@@ -338,17 +338,17 @@ void destroy_del_mngr (struct fb_del_mngr_t *delm) {
 
 // return:	0 if add new one,
 //			1 otherwise (already exist)
-void fb_del_add_blk_to_del (struct fb_del_mngr_t *delm, fb_blk_inf_t *blki) {
+void fb_del_add_blk_to_del (struct fb_del_mngr_t *delm, struct flash_block *blki) {
 	struct fb_btod_t *btod = NULL;
 	struct fb_btod_t *new = fb_del_get_btod (delm, fb_del_get_nr_btod (delm));
 
-	HASH_FIND (hh, delm->hash_btod, &blki, sizeof (fb_blk_inf_t*), btod);
+	HASH_FIND (hh, delm->hash_btod, &blki, sizeof (struct flash_block*), btod);
 
 	//printk (KERN_INFO "blki: %p\n", blki);
 
 	if (btod == NULL) {
 		fb_del_set_btod (new, blki);
-		HASH_ADD (hh, delm->hash_btod, blki, sizeof (fb_blk_inf_t*), new);
+		HASH_ADD (hh, delm->hash_btod, blki, sizeof (struct flash_block*), new);
 		fb_del_inc_nr_btod (delm);
 
 		//printk (KERN_INFO "Blk (%p) is added (%u).\n",

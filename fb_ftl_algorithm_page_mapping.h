@@ -7,14 +7,14 @@ struct page_mapping_table_t {
 };
 
 struct fb_act_blk_mngr_t {
-	struct flash_block_t **act_blks;
+	struct flash_block **act_blks;
 
 	uint32_t mru_bus;
 	uint32_t mru_chip;
 };
 
 struct fb_btod_t { // block to del
-	struct flash_block_t *blki;
+	struct flash_block *blki;
 
 	UT_hash_handle hh;
 };
@@ -49,9 +49,9 @@ struct fb_del_mngr_t {
 };
 
 struct fb_gc_mngr_t {
-	struct flash_block_t **gc_blks;
+	struct flash_block **gc_blks;
 
-	struct flash_block_t **vic_blks;
+	struct flash_block **vic_blks;
 	uint32_t *first_valid_pg;
 
 	uint32_t *lpas_to_copy;

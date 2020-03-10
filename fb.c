@@ -469,7 +469,7 @@ inline struct fb_wb *get_write_buffer (struct fb_context_t *fb) {
 	return fb->wb;
 }
 
-inline struct ssd_info_t *get_ssd_inf (struct fb_context_t *fb) {
+inline struct ssd_info *get_ssd_inf (struct fb_context_t *fb) {
 	return fb->ptr_ssd_info;
 }
 

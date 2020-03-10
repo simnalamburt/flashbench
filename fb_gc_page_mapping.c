@@ -21,18 +21,18 @@ static inline void init_gcm (struct fb_gc_mngr_t *gcm) {
 	gcm->nr_pgs_to_copy = 0;
 }
 
-static inline fb_blk_inf_t *get_vic_blk (
+static inline struct flash_block *get_vic_blk (
 		struct fb_gc_mngr_t *gcm, uint32_t bus, uint32_t chip) {
 	return gcm->vic_blks[bus * NUM_CHIPS_PER_BUS + chip];
 }
 
 static inline void set_vic_blk (
-		struct fb_gc_mngr_t *gcm, uint32_t bus, uint32_t chip, fb_blk_inf_t *blki) {
+		struct fb_gc_mngr_t *gcm, uint32_t bus, uint32_t chip, struct flash_block *blki) {
 	gcm->vic_blks[bus * NUM_CHIPS_PER_BUS + chip] = blki;
 }
 
-inline uint32_t find_first_valid_pg (fb_blk_inf_t *blki, uint32_t start_pg) {
-	fb_pg_inf_t *pgi;
+inline uint32_t find_first_valid_pg (struct flash_block *blki, uint32_t start_pg) {
+	struct flash_page *pgi;
 	uint32_t pg;
 
 	for (pg = start_pg ; pg < NUM_PAGES_PER_BLOCK ; pg++) {
@@ -54,10 +54,10 @@ inline uint32_t get_first_valid_pg (struct fb_gc_mngr_t *gcm, uint32_t bus, uint
 	return gcm->first_valid_pg[bus * NUM_CHIPS_PER_BUS + chip];
 }
 
-static fb_blk_inf_t* select_vic_blk_from_used (
-		fb_ssd_inf_t *ssdi,
+static struct flash_block* select_vic_blk_from_used (
+		struct ssd_info *ssdi,
 		uint32_t bus, uint32_t chip) {
-	fb_blk_inf_t *vic_blki = NULL, *blki;
+	struct flash_block *vic_blki = NULL, *blki;
 	uint32_t nr_max_invalid_lpgs = 0, nr_invalid_lpgs;
 
 	blk_list_for_each (get_used_block (ssdi, bus, chip), blki) {
@@ -70,10 +70,10 @@ static fb_blk_inf_t* select_vic_blk_from_used (
 	return vic_blki;
 }
 
-static fb_blk_inf_t* select_vic_blk_greedy (
-		fb_ssd_inf_t *ssdi,
+static struct flash_block* select_vic_blk_greedy (
+		struct ssd_info *ssdi,
 		uint32_t bus, uint32_t chip) {
-	fb_blk_inf_t *vic_blki = NULL, *blki;
+	struct flash_block *vic_blki = NULL, *blki;
 	uint32_t nr_max_invalid_lpgs = 0, nr_invalid_lpgs;
 
 	if ((vic_blki = get_dirt_block (ssdi, bus, chip)) != NULL)
@@ -92,9 +92,9 @@ static fb_blk_inf_t* select_vic_blk_greedy (
 static int set_vic_blks (struct fb_context_t *fb) {
 	struct page_mapping_context_t *ftl = (struct page_mapping_context_t *) get_ftl (fb);
 	struct fb_gc_mngr_t *gcm = get_gcm (ftl);
-	fb_ssd_inf_t *ssdi = get_ssd_inf (fb);
+	struct ssd_info *ssdi = get_ssd_inf (fb);
 
-	fb_blk_inf_t *blki;
+	struct flash_block *blki;
 
 	uint32_t bus, chip;
 
@@ -130,8 +130,8 @@ static void get_valid_pgs_in_vic_blks (struct fb_context_t *fb) {
 	struct fb_gc_mngr_t *gcm = get_gcm (ftl);
 	struct vdevice_t *vdev = get_vdev (fb);
 
-	fb_blk_inf_t *blki;
-	fb_pg_inf_t *pgi;
+	struct flash_block *blki;
+	struct flash_page *pgi;
 
 	uint32_t nr_read_pgs = 0;
 	uint32_t *ptr_lpa = gcm->lpas_to_copy;
@@ -225,7 +225,7 @@ static int prog_valid_pgs_to_gc_blks (struct fb_context_t *fb) {
 static int prepare_act_blks (struct fb_context_t *fb) {
 	struct vdevice_t *vdev = get_vdev (fb);
 
-	fb_blk_inf_t *blki;
+	struct flash_block *blki;
 
 	uint8_t bus, chip;
 
@@ -256,7 +256,7 @@ static int prepare_act_blks (struct fb_context_t *fb) {
 }
 
 static int update_gc_blks (struct fb_context_t *fb) {
-	fb_blk_inf_t *gc_blki;
+	struct flash_block *gc_blki;
 
 	uint32_t bus, chip;
 
@@ -281,9 +281,9 @@ static int update_gc_blks (struct fb_context_t *fb) {
 }
 
 struct fb_gc_mngr_t *create_gc_mngr (struct fb_context_t *fb) {
-	fb_ssd_inf_t *ssdi = get_ssd_inf (fb);
+	struct ssd_info *ssdi = get_ssd_inf (fb);
 	struct fb_gc_mngr_t *gcm = NULL;
-	fb_blk_inf_t *blki;
+	struct flash_block *blki;
 	uint32_t bus, chip;
 
 	if ((gcm = (struct fb_gc_mngr_t *) vmalloc (sizeof (struct fb_gc_mngr_t))) == NULL) {
@@ -292,15 +292,15 @@ struct fb_gc_mngr_t *create_gc_mngr (struct fb_context_t *fb) {
 	}
 
 	if ((gcm->gc_blks =
-				(fb_blk_inf_t **) vmalloc (
-					sizeof (fb_blk_inf_t *) * NUM_CHIPS)) == NULL) {
+				(struct flash_block **) vmalloc (
+					sizeof (struct flash_block *) * NUM_CHIPS)) == NULL) {
 		printk (KERN_ERR "Allocating GC block list failed.\n");
 		goto FAIL;
 	}
 
 	if ((gcm->vic_blks =
-				(fb_blk_inf_t **) vmalloc (
-					sizeof (fb_blk_inf_t *) * NUM_CHIPS)) == NULL) {
+				(struct flash_block **) vmalloc (
+					sizeof (struct flash_block *) * NUM_CHIPS)) == NULL) {
 		printk (KERN_ERR "Allocating victim block list failed.\n");
 		goto FAIL;
 	}
@@ -405,8 +405,8 @@ int trigger_gc_page_mapping (struct fb_context_t *fb) {
 }
 
 int fb_bgc_prepare_act_blks (struct fb_context_t *fb) {
-	fb_ssd_inf_t *ssdi = get_ssd_inf (fb);
-	fb_blk_inf_t *blki;
+	struct ssd_info *ssdi = get_ssd_inf (fb);
+	struct flash_block *blki;
 
 	uint8_t bus, chip;
 	uint32_t i;
@@ -446,11 +446,11 @@ int fb_bgc_prepare_act_blks (struct fb_context_t *fb) {
 
 static int fb_bgc_set_vic_blks (struct fb_context_t *fb) {
 	struct page_mapping_context_t *ftl = (struct page_mapping_context_t *) get_ftl (fb);
-	fb_ssd_inf_t *ssdi = get_ssd_inf (fb);
+	struct ssd_info *ssdi = get_ssd_inf (fb);
 	struct fb_gc_mngr_t *gcm = get_gcm (ftl);
 
-	fb_chip_inf_t *chipi;
-	fb_blk_inf_t *blki;
+	struct flash_chip *chipi;
+	struct flash_block *blki;
 
 	uint8_t bus, chip;
 
@@ -500,8 +500,8 @@ int fb_bgc_read_valid_pgs (struct fb_context_t *fb) {
 	struct page_mapping_context_t *ftl = (struct page_mapping_context_t *) get_ftl (fb);
 	struct fb_gc_mngr_t *gcm = get_gcm (ftl);
 
-	fb_blk_inf_t *vic_blki = NULL;
-	fb_pg_inf_t *pgi = NULL;
+	struct flash_block *vic_blki = NULL;
+	struct flash_page *pgi = NULL;
 
 	uint8_t bus, chip, lp;
 	uint32_t pg, nr_pgs_to_read;

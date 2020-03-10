@@ -84,9 +84,9 @@ void get_next_bus_chip(
 }
 
 int alloc_new_page (struct fb_context_t *fb, uint8_t bus, uint8_t chip, uint32_t *blk, uint32_t *pg) {
-	fb_ssd_inf_t *ssdi = get_ssd_inf (fb);
+	struct ssd_info *ssdi = get_ssd_inf (fb);
 
-	fb_blk_inf_t *blki;
+	struct flash_block *blki;
 
 	if ((blki = get_curr_active_block (fb, bus, chip)) == NULL) {
 		if ((blki = get_free_block (ssdi, bus, chip)) == NULL) {
@@ -130,10 +130,10 @@ int map_logical_to_physical(
 }
 
 void update_act_blk (struct fb_context_t* fb, uint8_t bus, uint8_t chip) {
-	fb_blk_inf_t *blki = get_curr_active_block (fb, bus, chip);
+	struct flash_block *blki = get_curr_active_block (fb, bus, chip);
 
 	if (get_nr_free_pgs (blki) == 0) {
-		fb_ssd_inf_t *ssdi = get_ssd_inf (fb);
+		struct ssd_info *ssdi = get_ssd_inf (fb);
 		set_act_blk_flag (blki, FALSE);
 		set_used_blk (ssdi, blki);
 
@@ -154,14 +154,14 @@ inline void set_mapped_ppa (struct page_mapping_context_t *ftl, uint32_t lpa, ui
 
 uint32_t invalidate_lpg (struct fb_context_t *fb, uint32_t lpa) {
 	struct page_mapping_context_t *ftl = (struct page_mapping_context_t *) get_ftl (fb);
-	fb_ssd_inf_t *ssdi = get_ssd_inf (fb);
+	struct ssd_info *ssdi = get_ssd_inf (fb);
 
 	uint32_t ppa = get_mapped_ppa (ftl, lpa);
 
 	if (ppa != PAGE_UNMAPPED) {
 		uint32_t bus, chip, blk, pg;
-		fb_blk_inf_t *blki; //, *vic_blki;
-		fb_pg_inf_t *pgi;
+		struct flash_block *blki; //, *vic_blki;
+		struct flash_page *pgi;
 
 		convert_to_ssd_layout(ppa, &bus, &chip, &blk, &pg);
 
@@ -210,10 +210,10 @@ int __map_logical_to_physical(
 		uint8_t lp_ofs)
 {
 	struct page_mapping_context_t *ftl = (struct page_mapping_context_t *) get_ftl (fb);
-	fb_ssd_inf_t *ssdi = get_ssd_inf (fb);
+	struct ssd_info *ssdi = get_ssd_inf (fb);
 
-	fb_blk_inf_t *blki = get_block_info (ssdi, bus, chip, blk);
-	fb_pg_inf_t *pgi = get_page_info (ssdi, bus, chip, blk, pg);
+	struct flash_block *blki = get_block_info (ssdi, bus, chip, blk);
+	struct flash_page *pgi = get_page_info (ssdi, bus, chip, blk, pg);
 
 	if (lpa != PAGE_UNMAPPED) {
 		invalidate_lpg (fb, lpa);
@@ -238,14 +238,14 @@ int __map_logical_to_physical(
 	return 0;
 }
 
-inline fb_blk_inf_t* get_curr_gc_block (struct fb_context_t *fb, uint32_t bus, uint32_t chip) {
+inline struct flash_block* get_curr_gc_block (struct fb_context_t *fb, uint32_t bus, uint32_t chip) {
 	struct page_mapping_context_t *ftl = (struct page_mapping_context_t *) get_ftl (fb);
 
 	return ftl->gcm->gc_blks[bus * NUM_CHIPS_PER_BUS + chip];
 }
 
 inline void  set_curr_gc_block (
-		struct fb_context_t *fb, uint32_t bus, uint32_t chip, fb_blk_inf_t *blki) {
+		struct fb_context_t *fb, uint32_t bus, uint32_t chip, struct flash_block *blki) {
 	struct page_mapping_context_t *ftl = (struct page_mapping_context_t *) get_ftl (fb);
 
 	*(ftl->gcm->gc_blks + (bus * NUM_CHIPS_PER_BUS + chip)) = blki;
@@ -254,14 +254,14 @@ inline void  set_curr_gc_block (
 		set_rsv_blk_flag (blki, TRUE);
 }
 
-inline fb_blk_inf_t* get_curr_active_block (struct fb_context_t *fb, uint32_t bus, uint32_t chip) {
+inline struct flash_block* get_curr_active_block (struct fb_context_t *fb, uint32_t bus, uint32_t chip) {
 	struct page_mapping_context_t *ftl = (struct page_mapping_context_t *) get_ftl (fb);
 
 	return ftl->abm->act_blks[bus * NUM_CHIPS_PER_BUS + chip];
 }
 
 inline void set_curr_active_block (
-		struct fb_context_t *fb, uint32_t bus, uint32_t chip, fb_blk_inf_t *blki) {
+		struct fb_context_t *fb, uint32_t bus, uint32_t chip, struct flash_block *blki) {
 	struct page_mapping_context_t *ftl = (struct page_mapping_context_t *) get_ftl (fb);
 
 	*(ftl->abm->act_blks + (bus * NUM_CHIPS_PER_BUS + chip)) = blki;
