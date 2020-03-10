@@ -128,7 +128,7 @@ static int set_vic_blks (struct fb_context_t *fb) {
 static void get_valid_pgs_in_vic_blks (struct fb_context_t *fb) {
 	fb_pg_ftl_t *ftl = (fb_pg_ftl_t *) get_ftl (fb);
 	fb_gc_mngr_t *gcm = get_gcm (ftl);
-	fb_vdev_t *vdev = get_vdev (fb);
+	struct vdevice_t *vdev = get_vdev (fb);
 
 	fb_blk_inf_t *blki;
 	fb_pg_inf_t *pgi;
@@ -179,7 +179,7 @@ static void get_valid_pgs_in_vic_blks (struct fb_context_t *fb) {
 static int prog_valid_pgs_to_gc_blks (struct fb_context_t *fb) {
 	fb_pg_ftl_t *ftl = (fb_pg_ftl_t *) get_ftl (fb);
 	fb_gc_mngr_t *gcm = get_gcm (ftl);
-	fb_vdev_t *vdev = get_vdev (fb);
+	struct vdevice_t *vdev = get_vdev (fb);
 
 	int32_t nr_pgs_to_prog = gcm->nr_pgs_to_copy;
 	uint32_t *ptr_lpa = gcm->lpas_to_copy;
@@ -223,7 +223,7 @@ static int prog_valid_pgs_to_gc_blks (struct fb_context_t *fb) {
 }
 
 static int prepare_act_blks (struct fb_context_t *fb) {
-	fb_vdev_t *vdev = get_vdev (fb);
+	struct vdevice_t *vdev = get_vdev (fb);
 
 	fb_blk_inf_t *blki;
 

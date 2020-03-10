@@ -1,20 +1,12 @@
 #include "fb_option.h"
 
-typedef enum {
+enum fb_dev_op_t {
 	OP_READ,
 	OP_PROG,
 	OP_PLOCK,
 	OP_BLOCK,
 	OP_BERS,
-} fb_dev_op_t;
-
-typedef enum {
-	LSB = 0,
-	CSB = 1,
-	MSB = 2,
-} fb_pg_type_t;
-
-fb_pg_type_t page_type (uint32_t pg_idx);
+};
 
 struct vdevice_page_t
 {
@@ -36,7 +28,7 @@ struct vdevice_bus_t
 	struct vdevice_chip_t chips[NUM_CHIPS_PER_BUS];
 };
 
-typedef struct vdevice_t {
+struct vdevice_t {
 	uint64_t device_capacity;
 	uint64_t logical_capacity;
 
@@ -46,7 +38,7 @@ typedef struct vdevice_t {
 #if (VDEVICE_TIME_MODELED==TRUE)
 	struct fb_bus_controller_t **ptr_bus_controller;
 #endif
-} fb_vdev_t;
+};
 
 struct vdevice_t *create_vdevice(void);
 void destroy_vdevice(struct vdevice_t *ptr_vdevice);
@@ -101,5 +93,5 @@ void convert_to_ssd_layout(uint32_t logical_page_address,
 		uint32_t *ptr_bus, uint32_t *ptr_chip, uint32_t *ptr_block, uint32_t *ptr_page);
 
 #if (VDEVICE_TIME_MODELED==TRUE)
-uint32_t operation_time (fb_dev_op_t op);
+uint32_t operation_time (enum fb_dev_op_t op);
 #endif

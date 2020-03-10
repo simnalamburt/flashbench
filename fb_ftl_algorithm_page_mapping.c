@@ -198,13 +198,6 @@ inline void fb_del_init_wtod (
 	wtod->chip = chip;
 }
 
-/*
-inline void fb_del_set_wtod_pgi (
-		fb_wtod_t *wtod, fb_pg_type_t pg_type, fb_pg_inf_t *pgi) {
-	wtod->pgs[pg_type] = pgi;
-}
-*/
-
 inline void fb_del_get_bus_chip_wtod (
 		fb_del_mngr_t *delm, uint32_t idx, uint32_t *bus, uint32_t *chip) {
 	*bus = delm->wtod[idx].bus;

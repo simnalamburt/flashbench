@@ -223,12 +223,8 @@ inline void convert_to_ssd_layout(uint32_t logical_page_address,
 	*ptr_page = (0xFFF & logical_page_address);
 }
 
-inline fb_pg_type_t page_type (uint32_t pg_idx) {
-	return pg_idx % 3;
-}
-
 #if (VDEVICE_TIME_MODELED==TRUE)
-inline uint32_t operation_time (fb_dev_op_t op) {
+inline uint32_t operation_time (enum fb_dev_op_t op) {
 	switch (op) {
 		case OP_READ:
 			return TREAD;
