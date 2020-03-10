@@ -32,6 +32,10 @@ sudo umount /dev/fbSSD
 sudo rmdir /vSSD
 # End flashbench
 sudo rmmod flashBench
+
+# Static analysis with sparse
+sudo apt-get install sparse
+make C=2
 ```
 
 &nbsp;
