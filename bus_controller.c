@@ -117,8 +117,11 @@ static int chip_status_busy(
 static u32 get_chip_wakeup_time(
 		struct fb_bus_controller_t *ptr_bus_controller, u32 chip);
 
+#if (LOG_TIMING==TRUE)
 static u32 get_chip_issue_time(
 		struct fb_bus_controller_t *ptr_bus_controller, u32 chip);
+#endif
+
 // ----------------- Public functions ----------------------------------------
 // Creating and initialize bus controllers in the virtual device structure
 int fb_bus_controller_init(struct vdevice_t *ptr_vdevice, u32 num_max_entries_per_chip)
@@ -782,8 +785,10 @@ static u32 get_chip_wakeup_time(
 	return ptr_bus_controller->chip_busies[chip].wakeup_time_in_us;
 }
 
+#if (LOG_TIMING==TRUE)
 static u32 get_chip_issue_time(
 		struct fb_bus_controller_t *ptr_bus_controller, u32 chip)
 {
 	return ptr_bus_controller->chip_busies[chip].issue_time_in_us;
 }
+#endif

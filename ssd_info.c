@@ -16,7 +16,6 @@ static void set_del_flag_pg (struct flash_page *pgi, int flag);
 static u32 get_bus_idx (struct flash_block *blki);
 static u32 get_chip_idx (struct flash_block *blki);
 
-static u32 get_nr_invalid_pgs (struct flash_block *blki);
 static void set_nr_valid_pgs (struct flash_block *blki, u32 value);
 static void set_nr_invalid_pgs (struct flash_block *blki, u32 value);
 static void set_nr_free_pgs (struct flash_block *blki, u32 value);
@@ -442,10 +441,6 @@ u32 get_blk_idx (struct flash_block *blki) {
 
 struct flash_page *get_pgi_from_blki (struct flash_block *blki, u32 pg) {
 	return (blki->list_pages + pg);
-}
-
-u32 get_nr_invalid_pgs (struct flash_block *blki) {
-	return blki->nr_invalid_pages;
 }
 
 u32 get_nr_free_pgs (struct flash_block *blki) {

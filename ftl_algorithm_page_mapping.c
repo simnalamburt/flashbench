@@ -590,10 +590,6 @@ static u32 *get_lpas_to_discard (struct page_mapping_context_t *ftl) {
 	return ftl->lpas_to_discard;
 }
 
-static u32 get_lpa_to_discard (struct page_mapping_context_t *ftl, u32 idx) {
-	return ftl->lpas_to_discard[idx];
-}
-
 static void set_lpa_to_discard (
 		struct page_mapping_context_t *ftl, u32 idx, u32 new) {
 	ftl->lpas_to_discard[idx] = new;
