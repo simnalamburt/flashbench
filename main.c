@@ -17,7 +17,6 @@
 #include "macro.h"
 #include "vdevice.h"
 #include "ssd_info.h"
-#include "ftl_algorithm.h"
 #include "ftl_algorithm_page_mapping.h"
 #include "gc_page_mapping.h"
 
@@ -34,6 +33,7 @@ static u64 fb_get_time_in_us (void);
 static u64 fb_get_bgc_ts (struct fb_context_t *fb);
 static void fb_update_bgc_ts (struct fb_context_t* fb);
 static int fb_is_bgc_ts_expired (struct fb_context_t* fb, u64 threshold);
+static void destroy_mapping_context(struct fb_context_t *ptr_fb_context);
 u32 dec_bio_req_count (struct fb_bio_t *ptr_bio);
 static struct fb_bio_t *fb_build_bio (struct bio *bio);
 static void fb_destroy_bio (struct fb_bio_t *fbio);
@@ -189,7 +189,7 @@ static int __init fb_init(void) // __init: 해당 함수 혹은 변수가 초기
 		goto FAIL_CREATE_SSD_INFO;
 	}
 
-	if((_fb->ptr_mapping_context = create_mapping_context(_fb)) == NULL)
+	if((_fb->ptr_mapping_context = create_pg_ftl(_fb)) == NULL)
 	{
 		printk(KERN_ERR "[FlashBench] Creating a mapping context failed.\n");
 		ret_value = -ENOMEM;
@@ -499,6 +499,11 @@ static void fb_update_bgc_ts (struct fb_context_t* fb) {
 
 static int fb_is_bgc_ts_expired (struct fb_context_t* fb, u64 threshold) {
 	return ((fb_get_time_in_us() - fb_get_bgc_ts (fb)) > threshold) ? TRUE : FALSE;
+}
+
+static void destroy_mapping_context(struct fb_context_t *ptr_fb_context) {
+	struct page_mapping_context_t *ctxt = (struct page_mapping_context_t *)get_ftl(ptr_fb_context);
+	destroy_pg_ftl(ctxt);
 }
 
 u32 dec_bio_req_count (struct fb_bio_t *fbio) {

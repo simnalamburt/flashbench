@@ -6,7 +6,6 @@ obj-m := flashbench.o
 flashbench-objs := \
 	main.o \
 	util.o \
-	ftl_algorithm.o \
 	vdevice.o \
 	ssd_info.o \
 	ftl_algorithm_page_mapping.o \
