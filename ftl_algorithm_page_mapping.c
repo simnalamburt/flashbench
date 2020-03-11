@@ -4,14 +4,14 @@
 
 
 #include "fb.h"
-#include "fb_macro.h"
-#include "fb_vdevice.h"
-#include "fb_ssd_info.h"
-#include "fb_write_buffer.h"
-#include "fb_ftl_algorithm_page_mapping.h"
-#include "fb_page_mapping_function.h"
-#include "fb_gc_page_mapping.h"
-#include "fb_util.h"
+#include "macro.h"
+#include "vdevice.h"
+#include "ssd_info.h"
+#include "write_buffer.h"
+#include "ftl_algorithm_page_mapping.h"
+#include "page_mapping_function.h"
+#include "gc_page_mapping.h"
+#include "util.h"
 #include "uthash/utlist.h"
 #include "uthash/uthash.h"
 

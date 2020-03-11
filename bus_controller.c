@@ -10,10 +10,10 @@
 
 
 #include "fb.h"
-#include "fb_option.h"
-#include "fb_util.h"
-#include "fb_vdevice.h"
-#include "fb_bus_controller.h"
+#include "option.h"
+#include "util.h"
+#include "vdevice.h"
+#include "bus_controller.h"
 
 #if (LOG_TIMING==TRUE)
 static u32 nr_timer_log_delay_records[NUM_BUSES] = {0, };

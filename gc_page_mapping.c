@@ -6,14 +6,14 @@
 #include <linux/vmalloc.h>
 
 #include "fb.h"
-#include "fb_option.h"
-#include "fb_vdevice.h"
-#include "fb_ssd_info.h"
-#include "fb_write_buffer.h"
-#include "fb_ftl_algorithm_page_mapping.h"
-#include "fb_page_mapping_function.h"
-#include "fb_gc_page_mapping.h"
-#include "fb_util.h"
+#include "option.h"
+#include "vdevice.h"
+#include "ssd_info.h"
+#include "write_buffer.h"
+#include "ftl_algorithm_page_mapping.h"
+#include "page_mapping_function.h"
+#include "gc_page_mapping.h"
+#include "util.h"
 #include "uthash/utlist.h"
 
 
@@ -105,7 +105,7 @@ static int set_vic_blks (struct fb_context_t *fb) {
 				blki = NULL;
 			else {
 				if ((blki = select_vic_blk_greedy (ssdi, bus, chip)) == NULL) {
-					printk (KERN_ERR "[FlashBench] fb_gc_page_mapping: There is no avaiable victim block.\n");
+					printk (KERN_ERR "[FlashBench] gc_page_mapping: There is no avaiable victim block.\n");
 					return -1;
 				}
 

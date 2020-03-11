@@ -1,4 +1,4 @@
-#include "fb_option.h"
+#include "option.h"
 
 enum fb_dev_op_t {
 	OP_READ,

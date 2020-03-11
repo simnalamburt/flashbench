@@ -1,7 +1,7 @@
 #include <linux/slab.h>
 #include <linux/mm.h>
 
-#include "fb_bitmap.h"
+#include "bitmap.h"
 
 #define BITMASK8(n) ( n==0 ? 0x80 : \
 					( n==1 ? 0x40 : \
@@ -29,13 +29,13 @@ struct fb_bitmap_t *fb_create_bitmap(u32 num_entries)
 
 	if((ptr_bitmap = (struct fb_bitmap_t *) kmalloc(sizeof(struct fb_bitmap_t), GFP_ATOMIC)) == NULL)
 	{
-		printk(KERN_ERR "fb_bitmap: Memory allocation for bitmap pointer failed.\n");
+		printk(KERN_ERR "bitmap: Memory allocation for bitmap pointer failed.\n");
 		goto PTR_ALLOC_FAIL;
 	}
 
 	if((ptr_bitmap->ptr_bits = (u8 *) kmalloc(sizeof(u8) * num_8bit, GFP_ATOMIC)) == NULL)
 	{
-		printk(KERN_ERR "fb_bitmap: Memory allocation for bits failed\n");
+		printk(KERN_ERR "bitmap: Memory allocation for bits failed\n");
 		goto BIT_ALLOC_FAIL;
 	}
 
@@ -78,7 +78,7 @@ int set_bitmap(struct fb_bitmap_t *ptr_bitmap, u32 idx, int value)
 
 	if(ptr_bitmap->num_entries <= idx)
 	{
-		printk(KERN_ERR "fb_bitmap - set_bitmap: Out of range: %d >= %d (bound)\n",
+		printk(KERN_ERR "bitmap - set_bitmap: Out of range: %d >= %d (bound)\n",
 				idx, ptr_bitmap->num_entries);
 		ret_value = -1;
 	}
@@ -109,7 +109,7 @@ int get_bitmap(struct fb_bitmap_t* ptr_bitmap, u32 idx)
 
 	if(ptr_bitmap->num_entries <= idx)
 	{
-		printk(KERN_ERR "fb_bitmap - set_bitmap: Out of range: %d >= %d (bound)\n",
+		printk(KERN_ERR "bitmap - set_bitmap: Out of range: %d >= %d (bound)\n",
 				idx, ptr_bitmap->num_entries);
 		ret_value = -1;
 	}

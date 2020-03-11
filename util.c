@@ -7,8 +7,8 @@
 #include <linux/seq_file.h>
 
 #include "fb.h"
-#include "fb_option.h"
-#include "fb_util.h"
+#include "option.h"
+#include "util.h"
 
 static int fb_proc_open (struct inode *inode, struct file *file);
 static int fb_proc_summary (struct seq_file *m, void *v);

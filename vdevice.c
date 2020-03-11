@@ -1,10 +1,10 @@
 #include <linux/vmalloc.h>
 
 #include "fb.h"
-#include "fb_option.h"
-#include "fb_vdevice.h"
+#include "option.h"
+#include "vdevice.h"
 #if (VDEVICE_TIME_MODELED==TRUE)
-#include "fb_bus_controller.h"
+#include "bus_controller.h"
 #endif
 
 #if (VDEVICE_TYPE==RAM_DISK)

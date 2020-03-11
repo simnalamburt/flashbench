@@ -2,11 +2,11 @@
 #include <linux/slab.h>
 
 #include "fb.h"
-#include "fb_option.h"
-#include "fb_vdevice.h"
-#include "fb_ssd_info.h"
-#include "fb_ftl_algorithm_page_mapping.h"
-#include "fb_page_mapping_function.h"
+#include "option.h"
+#include "vdevice.h"
+#include "ssd_info.h"
+#include "ftl_algorithm_page_mapping.h"
+#include "page_mapping_function.h"
 
 int __map_logical_to_physical(
 		struct fb_context_t *ptr_fb_context,

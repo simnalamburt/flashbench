@@ -5,16 +5,16 @@
 obj-m += flashbench.o
 flashbench-objs += \
 	fb.o \
-	fb_util.o \
-	fb_ftl_algorithm.o \
-	fb_vdevice.o \
-	fb_ssd_info.o \
-	fb_ftl_algorithm_page_mapping.o \
-	fb_page_mapping_function.o \
-	fb_gc_page_mapping.o \
-	fb_write_buffer.o \
-	fb_bitmap.o \
-	fb_bus_controller.o
+	util.o \
+	ftl_algorithm.o \
+	vdevice.o \
+	ssd_info.o \
+	ftl_algorithm_page_mapping.o \
+	page_mapping_function.o \
+	gc_page_mapping.o \
+	write_buffer.o \
+	bitmap.o \
+	bus_controller.o
 
 ccflags-y := -std=gnu11 -Wextra -Wpedantic
 

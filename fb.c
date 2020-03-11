@@ -12,18 +12,18 @@
 #include <linux/fs.h>
 
 #include "fb.h"
-#include "fb_util.h"
-#include "fb_option.h"
-#include "fb_macro.h"
-#include "fb_vdevice.h"
-#include "fb_ssd_info.h"
-#include "fb_ftl_algorithm.h"
-#include "fb_ftl_algorithm_page_mapping.h"
-#include "fb_gc_page_mapping.h"
+#include "util.h"
+#include "option.h"
+#include "macro.h"
+#include "vdevice.h"
+#include "ssd_info.h"
+#include "ftl_algorithm.h"
+#include "ftl_algorithm_page_mapping.h"
+#include "gc_page_mapping.h"
 
 #if(WRITE_BUFFER_ENABLE==TRUE)
 
-#include "fb_write_buffer.h"
+#include "write_buffer.h"
 static int fb_init_write_buffer_thread(void);
 static void fb_stop_write_buffer_thread(void);
 static int fb_write_buffer_thread(void *arg);

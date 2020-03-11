@@ -1,7 +1,7 @@
 #include <linux/completion.h>
 #include <linux/blkdev.h>
 
-#include "fb_option.h"
+#include "option.h"
 
 extern struct fb_bio_t fb_bio;
 

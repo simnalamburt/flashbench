@@ -3,9 +3,9 @@
 #include <linux/module.h>
 
 #include "fb.h"
-#include "fb_option.h"
-#include "fb_ftl_algorithm_page_mapping.h"
-#include "fb_ssd_info.h"
+#include "option.h"
+#include "ftl_algorithm_page_mapping.h"
+#include "ssd_info.h"
 
 #include "uthash/utlist.h"
 
@@ -96,7 +96,7 @@ struct ssd_info *create_ssd_info(void)
 
 	if((ptr_ssd_info = (struct ssd_info *)kmalloc(sizeof(struct ssd_info), GFP_ATOMIC)) == NULL)
 	{
-		printk(KERN_ERR "[FlashBench] fb_ssd_info: Allocating ssd information structure failed.\n");
+		printk(KERN_ERR "[FlashBench] ssd_info: Allocating ssd information structure failed.\n");
 		goto FAIL_ALLOC_SSD_INFO;
 	}
 
@@ -109,7 +109,7 @@ struct ssd_info *create_ssd_info(void)
 	if((ptr_ssd_info->list_buses =
 				(struct flash_bus *)kmalloc(sizeof(struct flash_bus) * NUM_BUSES, GFP_ATOMIC)) == NULL)
 	{
-		printk(KERN_ERR "[FlashBench] fb_ssd_info: Allocating bus information structure failed.\n");
+		printk(KERN_ERR "[FlashBench] ssd_info: Allocating bus information structure failed.\n");
 		goto FAIL_ALLOC_BUS_INFO;
 	}
 
@@ -121,7 +121,7 @@ struct ssd_info *create_ssd_info(void)
 		if((ptr_bus->list_chips =
 					(struct flash_chip *)kmalloc(sizeof(struct flash_chip) * NUM_CHIPS_PER_BUS, GFP_ATOMIC)) == NULL)
 		{
-			printk(KERN_ERR "[FlashBench] fb_ssd_info: Allocating chip information structure failed.\n");
+			printk(KERN_ERR "[FlashBench] ssd_info: Allocating chip information structure failed.\n");
 			goto FAIL_ALLOC_INFOS;
 		}
 
@@ -147,7 +147,7 @@ struct ssd_info *create_ssd_info(void)
 			/* initialize blocks */
 			if((ptr_chip->list_blocks = (struct flash_block *)kmalloc(sizeof(struct flash_block) * NUM_BLOCKS_PER_CHIP, GFP_ATOMIC)) == NULL)
 			{
-				printk(KERN_ERR "[FlashBench] fb_ssd_info: Allocating block information structure failed.\n");
+				printk(KERN_ERR "[FlashBench] ssd_info: Allocating block information structure failed.\n");
 				goto FAIL_ALLOC_INFOS;
 			}
 
@@ -177,7 +177,7 @@ struct ssd_info *create_ssd_info(void)
 
 				if((ptr_block->list_pages = (struct flash_page*)kmalloc(sizeof(struct flash_page) * NUM_PAGES_PER_BLOCK, GFP_ATOMIC)) == NULL)
 				{
-					printk(KERN_ERR "[FlashBench] fb_ssd_info: Allocating page information structure failed.\n");
+					printk(KERN_ERR "[FlashBench] ssd_info: Allocating page information structure failed.\n");
 					goto FAIL_ALLOC_INFOS;
 				}
 
