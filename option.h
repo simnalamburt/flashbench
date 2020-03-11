@@ -9,7 +9,7 @@
 
 // Parameters for the write buffer
 #define WRITE_BUFFER_ENABLE TRUE
-#define NUM_PAGES_IN_WRITE_BUFFER NR_LP_IN_PP* NUM_CHIPS
+#define NUM_PAGES_IN_WRITE_BUFFER (NR_LP_IN_PP * NUM_CHIPS)
 
 // Hardware configuration
 
@@ -17,8 +17,8 @@
 #define NUM_CHIPS_PER_BUS 2
 #define NUM_BLOCKS_PER_CHIP 171
 #define NUM_PAGES_PER_BLOCK \
-  16 * 4 * 3  // v-layer * h-layer * multi-level degree
-#define PHYSICAL_PAGE_SIZE LOGICAL_PAGE_SIZE* NR_LP_IN_PP
+  (16 * 4 * 3)  // v-layer * h-layer * multi-level degree
+#define PHYSICAL_PAGE_SIZE (LOGICAL_PAGE_SIZE * NR_LP_IN_PP)
 
 #define NUM_CHIPS (NUM_BUSES * NUM_CHIPS_PER_BUS)
 #define NUM_BLOCKS (NUM_CHIPS * NUM_BLOCKS_PER_CHIP)

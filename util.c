@@ -10,11 +10,11 @@
 #include "option.h"
 #include "util.h"
 
-static int fb_proc_open(struct inode* inode, struct file* file);
-static int fb_proc_summary(struct seq_file* m, void* v);
+static int fb_proc_open(struct inode *inode, struct file *file);
+static int fb_proc_summary(struct seq_file *m, void *v);
 
-static struct file* file_open(const char* path, int flags, int rights);
-static void file_close(struct file* file);
+static struct file *file_open(const char *path, int flags, int rights);
+static void file_close(struct file *file);
 
 // file operation 구조체, 초기화를 이렇게 함
 // read 함수는 개발자가 직접 작성 X
@@ -25,7 +25,7 @@ static const struct file_operations fb_proc_fops = {
     .read = seq_read,  // 파일(/proc/summary)을 읽을 때 불리는 함수
 };
 
-static struct proc_dir_entry* proc_dir;
+static struct proc_dir_entry *proc_dir;
 
 static u32 _perf_nr_incomming_write = 0;
 static u32 _perf_nr_wordline_prog_fg = 0;
@@ -40,8 +40,8 @@ static u32 _perf_nr_discarded_lpgs = 0;
 static u32 _perf_nr_plocks = 0;
 static u32 _perf_nr_blocks = 0;
 
-static int fb_proc_summary(struct seq_file* m,
-                           __attribute__((unused)) void* v) {
+static int fb_proc_summary(struct seq_file *m,
+                           __attribute__((unused)) void *v) {
   seq_printf(m,
              "===================Total read/write requests "
              "summary=================\n");
@@ -91,13 +91,13 @@ u32 timer_get_timestamp_in_us(void) {
   return tv.tv_sec * 1000000 + tv.tv_usec;
 }
 
-static int fb_proc_open(__attribute__((unused)) struct inode* inode,
-                        struct file* file) {
+static int fb_proc_open(__attribute__((unused)) struct inode *inode,
+                        struct file *file) {
   return single_open(file, fb_proc_summary, NULL);
 }
 
-static struct file* file_open(const char* path, int flags, int rights) {
-  struct file* filp = NULL;
+static struct file *file_open(const char *path, int flags, int rights) {
+  struct file *filp = NULL;
   mm_segment_t oldfs;
   int err = 0;
 
@@ -112,9 +112,9 @@ static struct file* file_open(const char* path, int flags, int rights) {
   return filp;
 }
 
-static void file_close(struct file* file) { filp_close(file, NULL); }
+static void file_close(struct file *file) { filp_close(file, NULL); }
 
-static int file_write(struct file* file, const char* data, size_t size,
+static int file_write(struct file *file, const char *data, size_t size,
                       loff_t offset) {
   mm_segment_t oldfs;
   int ret;
@@ -128,8 +128,8 @@ static int file_write(struct file* file, const char* data, size_t size,
   return ret;
 }
 
-void fb_file_log(const char* filename, const char* string) {
-  struct file* fp = NULL;
+void fb_file_log(const char *filename, const char *string) {
+  struct file *fp = NULL;
 
   if ((fp = file_open(filename, O_CREAT | O_WRONLY | O_APPEND, 0777)) == NULL) {
     printk(KERN_INFO "blueftl_log: file_open error (%s)\n", filename);
