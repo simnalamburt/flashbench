@@ -1,4 +1,5 @@
 # Build results
+/rust/target
 /*.mod.c
 /*.o
 /*.ko

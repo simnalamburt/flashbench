@@ -4,11 +4,18 @@ SSD firmware emulator for Linux, developed by Seoul National University,
 [CARES] Lab.
 
 ### Requirements
+- [rustup](https://rustup.rs/)
 - Linux 4.9.0
+- AMD64 CPU
 
 ```bash
-# Build
+# Install Rust nightly compiler and download Rust source codes
+rustup toolchain install nightly
+rustup +nightly component add rust-src
+# Install prerequisites
 sudo apt-get install make linux-headers-4.9.0-12-amd64
+
+# Build
 make -j
 
 # Start flashbench, check `dmesg`
@@ -21,8 +28,7 @@ sudo mount -o discard /dev/fbSSD /vSSD
 # Check the status of the virtual SSD
 cat /proc/summary
 
-# If you want to clear the cache
-# Reference: https://www.kernel.org/doc/Documentation/sysctl/vm.txt
+# If you want to clear the cache: https://www.kernel.org/doc/Documentation/sysctl/vm.txt
 echo 3 | sudo tee /proc/sys/vm/drop_caches
 # Infinitely clear the cache
 while :; do echo 3 | sudo tee /proc/sys/vm/drop_caches; sleep 1; done
