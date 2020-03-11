@@ -2,8 +2,8 @@
 #   https://www.kernel.org/doc/Documentation/kbuild/modules.txt
 #   https://www.kernel.org/doc/Documentation/kbuild/makefiles.txt
 
-obj-m += flashbench.o
-flashbench-objs += \
+obj-m := flashbench.o
+flashbench-objs := \
 	fb.o \
 	util.o \
 	ftl_algorithm.o \
