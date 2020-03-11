@@ -13,6 +13,20 @@
 static int fb_proc_open (struct inode *inode, struct file *file);
 static int fb_proc_summary (struct seq_file *m, void *v);
 
+static u32 get_nr_plocks (void);
+static u32 get_nr_blocks (void);
+static void perf_inc_nr_plocks (void);
+static void perf_inc_nr_blocks (void);
+static void perf_inc_nr_gc_trigger_fg(void);
+static void perf_inc_nr_lsb_pg_backup (void);
+static u32 get_nr_incomming_write (void);
+static u32 get_nr_wordline_prog_fg (void);
+static struct file* file_open(const char* path, int flags, int rights);
+static struct file* file_open_read(const char* path);
+static void file_close(struct file* file);
+static int file_sync(struct file* file);
+static int proc_read_summary(char *page, char **start, off_t off,  int count, int *eof, void *data);
+
 // file operation 구조체, 초기화를 이렇게 함
 // read 함수는 개발자가 직접 작성 X
 // 커널의 seq-file에서 제공되는 seq_read를 사용

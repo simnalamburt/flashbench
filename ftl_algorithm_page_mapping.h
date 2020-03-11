@@ -1,5 +1,10 @@
+#include <linux/completion.h>
 #include "uthash/uthash.h"
+
+
 #define PAGE_UNMAPPED -1
+
+struct flash_block;
 
 struct page_mapping_table_t {
 	u32 nr_entries;
@@ -13,40 +18,7 @@ struct fb_act_blk_mngr_t {
 	u32 mru_chip;
 };
 
-struct fb_btod_t { // block to del
-	struct flash_block *blki;
-
-	UT_hash_handle hh;
-};
-
-struct fb_wtod_t { // wordline to del
-	u32 wl_idx;
-	u32 bus;
-	u32 chip;
-
-	UT_hash_handle hh;
-};
-
-struct fb_del_mngr_t {
-
-	// list of pages (blocks) to lock - physical address base
-	// list of pages to copy - logical address base
-	// data buffers for pages to copy
-	u32 *ppas;
-
-	u32 nr_btod;
-	struct fb_btod_t *btod;
-	struct fb_btod_t *hash_btod;
-
-	u32 nr_wtod;
-	struct fb_wtod_t *wtod;
-	struct fb_wtod_t *hash_wtod;
-
-	u32 nr_pgs_to_copy;
-	u32 *lpas_to_copy;
-	u8 *data_to_copy;
-
-};
+struct fb_del_mngr_t;
 
 struct fb_gc_mngr_t {
 	struct flash_block **gc_blks;
@@ -81,5 +53,3 @@ struct fb_gc_mngr_t *get_gcm (struct page_mapping_context_t *ftl);
 struct fb_act_blk_mngr_t *get_abm (struct page_mapping_context_t *ftl);
 void print_blk_mgmt (struct fb_context_t *fb);
 int fb_del_invalid_data (struct fb_context_t *fb, struct fb_bio_t  *fb_bio);
-
-struct fb_del_mngr_t *get_delm (struct page_mapping_context_t *ftl);

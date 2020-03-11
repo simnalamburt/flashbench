@@ -1,5 +1,5 @@
-#define FOREGROUND 0
-#define BACKGROUND 1
+struct fb_gc_mngr_t;
+struct fb_context_t;
 
 struct fb_gc_mngr_t *create_gc_mngr (struct fb_context_t *fb);
 void destroy_gc_mngr (struct fb_gc_mngr_t *gcm);

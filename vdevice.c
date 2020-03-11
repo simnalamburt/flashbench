@@ -7,6 +7,11 @@
 #include "bus_controller.h"
 #endif
 
+
+static void vdevice_plock(struct vdevice_t *ptr_vdevice, u8 bus, u8 chip);
+static void vdevice_block(struct vdevice_t *ptr_vdevice, u8 bus, u8 chip);
+static u32 convert_to_wl_idx(u32 bus, u32 chip, u32 block, u32 pg_idx);
+
 #if (VDEVICE_TYPE==RAM_DISK)
 struct vdevice_t *create_vdevice(void)
 {

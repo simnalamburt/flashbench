@@ -7,13 +7,43 @@
 #include <linux/kthread.h>
 #include <linux/freezer.h>
 #include <linux/vmalloc.h>
-
+#include <linux/completion.h>
 
 #include "fb.h"
 #include "option.h"
 #include "util.h"
 #include "vdevice.h"
 #include "bus_controller.h"
+
+
+struct fb_operation_t {
+	u32 operation;
+	struct fb_bio_t *ptr_fb_bio;
+};
+
+struct fb_opr_queue_t {
+	u32 num_max_entries;
+	u32 num_entries;
+	u32 queue_head;
+	u32 queue_tail;
+	struct fb_operation_t *opr_list;
+	struct completion queue_lock;
+};
+
+struct fb_chip_busy_t {
+	u32 wakeup_time_in_us;
+	u32 issue_time_in_us;
+	struct completion chip_busy;
+	struct fb_bio_t *ptr_fb_bio;
+};
+
+struct fb_bus_controller_t {
+	u32 num_bus;
+	struct fb_opr_queue_t **ptr_opr_queue;
+	struct fb_chip_busy_t *chip_busies;
+	u32 flag_enable_thread;
+	struct task_struct *ptr_task;
+};
 
 #if (LOG_TIMING==TRUE)
 static u32 nr_timer_log_delay_records[NUM_BUSES] = {0, };

@@ -7,6 +7,11 @@ extern struct fb_bio_t fb_bio;
 
 #define NR_MAX_REQ_BIO 256
 
+struct fb_lbs_mngr_t;
+struct ssd_info;
+struct vdevice_t;
+struct fb_wb;
+
 struct fb_bio_t {
 	u32 req_count;
 	u32 lpas[NR_MAX_REQ_BIO];
@@ -14,14 +19,6 @@ struct fb_bio_t {
 	struct bio *bio;
 	struct completion bio_lock;
 };
-
-#define fb_bio_get_req_count(a) (a->req_count)
-#define fb_bio_get_bio(a) (a->bio)
-#define fb_bio_get_lpas(a) (a->lpas)
-#define fb_bio_get_lpa(a,b) (a->lpas[b])
-#define fb_bio_get_kpages(a) (a->kpages)
-#define fb_bio_get_kpage(a,b) (a->kpages[b])
-#define fb_bio_get_lock(a) (&a->bio_lock)
 
 u32 dec_bio_req_count (struct fb_bio_t *ptr_bio);
 u32 get_bio_req_count (struct fb_bio_t *ptr_bio);

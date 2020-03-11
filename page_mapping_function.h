@@ -1,3 +1,5 @@
+struct fb_context_t;
+struct flash_block;
 
 u32 get_mapped_physical_address(
 		struct fb_context_t *ptr_fb_context,
@@ -55,4 +57,3 @@ void get_next_bus_chip(
 		struct fb_context_t *ptr_fb_context,
 		u8 *ptr_bus,
 		u8 *ptr_chip);
-

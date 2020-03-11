@@ -60,7 +60,7 @@ static struct flash_block* select_vic_blk_from_used (
 	struct flash_block *vic_blki = NULL, *blki;
 	u32 nr_max_invalid_lpgs = 0, nr_invalid_lpgs;
 
-	blk_list_for_each (get_used_block (ssdi, bus, chip), blki) {
+	DL_FOREACH(get_used_block (ssdi, bus, chip), blki) {
 		if ((nr_invalid_lpgs = get_nr_invalid_lps_in_blk (blki)) > nr_max_invalid_lpgs) {
 			nr_max_invalid_lpgs = nr_invalid_lpgs;
 			vic_blki = blki;
@@ -79,7 +79,7 @@ static struct flash_block* select_vic_blk_greedy (
 	if ((vic_blki = get_dirt_block (ssdi, bus, chip)) != NULL)
 		return vic_blki;
 
-	blk_list_for_each (get_used_block (ssdi, bus, chip), blki) {
+	DL_FOREACH(get_used_block (ssdi, bus, chip), blki) {
 		if ((nr_invalid_lpgs = get_nr_invalid_lps_in_blk (blki)) > nr_max_invalid_lpgs) {
 			nr_max_invalid_lpgs = nr_invalid_lpgs;
 			vic_blki = blki;

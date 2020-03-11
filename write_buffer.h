@@ -33,8 +33,6 @@ struct fb_wb *fb_create_write_buffer (u32 nr_max_entries, u32 pg_size);
 
 void fb_destroy_write_buffer (struct fb_wb *wb);
 
-u32 fb_get_nr_pgs_in_wb (struct fb_wb *wb, int lock);
-
 int fb_get_pg_data (struct fb_wb *wb, u32 lpa, u8* dest);
 
 int fb_get_pgs_to_write (struct fb_wb *wb, u32 nr_pgs, u32 *lpas, u8* dest);

@@ -2,12 +2,99 @@
 #include <linux/mm.h>
 #include <linux/module.h>
 
+#include "uthash/utlist.h"
 #include "fb.h"
 #include "option.h"
 #include "ftl_algorithm_page_mapping.h"
 #include "ssd_info.h"
 
-#include "uthash/utlist.h"
+
+#define IDLE 0
+
+static void set_nr_invalid_lps (struct flash_page *pgi, u32 value);
+static int get_del_flag_pg (struct flash_page *pgi);
+static void set_del_flag_pg (struct flash_page *pgi, int flag);
+static u32 get_bus_idx (struct flash_block *blki);
+static u32 get_chip_idx (struct flash_block *blki);
+
+static u32 get_nr_valid_pgs (struct flash_block *blki);
+static u32 get_nr_invalid_pgs (struct flash_block *blki);
+static void set_nr_valid_pgs (struct flash_block *blki, u32 value);
+static void set_nr_invalid_pgs (struct flash_block *blki, u32 value);
+static void set_nr_free_pgs (struct flash_block *blki, u32 value);
+static u32 inc_nr_free_pgs (struct flash_block *blki);
+static u32 dec_nr_invalid_pgs (struct flash_block *blki);
+
+static void set_nr_valid_lps_in_blk (struct flash_block *blki, u32 value);
+static void set_nr_invalid_lps_in_blk (struct flash_block *blki, u32 value);
+static u32 dec_nr_invalid_lps_in_blk (struct flash_block *blk);
+
+static u32 get_bers_cnt (struct flash_block *blki);
+static void set_bers_cnt (struct flash_block *blki, u32 value);
+
+static int is_bad_blk (struct flash_block *blki);
+static void set_bad_blk_flag (struct flash_block *blki, int flag);
+
+static int is_rsv_blk (struct flash_block *blki);
+
+static int is_act_blk (struct flash_block *blki);
+
+static int get_del_flag_blk (struct flash_block *blki);
+static void set_del_flag_blk (struct flash_block *blki, int flag);
+
+static int is_dirt_blk (struct flash_block *blki);
+
+static u32 get_nr_free_blks (struct flash_chip *chipi);
+static void set_nr_free_blks (struct flash_chip *chipi, u32 value);
+static u32 inc_nr_free_blks (struct flash_chip *chipi);
+static u32 dec_nr_free_blks (struct flash_chip *chipi);
+
+static int get_chip_status(struct ssd_info *ptr_ssd_info, u8 bus, u8 chip);
+static void set_chip_status(struct ssd_info *ptr_ssd_info, u8 bus, u8 chip, int new_status);
+
+struct flash_page {
+	enum fb_pg_status_t page_status[NR_LP_IN_PP];
+	u32 no_logical_page_addr[NR_LP_IN_PP];
+	u32 nr_invalid_log_pages;
+
+	int del_flag;
+};
+
+struct flash_chip {
+	struct completion chip_status_lock;
+
+	int chip_status;
+	/* the number of free blocks in a chip */
+	u32 nr_free_blocks;
+	u32 nr_used_blks;
+	u32 nr_dirt_blks;
+
+	struct flash_block *free_blks;
+	struct flash_block *used_blks;
+	struct flash_block *dirt_blks;
+
+	/* the number of dirty blocks in a chip */
+	u32 nr_dirty_blocks;
+
+	/* block array */
+	struct flash_block* list_blocks;
+};
+
+struct flash_bus {
+	/* chip array */
+	struct flash_chip* list_chips;
+};
+
+struct ssd_info {
+	/* ssd information */
+	u32 nr_buses;
+	u32 nr_chips_per_bus;
+	u32 nr_blocks_per_chip;
+	u32 nr_pages_per_block;
+
+	/* bus array */
+	struct flash_bus* list_buses;
+};
 
 inline void set_free_blk (struct ssd_info *ssdi, struct flash_block *bi) {
 	struct flash_chip *ci = get_chip_info (ssdi, get_bus_idx (bi), get_chip_idx (bi));
@@ -280,13 +367,6 @@ void destroy_ssd_info (struct ssd_info* ptr_ssd_info)
 
 		kfree(ptr_ssd_info);
 	}
-}
-
-struct flash_bus* get_bus_info(
-		struct ssd_info *ptr_ssd_info,
-		u32 bus)
-{
-	return &(ptr_ssd_info->list_buses[bus]);
 }
 
 struct flash_chip* get_chip_info(

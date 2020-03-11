@@ -2,7 +2,6 @@
 #include <linux/slab.h>
 #include <linux/vmalloc.h>
 
-
 #include "fb.h"
 #include "macro.h"
 #include "vdevice.h"
@@ -14,6 +13,41 @@
 #include "util.h"
 #include "uthash/utlist.h"
 #include "uthash/uthash.h"
+
+
+struct fb_btod_t { // block to del
+	struct flash_block *blki;
+
+	UT_hash_handle hh;
+};
+
+struct fb_wtod_t { // wordline to del
+	u32 wl_idx;
+	u32 bus;
+	u32 chip;
+
+	UT_hash_handle hh;
+};
+
+struct fb_del_mngr_t {
+
+	// list of pages (blocks) to lock - physical address base
+	// list of pages to copy - logical address base
+	// data buffers for pages to copy
+	u32 *ppas;
+
+	u32 nr_btod;
+	struct fb_btod_t *btod;
+	struct fb_btod_t *hash_btod;
+
+	u32 nr_wtod;
+	struct fb_wtod_t *wtod;
+	struct fb_wtod_t *hash_wtod;
+
+	u32 nr_pgs_to_copy;
+	u32 *lpas_to_copy;
+	u8 *data_to_copy;
+};
 
 static int make_read_request_page_mapping(
 		struct fb_context_t *ptr_fb_context,
@@ -157,7 +191,7 @@ FAIL:
 	return NULL;
 }
 
-inline struct fb_del_mngr_t *get_delm (struct page_mapping_context_t *ftl) {
+inline static struct fb_del_mngr_t *get_delm (struct page_mapping_context_t *ftl) {
 	return ftl->delm;
 }
 

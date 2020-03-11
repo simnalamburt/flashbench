@@ -28,6 +28,9 @@ struct vdevice_bus_t
 	struct vdevice_chip_t chips[NUM_CHIPS_PER_BUS];
 };
 
+#if (VDEVICE_TIME_MODELED==TRUE)
+struct fb_bus_controller_t;
+#endif
 struct vdevice_t {
 	u64 device_capacity;
 	u64 logical_capacity;
@@ -69,25 +72,10 @@ void vdevice_erase(
 		u32 block,
 		struct fb_bio_t *ptr_fb_bio);
 
-void vdevice_plock (
-		struct vdevice_t *ptr_vdevice,
-		u8 bus,
-		u8 chip);
-
-
-void vdevice_block (
-		struct vdevice_t *ptr_vdevice,
-		u8 bus,
-		u8 chip);
-
-
 int is_valid_address_range(u32 logical_page_address);
 
 u32 convert_to_physical_address(
 		u32 bus, u32 chip, u32 block, u32 page);
-
-u32 convert_to_wl_idx (
-		u32 bus, u32 chip, u32 block, u32 pg_idx);
 
 void convert_to_ssd_layout(u32 logical_page_address,
 		u32 *ptr_bus, u32 *ptr_chip, u32 *ptr_block, u32 *ptr_page);

@@ -21,6 +21,7 @@
 #include "ftl_algorithm_page_mapping.h"
 #include "gc_page_mapping.h"
 
+
 #if(WRITE_BUFFER_ENABLE==TRUE)
 
 #include "write_buffer.h"
@@ -79,12 +80,12 @@ static blk_qc_t make_request(__attribute__((unused)) struct request_queue *ptr_r
 		goto FAIL;
 	}
 
-	req_count = fb_bio_get_req_count (fbio);
+	req_count = fbio->req_count;
 
 	switch (rw) {
 		case READ:
 
-			if (fb_bio_get_req_count (fbio) == 0 ) {
+			if (fbio->req_count == 0 ) {
 				bio_endio (fbio->bio);
 				fb_destroy_bio (fbio);
 
@@ -93,8 +94,8 @@ static blk_qc_t make_request(__attribute__((unused)) struct request_queue *ptr_r
 
 			for (loop = 0 ; loop < req_count ; loop++) {
 				if (_fb->make_read_request(_fb,
-							fb_bio_get_lpa (fbio, loop),
-							fb_bio_get_kpage (fbio, loop),
+							fbio->lpas[loop],
+							fbio->kpages[loop],
 							fbio) == -1) {
 					if (dec_bio_req_count (fbio) == 0) {
 						bio_endio (fbio->bio);
@@ -115,8 +116,8 @@ static blk_qc_t make_request(__attribute__((unused)) struct request_queue *ptr_r
 			for (loop = 0 ; loop < req_count ; loop++) {
 				if (fb_put_pg (
 							get_write_buffer (_fb),
-							fb_bio_get_lpa (fbio, loop),
-							fb_bio_get_kpage (fbio, loop)) == 0) {
+							fbio->lpas[loop],
+							fbio->kpages[loop]) == 0) {
 					perf_inc_nr_incomming_write ();
 				} else {
 					// flush write buffer
@@ -504,12 +505,12 @@ static inline int fb_is_bgc_ts_expired (struct fb_context_t* fb, u64 threshold) 
 u32 dec_bio_req_count (struct fb_bio_t *fbio) {
 	u32 ret;
 
-	fb_lock (fb_bio_get_lock (fbio));
+	fb_lock (&fbio->bio_lock);
 
 	fbio->req_count--;
 	ret = fbio->req_count;
 
-	fb_unlock (fb_bio_get_lock (fbio));
+	fb_unlock (&fbio->bio_lock);
 
 	return ret;
 }
@@ -568,7 +569,7 @@ static struct fb_bio_t *fb_build_bio (struct bio *bio) {
 		sec_start += 8;
 	}
 
-	fb_init_lock (fb_bio_get_lock (fbio));
+	fb_init_lock (&fbio->bio_lock);
 
 	return fbio;
 }
