@@ -9,7 +9,7 @@ SSD firmware emulator for Linux, developed by Seoul National University,
 ```bash
 # Build
 sudo apt-get install make linux-headers-4.9.0-12-amd64
-make
+make -j
 
 # Start flashbench, check `dmesg`
 sudo insmod flashbench.ko
@@ -35,7 +35,7 @@ sudo rmmod flashbench
 
 # Static analysis with sparse
 sudo apt-get install sparse
-make C=2
+make -j C=2
 ```
 
 &nbsp;
