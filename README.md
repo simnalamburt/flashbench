@@ -12,7 +12,7 @@ sudo apt-get install make linux-headers-4.9.0-12-amd64
 make
 
 # Start flashbench, check `dmesg`
-sudo insmod flashBench.ko
+sudo insmod flashbench.ko
 # Format the created virtual SSD
 sudo mkfs -t ext4 -b 4096 /dev/fbSSD
 # Mount the virtual SSD
@@ -31,7 +31,7 @@ while :; do echo 3 | sudo tee /proc/sys/vm/drop_caches; sleep 1; done
 sudo umount /dev/fbSSD
 sudo rmdir /vSSD
 # End flashbench
-sudo rmmod flashBench
+sudo rmmod flashbench
 
 # Static analysis with sparse
 sudo apt-get install sparse
