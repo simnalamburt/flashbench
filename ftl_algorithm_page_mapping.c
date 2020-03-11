@@ -2,7 +2,7 @@
 #include <linux/slab.h>
 #include <linux/vmalloc.h>
 
-#include "fb.h"
+#include "main.h"
 #include "macro.h"
 #include "vdevice.h"
 #include "ssd_info.h"

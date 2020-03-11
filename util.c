@@ -6,7 +6,7 @@
 #include <linux/buffer_head.h>
 #include <linux/seq_file.h>
 
-#include "fb.h"
+#include "main.h"
 #include "option.h"
 #include "util.h"
 

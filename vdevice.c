@@ -1,6 +1,6 @@
 #include <linux/vmalloc.h>
 
-#include "fb.h"
+#include "main.h"
 #include "option.h"
 #include "vdevice.h"
 #if (VDEVICE_TIME_MODELED==TRUE)

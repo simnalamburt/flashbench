@@ -9,7 +9,7 @@
 #include <linux/vmalloc.h>
 #include <linux/completion.h>
 
-#include "fb.h"
+#include "main.h"
 #include "option.h"
 #include "util.h"
 #include "vdevice.h"

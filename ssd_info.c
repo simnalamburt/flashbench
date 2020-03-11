@@ -3,7 +3,7 @@
 #include <linux/module.h>
 
 #include "uthash/utlist.h"
-#include "fb.h"
+#include "main.h"
 #include "option.h"
 #include "ftl_algorithm_page_mapping.h"
 #include "ssd_info.h"

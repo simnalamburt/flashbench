@@ -5,7 +5,7 @@
 #include <linux/time.h>
 #include <linux/vmalloc.h>
 
-#include "fb.h"
+#include "main.h"
 #include "option.h"
 #include "vdevice.h"
 #include "ssd_info.h"

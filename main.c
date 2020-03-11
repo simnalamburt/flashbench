@@ -11,7 +11,7 @@
 #include <linux/freezer.h>
 #include <linux/fs.h>
 
-#include "fb.h"
+#include "main.h"
 #include "util.h"
 #include "option.h"
 #include "macro.h"

@@ -4,7 +4,7 @@
 
 obj-m := flashbench.o
 flashbench-objs := \
-	fb.o \
+	main.o \
 	util.o \
 	ftl_algorithm.o \
 	vdevice.o \
