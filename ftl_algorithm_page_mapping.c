@@ -326,8 +326,6 @@ static int _fb_del_invalidate_pgs(struct fb_context_t *fb, u32 nr_reqs,
   u32 loop = 0;
   init_delm(delm);
 
-  // printk(KERN_INFO "# of req: %u\n", nr_reqs);
-
   fb_lock(&ftl->mapping_context_lock);
 
   for (loop = 0; loop < nr_reqs; loop++) {
@@ -335,7 +333,6 @@ static int _fb_del_invalidate_pgs(struct fb_context_t *fb, u32 nr_reqs,
     //  - access to the L2P mapping - then we can know the physical page to lock
     //  - change the status of physical page (4-KiB) to invalid
     delm->ppas[loop] = invalidate_lpg(fb, req_lpas[loop]);
-    // printk(KERN_INFO "lpa: %u\n", req_lpas[loop]);
     // this is all we have to do here.
   }
 
@@ -434,8 +431,7 @@ static int make_write_request_page_mapping(struct fb_context_t *fb, u32 *lpa,
   reinit_completion(&ftl->mapping_context_lock);
 
   get_next_bus_chip(fb, &bus, &chip);
-  /* check foreground GC condition
-   * if the GC block is null */
+  // Check foreground GC condition, check if the GC block is null
   if (is_fgc_needed(fb, bus, chip) == TRUE) {
     if (trigger_gc_page_mapping(fb) == -1) {
       printk(KERN_ERR "[FlashBench] fb_page_mapping: Foreground GC failed.\n");

@@ -395,9 +395,6 @@ static int fb_bus_ctrl_thread(void *arg) {
                get_chip_wakeup_time(ptr_bus_controller, loop_chip)) > 0) {
         // Check the condition
         if (wakeup_time_in_us <= current_time_in_us) {
-// Release lock
-// If ptr_fb_bio for the chip is not null, the request count decreases.
-// And if the request becomes zero, bio will be returned.
 #if (LOG_TIMING == TRUE)
           if (nr_timer_log_delay_records[bus] < max_timer_log_delay_records) {
             timer_log_delay_records[bus][nr_timer_log_delay_records[bus]] =
@@ -412,6 +409,10 @@ static int fb_bus_ctrl_thread(void *arg) {
             nr_timer_log_resp_records[bus]++;
           }
 #endif
+          // Release lock
+          // If ptr_fb_bio for the chip is not null, the request count
+          // decreases.
+          // And if the request becomes zero, bio will be returned.
           release_busy_lock(ptr_bus_controller, loop_chip);
         }
       }
@@ -594,7 +595,6 @@ static int opr_queue_put_entry(struct fb_opr_queue_t *ptr_opr_queue,
 
   // Acquiring the lock
   wait_for_completion(&ptr_opr_queue->queue_lock);
-  // INIT_COMPLETION(ptr_opr_queue->queue_lock);
   reinit_completion(&ptr_opr_queue->queue_lock);
 
   // Check whether the queue is full or not
@@ -637,7 +637,6 @@ static int opr_queue_get_first(struct fb_opr_queue_t *ptr_opr_queue,
 
   // Acquiring the lock
   wait_for_completion(&ptr_opr_queue->queue_lock);
-  // INIT_COMPLETION(ptr_opr_queue->queue_lock);
   reinit_completion(&ptr_opr_queue->queue_lock);
 
   // Error if the queue is emptry
@@ -667,7 +666,6 @@ static int opr_queue_remove_first(struct fb_opr_queue_t *ptr_opr_queue) {
 
   // Acquiring the lock
   wait_for_completion(&ptr_opr_queue->queue_lock);
-  // INIT_COMPLETION(ptr_opr_queue->queue_lock);
   reinit_completion(&ptr_opr_queue->queue_lock);
 
   // Error if the queue is emptry
@@ -701,12 +699,11 @@ static void release_busy_lock(struct fb_bus_controller_t *ptr_bus_controller,
   // Read block I/O management
   if (ptr_bus_controller->chip_busies[chip].ptr_fb_bio != NULL) {
     // Reduce the request count
-    // ptr_bus_controller->chip_busies[chip].ptr_fb_bio->req_count--;
+    const u32 count =
+        dec_bio_req_count(ptr_bus_controller->chip_busies[chip].ptr_fb_bio);
 
     // If request count is zero, it means that the block I/O completes
-    // if(ptr_bus_controller->chip_busies[chip].ptr_fb_bio->req_count == 0)
-    if (dec_bio_req_count(ptr_bus_controller->chip_busies[chip].ptr_fb_bio) ==
-        0) {
+    if (count == 0) {
       bio_endio(ptr_bus_controller->chip_busies[chip].ptr_fb_bio->bio);
       vfree(ptr_bus_controller->chip_busies[chip].ptr_fb_bio);
     }

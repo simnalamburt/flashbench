@@ -45,7 +45,6 @@ struct fb_context_t {
   struct gendisk *gd;
   struct request_queue *ptr_req_queue;
   struct completion dev_lock;
-  // spinlock_t dev_lock;
   int device_major_num;
 
   struct fb_wb *wb;  // write_buffer

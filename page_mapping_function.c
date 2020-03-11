@@ -145,7 +145,7 @@ u32 invalidate_lpg(struct fb_context_t *fb, u32 lpa) {
 
   if (ppa != PAGE_UNMAPPED) {
     u32 bus, chip, blk, pg;
-    struct flash_block *blki;  //, *vic_blki;
+    struct flash_block *blki;
     struct flash_page *pgi;
 
     convert_to_ssd_layout(ppa, &bus, &chip, &blk, &pg);
@@ -156,16 +156,6 @@ u32 invalidate_lpg(struct fb_context_t *fb, u32 lpa) {
     set_pg_status(pgi, (pg & LP_PAGE_MASK), PAGE_STATUS_INVALID);
     inc_nr_invalid_lps_in_blk(blki);
     dec_nr_valid_lps_in_blk(blki);
-
-    /*
-    if ((vic_blki = fb_gc_vic_blk (fb, bus, chip)) != NULL) {
-            if ((get_nr_free_pgs (blki) == 0) &&
-                            (get_nr_invalid_lps_in_blk (vic_blki) <
-                             get_nr_invalid_lps_in_blk (blki))) {
-                    set_vic_blk (get_gcm (ftl), bus, chip, blki);
-            }
-    }
-    */
 
     if (inc_nr_invalid_lps(pgi) == NR_LP_IN_PP) {
       dec_nr_valid_pgs(blki);

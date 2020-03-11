@@ -13,12 +13,12 @@ enum fb_pg_status_t {
 };
 
 struct flash_block {
-  /* block id */
+  // block id
   u32 no_block;
   u32 no_chip;
   u32 no_bus;
 
-  /* block status */
+  // block status
   u32 nr_valid_pages;
   u32 nr_invalid_pages;
   u32 nr_free_pages;
@@ -26,23 +26,22 @@ struct flash_block {
   u32 nr_valid_log_pages;
   u32 nr_invalid_log_pages;
 
-  /* the number of erasure operations */
+  // the number of erasure operations
   u32 nr_erase_cnt;
 
-  /* for bad block management */
+  // for bad block management
   int is_bad_block;
 
-  /* for garbage collection */
+  // for garbage collection
   u32 last_modified_time;
 
-  /* is reserved block for gc? */
+  // is reserved block for gc?
   int is_reserved_block;
 
-  /* is active block? */
+  // is active block?
   int is_active_block;
 
-  /* for keeping the oob data (NOTE: it must be removed in real implementation)
-   */
+  // for keeping the oob data (NOTE: it must be removed in real implementation)
   struct flash_page *list_pages;
 
   struct flash_block *prev, *next;
@@ -50,7 +49,7 @@ struct flash_block {
   int del_flag;
 };
 
-/* page info interface */
+// page info interface
 u32 get_mapped_lpa(struct flash_page *pgi, u8 ofs);
 void set_mapped_lpa(struct flash_page *pgi, u8 ofs, u32 lpa);
 enum fb_pg_status_t get_pg_status(struct flash_page *pgi, u8 ofs);
@@ -58,7 +57,7 @@ void set_pg_status(struct flash_page *pgi, u8 ofs, enum fb_pg_status_t status);
 u32 get_nr_invalid_lps(struct flash_page *pgi);
 u32 inc_nr_invalid_lps(struct flash_page *pgi);
 
-/* block info interface */
+// block info interface
 void init_blk_inf(struct flash_block *blki);
 u32 get_blk_idx(struct flash_block *blki);
 struct flash_page *get_pgi_from_blki(struct flash_block *blki, u32 pg);
@@ -80,7 +79,7 @@ u32 inc_bers_cnt(struct flash_block *blki);
 void set_rsv_blk_flag(struct flash_block *blki, int flag);
 void set_act_blk_flag(struct flash_block *blki, int flag);
 
-/* chip info interface */
+// chip info interface
 void set_free_blk(struct ssd_info *ssdi, struct flash_block *bi);
 void reset_free_blk(struct ssd_info *ssdi, struct flash_block *bi);
 struct flash_block *get_free_block(struct ssd_info *ssdi, u32 bus, u32 chip);
@@ -94,10 +93,10 @@ void reset_dirt_blk(struct ssd_info *ssdi, struct flash_block *bi);
 struct flash_block *get_dirt_block(struct ssd_info *ssdi, u32 bus, u32 chip);
 u32 get_nr_dirt_blks_in_chip(struct flash_chip *ci);
 
-/* create the ftl information structure */
+// create the ftl information structure
 struct ssd_info *create_ssd_info(void);
 
-/* destory the ftl information structure */
+// destory the ftl information structure
 void destroy_ssd_info(struct ssd_info *ptr_ssd_info);
 
 struct flash_chip *get_chip_info(struct ssd_info *ptr_ssd_info, u32 bus,

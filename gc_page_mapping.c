@@ -443,17 +443,14 @@ static int fb_bgc_set_vic_blks(struct fb_context_t *fb) {
 
   u8 bus, chip;
 
-  /* if necesary, find a new victim block for each chip */
+  // if necesary, find a new victim block for each chip
   for (bus = 0; bus < NUM_BUSES; bus++) {
     for (chip = 0; chip < NUM_CHIPS_PER_BUS; chip++) {
-      // if (get_nr_used_blks_in_chip (
-      //			get_chip_info (ssdi, bus, chip)) > BGC_TH_UBLK)
-      //{
       chipi = get_chip_info(ssdi, bus, chip);
 
       if ((get_nr_dirt_blks_in_chip(chipi) + get_nr_free_blks_in_chip(chipi)) <
           BGC_TH_NR_BLKS) {
-        /* victim block exists */
+        // victim block exists
         if ((blki = get_vic_blk(gcm, bus, chip)) != NULL) {
           set_first_valid_pg(
               gcm, bus, chip,
@@ -466,7 +463,7 @@ static int fb_bgc_set_vic_blks(struct fb_context_t *fb) {
           }
         }
 
-        /* find a new one */
+        // find a new one
         if ((blki = select_vic_blk_from_used(ssdi, bus, chip)) == NULL) {
           printk(KERN_ERR "Wrong block managment\n");
           print_blk_mgmt(fb);

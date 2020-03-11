@@ -138,7 +138,6 @@ struct fb_wb *fb_create_write_buffer(u32 nr_max_entries, u32 pg_size) {
 
   init_completion(&wb->wb_lock);
   complete(&wb->wb_lock);
-  // spin_lock_init (&wb->wb_lock);
 
   return wb;
 
@@ -183,7 +182,6 @@ static u32 fb_get_nr_pgs_in_wb(struct fb_wb *wb, int lock) {
   u32 ret;
 
   if (lock == TRUE) {
-    // spin_lock_irqsave (&wb->wb_lock, flag);
     wait_for_completion(&wb->wb_lock);
     reinit_completion(&wb->wb_lock);
   }
@@ -191,7 +189,6 @@ static u32 fb_get_nr_pgs_in_wb(struct fb_wb *wb, int lock) {
   ret = wb->nr_entries;
 
   if (lock == TRUE) complete(&wb->wb_lock);
-  // spin_unlock_irqrestore (&wb->wb_lock, flag);
 
   return ret;
 }
@@ -200,7 +197,6 @@ int fb_get_pg_data(struct fb_wb *wb, u32 lpa, u8 *dest) {
   struct fb_wb_pg_t *wb_pg;
   int ret = -1;
 
-  // spin_lock_irqsave (&wb->wb_lock, flag);
   wait_for_completion(&wb->wb_lock);
   reinit_completion(&wb->wb_lock);
 
@@ -209,7 +205,6 @@ int fb_get_pg_data(struct fb_wb *wb, u32 lpa, u8 *dest) {
     ret = 0;
   }
 
-  // spin_unlock_irqrestore (&wb->wb_lock, flag);
   complete(&wb->wb_lock);
 
   return ret;
@@ -222,7 +217,6 @@ int fb_get_pgs_to_write(struct fb_wb *wb, u32 nr_pgs, u32 *lpas, u8 *dest) {
 
   wait_for_completion(&wb->wb_lock);
   reinit_completion(&wb->wb_lock);
-  // spin_lock_irqsave (&wb->wb_lock, flag);
 
   if (fb_get_nr_pgs_in_wb(wb, FALSE) >= nr_pgs) {
     for (i = 0; i < nr_pgs; i++) {
@@ -237,7 +231,6 @@ int fb_get_pgs_to_write(struct fb_wb *wb, u32 nr_pgs, u32 *lpas, u8 *dest) {
     ret = 0;
   }
 
-  // spin_unlock_irqrestore (&wb->wb_lock, flag);
   complete(&wb->wb_lock);
 
   return ret;

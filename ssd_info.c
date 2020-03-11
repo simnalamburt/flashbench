@@ -36,7 +36,7 @@ struct flash_chip {
   struct completion chip_status_lock;
 
   int chip_status;
-  /* the number of free blocks in a chip */
+  // the number of free blocks in a chip
   u32 nr_free_blocks;
   u32 nr_used_blks;
   u32 nr_dirt_blks;
@@ -45,26 +45,26 @@ struct flash_chip {
   struct flash_block *used_blks;
   struct flash_block *dirt_blks;
 
-  /* the number of dirty blocks in a chip */
+  // the number of dirty blocks in a chip
   u32 nr_dirty_blocks;
 
-  /* block array */
+  // block array
   struct flash_block *list_blocks;
 };
 
 struct flash_bus {
-  /* chip array */
+  // chip array
   struct flash_chip *list_chips;
 };
 
 struct ssd_info {
-  /* ssd information */
+  // ssd information
   u32 nr_buses;
   u32 nr_chips_per_bus;
   u32 nr_blocks_per_chip;
   u32 nr_pages_per_block;
 
-  /* bus array */
+  // bus array
   struct flash_bus *list_buses;
 };
 
@@ -171,7 +171,7 @@ struct ssd_info *create_ssd_info(void) {
   for (loop_bus = 0; loop_bus < NUM_BUSES; loop_bus++) {
     struct flash_bus *ptr_bus = &ptr_ssd_info->list_buses[loop_bus];
 
-    /* initialize flash chip */
+    // initialize flash chip
     if ((ptr_bus->list_chips = (struct flash_chip *)kmalloc(
              sizeof(struct flash_chip) * NUM_CHIPS_PER_BUS, GFP_ATOMIC)) ==
         NULL) {
@@ -199,7 +199,7 @@ struct ssd_info *create_ssd_info(void) {
       ptr_chip->used_blks = NULL;
       ptr_chip->dirt_blks = NULL;
 
-      /* initialize blocks */
+      // initialize blocks
       if ((ptr_chip->list_blocks = (struct flash_block *)kmalloc(
                sizeof(struct flash_block) * NUM_BLOCKS_PER_CHIP, GFP_ATOMIC)) ==
           NULL) {

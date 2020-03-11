@@ -155,13 +155,13 @@ FAIL:
   return BLK_QC_T_NONE;
 }
 
-/* 처음 insmod 시 flashbench 초기화 */
+// 처음 insmod 시 flashbench 초기화
 static int __init
 fb_init(void)  // __init: 해당 함수 혹은 변수가 초기화 과정에서만 사용됨을 의미.
 {
   int ret_value = 0;
 
-  perf_init(); /* procfs에 summary 파일 생성 및 사용을 위한 초기화 */
+  perf_init();  // procfs에 summary 파일 생성 및 사용을 위한 초기화
 
   if ((_fb = (struct fb_context_t *)kmalloc(sizeof(struct fb_context_t),
                                             GFP_ATOMIC)) == NULL) {
@@ -233,9 +233,8 @@ fb_init(void)  // __init: 해당 함수 혹은 변수가 초기화 과정에서�
     goto FAIL_REGISTER_BDEV;
   }
 
-  if (!(_fb->gd = alloc_disk(1))) /* Logical Disk를 등록시키기 위한 자료구조인
-                                     gendisk를 할당받는다. */
-  {
+  // Logical Disk를 등록시키기 위한 자료구조인 gendisk를 할당받는다
+  if (!(_fb->gd = alloc_disk(1))) {
     printk(KERN_ERR "[FlashBench] Allocating a disk failed.\n");
     ret_value = -ENOMEM;
     goto FAIL_ALLOC_DISK;
@@ -263,7 +262,6 @@ fb_init(void)  // __init: 해당 함수 혹은 변수가 초기화 과정에서�
   _fb->gd->private_data = NULL;
   strcpy(_fb->gd->disk_name, DEV_NAME);
 
-  // set_capacity(_fb->gd, _fb->ptr_vdevice->device_capacity / SECTOR_SIZE);
   set_capacity(_fb->gd, _fb->ptr_vdevice->logical_capacity / SECTOR_SIZE);
   add_disk(_fb->gd);
 

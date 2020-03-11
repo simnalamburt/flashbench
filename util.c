@@ -61,10 +61,6 @@ static int fb_proc_summary(struct seq_file* m,
              _perf_nr_discard_reqs, _perf_nr_discarded_lpgs);
   seq_printf(m, "FlashBench: # of plocks: %u\n", _perf_nr_plocks);
   seq_printf(m, "FlashBench: # of blocks: %u\n", _perf_nr_blocks);
-  // seq_printf(m, "FlashBench: # of pgs in write buffer: %u\n",
-  // util_write_buffer ());
-  // seq_printf(m, "FlashBench: # of slow blocks: %u, dirt blocks: %u\n",
-  // util_slow_blk (), util_dirt_blk());
 
   return 0;
 }

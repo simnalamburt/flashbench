@@ -20,13 +20,6 @@ struct vdevice_t *create_vdevice(void) {
     goto FAIL_ALLOC_VDEVICE;
   }
 
-  /*
-          bus_capacity =
-                  NUM_CHIPS_PER_BUS *
-                  NUM_BLOCKS_PER_CHIP *
-                  NUM_PAGES_PER_BLOCK *
-                  PHYSICAL_PAGE_SIZE;
-  */
   bus_capacity = NUM_CHIPS_PER_BUS;
   bus_capacity *= NUM_BLOCKS_PER_CHIP;
   bus_capacity *= NUM_PAGES_PER_BLOCK;
@@ -107,7 +100,6 @@ void vdevice_read(struct vdevice_t *ptr_vdevice, u8 bus, u8 chip, u32 block,
       ptr_vdevice->buses[bus].chips[chip].blocks[block].pages[page].ptr_data;
   u8 lp_loop;
   u8 *ptr_curr = ptr_dest;
-  // memcpy(ptr_dest, ptr_src, PHYSICAL_PAGE_SIZE);
   for (lp_loop = 0; lp_loop < NR_LP_IN_PP; lp_loop++) {
     if (page_bitmap[lp_loop] == 1) {
       memcpy(ptr_curr, ptr_src, LOGICAL_PAGE_SIZE);
