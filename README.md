@@ -33,9 +33,14 @@ sudo rmdir /vSSD
 # End flashbench
 sudo rmmod flashbench
 
+
+
 # Static analysis with sparse
 sudo apt-get install sparse
 make -j C=2
+# Static analysis with clang-tidy
+sudo apt-get install bear clang-tidy
+bear make -j && run-clang-tidy-3.8.py
 ```
 
 &nbsp;
