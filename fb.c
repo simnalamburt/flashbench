@@ -30,10 +30,10 @@ static void fb_stop_write_buffer_thread(void);
 static int fb_write_buffer_thread(void *arg);
 #endif
 static void fb_init_bgc_ts (struct fb_context_t* fb);
-static inline u64 fb_get_time_in_us (void);
-static inline u64 fb_get_bgc_ts (struct fb_context_t *fb);
-static inline void fb_update_bgc_ts (struct fb_context_t* fb);
-static inline int fb_is_bgc_ts_expired (struct fb_context_t* fb, u64 threshold);
+static u64 fb_get_time_in_us (void);
+static u64 fb_get_bgc_ts (struct fb_context_t *fb);
+static void fb_update_bgc_ts (struct fb_context_t* fb);
+static int fb_is_bgc_ts_expired (struct fb_context_t* fb, u64 threshold);
 u32 dec_bio_req_count (struct fb_bio_t *ptr_bio);
 static struct fb_bio_t *fb_build_bio (struct bio *bio);
 static void fb_destroy_bio (struct fb_bio_t *fbio);
@@ -465,11 +465,11 @@ FINISH:
 }
 #endif
 
-inline struct fb_wb *get_write_buffer (struct fb_context_t *fb) {
+struct fb_wb *get_write_buffer (struct fb_context_t *fb) {
 	return fb->wb;
 }
 
-inline struct ssd_info *get_ssd_inf (struct fb_context_t *fb) {
+struct ssd_info *get_ssd_inf (struct fb_context_t *fb) {
 	return fb->ptr_ssd_info;
 }
 
@@ -485,19 +485,19 @@ static void fb_init_bgc_ts (struct fb_context_t* fb) {
 	fb->background_gc_time_stamp = 0;
 }
 
-static inline u64 fb_get_time_in_us (void) {
+static u64 fb_get_time_in_us (void) {
 	return ktime_to_us (ktime_get ());
 }
 
-static inline u64 fb_get_bgc_ts (struct fb_context_t *fb) {
+static u64 fb_get_bgc_ts (struct fb_context_t *fb) {
 	return fb->background_gc_time_stamp;
 }
 
-static inline void fb_update_bgc_ts (struct fb_context_t* fb) {
+static void fb_update_bgc_ts (struct fb_context_t* fb) {
 	fb->background_gc_time_stamp = fb_get_time_in_us();
 }
 
-static inline int fb_is_bgc_ts_expired (struct fb_context_t* fb, u64 threshold) {
+static int fb_is_bgc_ts_expired (struct fb_context_t* fb, u64 threshold) {
 	return ((fb_get_time_in_us() - fb_get_bgc_ts (fb)) > threshold) ? TRUE : FALSE;
 }
 

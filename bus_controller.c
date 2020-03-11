@@ -77,13 +77,13 @@ static struct fb_opr_queue_t *create_opr_queue(u32 num_max_entries);
 static void destroy_opr_queue(struct fb_opr_queue_t *ptr_opr_queue);
 
 // Get the current number of entries in the target operation queue
-static inline u32 opr_queue_num_entries(struct fb_opr_queue_t *ptr_opr_queue);
+static u32 opr_queue_num_entries(struct fb_opr_queue_t *ptr_opr_queue);
 
 // Check whether the operation queue is full or not(full: TRUE, otherwise: FASLE)
-static inline int opr_queue_full(struct fb_opr_queue_t *ptr_opr_queue);
+static int opr_queue_full(struct fb_opr_queue_t *ptr_opr_queue);
 
 // Check whether the operation queue is empty or not(empty: TRUE, otherwise: FALSE)
-static inline int opr_queue_empty(struct fb_opr_queue_t *ptr_opr_queue);
+static int opr_queue_empty(struct fb_opr_queue_t *ptr_opr_queue);
 
 // Put an entry into the target operation queue(success: 0, error: -1)
 static int opr_queue_put_entry(
@@ -114,10 +114,10 @@ static void acquire_busy_lock(
 static int chip_status_busy(
 		struct fb_bus_controller_t *ptr_bus_controller, u32 chip);
 
-static inline u32 get_chip_wakeup_time(
+static u32 get_chip_wakeup_time(
 		struct fb_bus_controller_t *ptr_bus_controller, u32 chip);
 
-static inline u32 get_chip_issue_time(
+static u32 get_chip_issue_time(
 		struct fb_bus_controller_t *ptr_bus_controller, u32 chip);
 // ----------------- Public functions ----------------------------------------
 // Creating and initialize bus controllers in the virtual device structure
@@ -595,19 +595,19 @@ static void destroy_opr_queue(struct fb_opr_queue_t *ptr_opr_queue)
 }
 
 // Get the current number of entries in the target operation queue
-static inline u32 opr_queue_num_entries(struct fb_opr_queue_t *ptr_opr_queue)
+static u32 opr_queue_num_entries(struct fb_opr_queue_t *ptr_opr_queue)
 {
 	return ptr_opr_queue->num_entries;
 }
 
 // Check whether the operation queue is full or not(full: TRUE, otherwise: FASLE)
-static inline int opr_queue_full(struct fb_opr_queue_t *ptr_opr_queue)
+static int opr_queue_full(struct fb_opr_queue_t *ptr_opr_queue)
 {
 	return (ptr_opr_queue->num_max_entries == opr_queue_num_entries(ptr_opr_queue)) ? TRUE : FALSE;
 }
 
 // Check whether the operation queue is empty or not(empty: TRUE, otherwise: FALSE)
-static inline int opr_queue_empty(struct fb_opr_queue_t *ptr_opr_queue)
+static int opr_queue_empty(struct fb_opr_queue_t *ptr_opr_queue)
 {
 	return (opr_queue_num_entries(ptr_opr_queue) == 0) ? TRUE : FALSE;
 }
@@ -776,13 +776,13 @@ static int chip_status_busy(
 			ptr_bus_controller->chip_busies[chip].issue_time_in_us == 0) ? FALSE : TRUE;
 }
 
-static inline u32 get_chip_wakeup_time(
+static u32 get_chip_wakeup_time(
 		struct fb_bus_controller_t *ptr_bus_controller, u32 chip)
 {
 	return ptr_bus_controller->chip_busies[chip].wakeup_time_in_us;
 }
 
-static inline u32 get_chip_issue_time(
+static u32 get_chip_issue_time(
 		struct fb_bus_controller_t *ptr_bus_controller, u32 chip)
 {
 	return ptr_bus_controller->chip_busies[chip].issue_time_in_us;

@@ -17,21 +17,21 @@
 #include "uthash/utlist.h"
 
 
-static inline void init_gcm (struct fb_gc_mngr_t *gcm) {
+static void init_gcm (struct fb_gc_mngr_t *gcm) {
 	gcm->nr_pgs_to_copy = 0;
 }
 
-static inline struct flash_block *get_vic_blk (
+static struct flash_block *get_vic_blk (
 		struct fb_gc_mngr_t *gcm, u32 bus, u32 chip) {
 	return gcm->vic_blks[bus * NUM_CHIPS_PER_BUS + chip];
 }
 
-static inline void set_vic_blk (
+static void set_vic_blk (
 		struct fb_gc_mngr_t *gcm, u32 bus, u32 chip, struct flash_block *blki) {
 	gcm->vic_blks[bus * NUM_CHIPS_PER_BUS + chip] = blki;
 }
 
-inline u32 find_first_valid_pg (struct flash_block *blki, u32 start_pg) {
+u32 find_first_valid_pg (struct flash_block *blki, u32 start_pg) {
 	struct flash_page *pgi;
 	u32 pg;
 
@@ -45,12 +45,12 @@ inline u32 find_first_valid_pg (struct flash_block *blki, u32 start_pg) {
 	return pg;
 }
 
-inline void set_first_valid_pg (
+void set_first_valid_pg (
 		struct fb_gc_mngr_t *gcm, u32 bus, u32 chip, u32 pg) {
 	gcm->first_valid_pg[bus * NUM_CHIPS_PER_BUS + chip] = pg;
 }
 
-inline u32 get_first_valid_pg (struct fb_gc_mngr_t *gcm, u32 bus, u32 chip) {
+u32 get_first_valid_pg (struct fb_gc_mngr_t *gcm, u32 bus, u32 chip) {
 	return gcm->first_valid_pg[bus * NUM_CHIPS_PER_BUS + chip];
 }
 

@@ -44,7 +44,7 @@ FINISH:
 	return physical_page_address;
 }
 
-inline void set_prev_bus_chip(
+void set_prev_bus_chip(
 		struct fb_context_t *ptr_fb_context,
 		u8 bus,
 		u8 chip)
@@ -57,7 +57,7 @@ inline void set_prev_bus_chip(
 	abm->mru_chip = chip;
 }
 
-inline void get_prev_bus_chip (struct fb_context_t *fb, u8 *bus, u8 *chip) {
+void get_prev_bus_chip (struct fb_context_t *fb, u8 *bus, u8 *chip) {
 	struct page_mapping_context_t *ftl = (struct page_mapping_context_t *) get_ftl (fb);
 	struct fb_act_blk_mngr_t *abm = get_abm (ftl);
 
@@ -144,11 +144,11 @@ void update_act_blk (struct fb_context_t* fb, u8 bus, u8 chip) {
 	}
 }
 
-inline u32 get_mapped_ppa (struct page_mapping_context_t *ftl, u32 lpa) {
+u32 get_mapped_ppa (struct page_mapping_context_t *ftl, u32 lpa) {
 	return ftl->ptr_mapping_table->mappings[lpa];
 }
 
-inline void set_mapped_ppa (struct page_mapping_context_t *ftl, u32 lpa, u32 ppa) {
+void set_mapped_ppa (struct page_mapping_context_t *ftl, u32 lpa, u32 ppa) {
 	ftl->ptr_mapping_table->mappings[lpa] = ppa;
 }
 
@@ -238,13 +238,13 @@ int __map_logical_to_physical(
 	return 0;
 }
 
-inline struct flash_block* get_curr_gc_block (struct fb_context_t *fb, u32 bus, u32 chip) {
+struct flash_block* get_curr_gc_block (struct fb_context_t *fb, u32 bus, u32 chip) {
 	struct page_mapping_context_t *ftl = (struct page_mapping_context_t *) get_ftl (fb);
 
 	return ftl->gcm->gc_blks[bus * NUM_CHIPS_PER_BUS + chip];
 }
 
-inline void  set_curr_gc_block (
+void  set_curr_gc_block (
 		struct fb_context_t *fb, u32 bus, u32 chip, struct flash_block *blki) {
 	struct page_mapping_context_t *ftl = (struct page_mapping_context_t *) get_ftl (fb);
 
@@ -254,13 +254,13 @@ inline void  set_curr_gc_block (
 		set_rsv_blk_flag (blki, TRUE);
 }
 
-inline struct flash_block* get_curr_active_block (struct fb_context_t *fb, u32 bus, u32 chip) {
+struct flash_block* get_curr_active_block (struct fb_context_t *fb, u32 bus, u32 chip) {
 	struct page_mapping_context_t *ftl = (struct page_mapping_context_t *) get_ftl (fb);
 
 	return ftl->abm->act_blks[bus * NUM_CHIPS_PER_BUS + chip];
 }
 
-inline void set_curr_active_block (
+void set_curr_active_block (
 		struct fb_context_t *fb, u32 bus, u32 chip, struct flash_block *blki) {
 	struct page_mapping_context_t *ftl = (struct page_mapping_context_t *) get_ftl (fb);
 
