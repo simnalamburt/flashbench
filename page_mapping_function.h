@@ -1,3 +1,5 @@
+#include <linux/types.h>
+
 struct fb_context_t;
 struct flash_block;
 

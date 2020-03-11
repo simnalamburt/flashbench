@@ -1,4 +1,10 @@
+#include <linux/types.h>
 #include "option.h"
+
+struct fb_bio_t;
+#if (VDEVICE_TIME_MODELED == TRUE)
+struct fb_bus_controller_t;
+#endif
 
 enum fb_dev_op_t {
   OP_READ,
@@ -24,9 +30,6 @@ struct vdevice_bus_t {
   struct vdevice_chip_t chips[NUM_CHIPS_PER_BUS];
 };
 
-#if (VDEVICE_TIME_MODELED == TRUE)
-struct fb_bus_controller_t;
-#endif
 struct vdevice_t {
   u64 device_capacity;
   u64 logical_capacity;

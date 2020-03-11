@@ -1,11 +1,16 @@
+#include <linux/types.h>
+
+struct flash_page;
+struct flash_chip;
+struct flash_bus;
+struct ssd_info;
+
 enum fb_pg_status_t {
   PAGE_STATUS_FREE,
   PAGE_STATUS_VALID,
   PAGE_STATUS_INVALID,
   PAGE_STATUS_DEL
 };
-
-struct flash_page;
 
 struct flash_block {
   /* block id */
@@ -44,10 +49,6 @@ struct flash_block {
 
   int del_flag;
 };
-
-struct flash_chip;
-struct flash_bus;
-struct ssd_info;
 
 /* page info interface */
 u32 get_mapped_lpa(struct flash_page *pgi, u8 ofs);

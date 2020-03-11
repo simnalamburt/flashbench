@@ -1,3 +1,5 @@
+#include <linux/types.h>
+
 struct vdevice_t;
 struct fb_bus_controller_t;
 struct fb_bio_t;

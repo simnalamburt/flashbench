@@ -1,5 +1,6 @@
 #include <linux/blkdev.h>
 #include <linux/completion.h>
+#include <linux/types.h>
 
 #include "option.h"
 

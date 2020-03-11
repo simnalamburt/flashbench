@@ -1,9 +1,13 @@
 #include <linux/completion.h>
+#include <linux/types.h>
 #include "uthash/uthash.h"
 
 #define PAGE_UNMAPPED -1
 
 struct flash_block;
+struct fb_del_mngr_t;
+struct fb_context_t;
+struct fb_bio_t;
 
 struct page_mapping_table_t {
   u32 nr_entries;
@@ -16,8 +20,6 @@ struct fb_act_blk_mngr_t {
   u32 mru_bus;
   u32 mru_chip;
 };
-
-struct fb_del_mngr_t;
 
 struct fb_gc_mngr_t {
   struct flash_block **gc_blks;

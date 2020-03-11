@@ -1,3 +1,4 @@
+#include <linux/types.h>
 #include "uthash/uthash.h"
 
 struct fb_wb_pg_t {
