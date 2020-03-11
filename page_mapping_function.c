@@ -17,7 +17,7 @@ u32 get_mapped_physical_address(struct fb_context_t *ptr_fb_context,
                                 u32 *ptr_chip, u32 *ptr_block, u32 *ptr_page) {
   struct page_mapping_context_t *ptr_mapping_context =
       (struct page_mapping_context_t *)ptr_fb_context->ptr_mapping_context;
-  u32 physical_page_address = PAGE_UNMAPPED;
+  u32 physical_page_address = (u32)PAGE_UNMAPPED;
 
   if (is_valid_address_range(logical_page_address) == FALSE) {
     printk(KERN_ERR
@@ -26,9 +26,9 @@ u32 get_mapped_physical_address(struct fb_context_t *ptr_fb_context,
     goto FINISH;
   }
 
-  if ((physical_page_address = ptr_mapping_context->ptr_mapping_table
-                                   ->mappings[logical_page_address]) !=
-      PAGE_UNMAPPED) {
+  physical_page_address =
+      ptr_mapping_context->ptr_mapping_table->mappings[logical_page_address];
+  if (physical_page_address != (u32)PAGE_UNMAPPED) {
     convert_to_ssd_layout(physical_page_address, ptr_bus, ptr_chip, ptr_block,
                           ptr_page);
   }
@@ -143,7 +143,7 @@ u32 invalidate_lpg(struct fb_context_t *fb, u32 lpa) {
 
   u32 ppa = get_mapped_ppa(ftl, lpa);
 
-  if (ppa != PAGE_UNMAPPED) {
+  if (ppa != (u32)PAGE_UNMAPPED) {
     u32 bus, chip, blk, pg;
     struct flash_block *blki;
     struct flash_page *pgi;
@@ -184,7 +184,7 @@ int __map_logical_to_physical(struct fb_context_t *fb, u32 lpa, u32 bus,
   struct flash_block *blki = get_block_info(ssdi, bus, chip, blk);
   struct flash_page *pgi = get_page_info(ssdi, bus, chip, blk, pg);
 
-  if (lpa != PAGE_UNMAPPED) {
+  if (lpa != (u32)PAGE_UNMAPPED) {
     invalidate_lpg(fb, lpa);
     inc_nr_valid_lps_in_blk(blki);
     set_pg_status(pgi, lp_ofs, PAGE_STATUS_VALID);
