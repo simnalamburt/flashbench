@@ -186,7 +186,7 @@ void fb_destroy_write_buffer (struct fb_wb *wb) {
 	}
 }
 
-u32 fb_get_nr_pgs_in_wb (struct fb_wb *wb, int lock) {
+static u32 fb_get_nr_pgs_in_wb (struct fb_wb *wb, int lock) {
 	u32 ret;
 
 	if (lock == TRUE) {

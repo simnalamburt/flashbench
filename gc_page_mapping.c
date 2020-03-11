@@ -31,7 +31,7 @@ static void set_vic_blk (
 	gcm->vic_blks[bus * NUM_CHIPS_PER_BUS + chip] = blki;
 }
 
-u32 find_first_valid_pg (struct flash_block *blki, u32 start_pg) {
+static u32 find_first_valid_pg (struct flash_block *blki, u32 start_pg) {
 	struct flash_page *pgi;
 	u32 pg;
 
@@ -45,12 +45,12 @@ u32 find_first_valid_pg (struct flash_block *blki, u32 start_pg) {
 	return pg;
 }
 
-void set_first_valid_pg (
+static void set_first_valid_pg (
 		struct fb_gc_mngr_t *gcm, u32 bus, u32 chip, u32 pg) {
 	gcm->first_valid_pg[bus * NUM_CHIPS_PER_BUS + chip] = pg;
 }
 
-u32 get_first_valid_pg (struct fb_gc_mngr_t *gcm, u32 bus, u32 chip) {
+static u32 get_first_valid_pg (struct fb_gc_mngr_t *gcm, u32 bus, u32 chip) {
 	return gcm->first_valid_pg[bus * NUM_CHIPS_PER_BUS + chip];
 }
 

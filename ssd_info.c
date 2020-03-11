@@ -385,7 +385,7 @@ u32 get_nr_invalid_lps (struct flash_page *pgi) {
 	return pgi->nr_invalid_log_pages;
 }
 
-void set_nr_invalid_lps (struct flash_page *pgi, u32 value) {
+static void set_nr_invalid_lps (struct flash_page *pgi, u32 value) {
 	pgi->nr_invalid_log_pages = value;
 }
 
@@ -393,7 +393,7 @@ u32 inc_nr_invalid_lps (struct flash_page *pgi) {
 	return ++(pgi->nr_invalid_log_pages);
 }
 
-void set_del_flag_pg (struct flash_page *pgi, int flag) {
+static void set_del_flag_pg (struct flash_page *pgi, int flag) {
 	pgi->del_flag = flag;
 }
 
@@ -427,11 +427,11 @@ void init_blk_inf (struct flash_block *blki) {
 	}
 }
 
-u32 get_bus_idx (struct flash_block *blki) {
+static u32 get_bus_idx (struct flash_block *blki) {
 	return blki->no_bus;
 }
 
-u32 get_chip_idx (struct flash_block *blki) {
+static u32 get_chip_idx (struct flash_block *blki) {
 	return blki->no_chip;
 }
 
@@ -447,15 +447,15 @@ u32 get_nr_free_pgs (struct flash_block *blki) {
 	return blki->nr_free_pages;
 }
 
-void set_nr_valid_pgs (struct flash_block *blki, u32 value) {
+static void set_nr_valid_pgs (struct flash_block *blki, u32 value) {
 	blki->nr_valid_pages = value;
 }
 
-void set_nr_invalid_pgs (struct flash_block *blki, u32 value) {
+static void set_nr_invalid_pgs (struct flash_block *blki, u32 value) {
 	blki->nr_invalid_pages = value;
 }
 
-void set_nr_free_pgs (struct flash_block *blki, u32 value) {
+static void set_nr_free_pgs (struct flash_block *blki, u32 value) {
 	blki->nr_free_pages = value;
 }
 
@@ -483,11 +483,11 @@ u32 get_nr_invalid_lps_in_blk (struct flash_block *blki) {
 	return blki->nr_invalid_log_pages;
 }
 
-void set_nr_valid_lps_in_blk (struct flash_block *blki, u32 value) {
+static void set_nr_valid_lps_in_blk (struct flash_block *blki, u32 value) {
 	blki->nr_valid_log_pages = value;
 }
 
-void set_nr_invalid_lps_in_blk (struct flash_block *blki, u32 value) {
+static void set_nr_invalid_lps_in_blk (struct flash_block *blki, u32 value) {
 	blki->nr_invalid_log_pages = value;
 }
 
@@ -515,6 +515,6 @@ void set_act_blk_flag (struct flash_block *blki, int flag) {
 	blki->is_active_block = flag;
 }
 
-void set_del_flag_blk (struct flash_block *blki, int flag) {
+static void set_del_flag_blk (struct flash_block *blki, int flag) {
 	blki->del_flag = flag;
 }

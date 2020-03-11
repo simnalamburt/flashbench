@@ -67,7 +67,7 @@ static void destroy_bus_controller(struct fb_bus_controller_t *ptr_bus_controlle
 // Phase 2: Acquire bus locks for requests waiting for avaliable chips
 static int fb_bus_ctrl_thread(void *arg);
 static int fb_init_bus_ctrl_thread(struct fb_bus_controller_t *ptr_bus_controller, u32 bus);
-void fb_stop_bus_ctrl_thread(struct fb_bus_controller_t *ptr_bus_controller);
+static void fb_stop_bus_ctrl_thread(struct fb_bus_controller_t *ptr_bus_controller);
 // ---------------- prototypes of static functions: operation queue ----------------------------
 
 // Creating an operation queue for a chip
@@ -507,7 +507,7 @@ static int fb_init_bus_ctrl_thread(struct fb_bus_controller_t *ptr_bus_controlle
 	return ret;
 }
 
-void fb_stop_bus_ctrl_thread(struct fb_bus_controller_t *ptr_bus_controller)
+static void fb_stop_bus_ctrl_thread(struct fb_bus_controller_t *ptr_bus_controller)
 {
 #if (LOG_TIMING==TRUE)
 	int i;

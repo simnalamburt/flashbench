@@ -195,74 +195,74 @@ static struct fb_del_mngr_t *get_delm (struct page_mapping_context_t *ftl) {
 	return ftl->delm;
 }
 
-struct fb_btod_t *fb_del_get_btod (struct fb_del_mngr_t *delm, u32 idx) {
+static struct fb_btod_t *fb_del_get_btod (struct fb_del_mngr_t *delm, u32 idx) {
 	return &delm->btod[idx];
 }
 
-void fb_del_set_btod (struct fb_btod_t *btod, struct flash_block *blki) {
+static void fb_del_set_btod (struct fb_btod_t *btod, struct flash_block *blki) {
 	btod->blki = blki;
 }
 
-void fb_del_get_bus_chip_btod (
+static void fb_del_get_bus_chip_btod (
 		struct fb_del_mngr_t *delm, u32 idx, u32 *bus, u32 *chip) {
 	*bus = delm->btod[idx].blki->no_bus;
 	*chip = delm->btod[idx].blki->no_chip;
 }
 
-void fb_del_inc_nr_btod (struct fb_del_mngr_t *delm) {
+static void fb_del_inc_nr_btod (struct fb_del_mngr_t *delm) {
 	delm->nr_btod++;
 }
 
-u32 fb_del_get_nr_btod (struct fb_del_mngr_t *delm){
+static u32 fb_del_get_nr_btod (struct fb_del_mngr_t *delm){
 	return delm->nr_btod;
 }
 
-void fb_del_set_nr_btod (struct fb_del_mngr_t *delm, u32 new) {
+static void fb_del_set_nr_btod (struct fb_del_mngr_t *delm, u32 new) {
 	delm->nr_btod = new;
 }
 
-struct fb_wtod_t *fb_del_get_wtod (struct fb_del_mngr_t *delm, u32 idx) {
+static struct fb_wtod_t *fb_del_get_wtod (struct fb_del_mngr_t *delm, u32 idx) {
 	return &delm->wtod[idx];
 }
 
-void fb_del_init_wtod (
+static void fb_del_init_wtod (
 		struct fb_wtod_t *wtod, u32 bus, u32 chip, u32 wl_idx) {
 	wtod->wl_idx = wl_idx;
 	wtod->bus = bus;
 	wtod->chip = chip;
 }
 
-void fb_del_get_bus_chip_wtod (
+static void fb_del_get_bus_chip_wtod (
 		struct fb_del_mngr_t *delm, u32 idx, u32 *bus, u32 *chip) {
 	*bus = delm->wtod[idx].bus;
 	*chip = delm->wtod[idx].chip;
 }
 
-void fb_del_inc_nr_wtod (struct fb_del_mngr_t *delm) {
+static void fb_del_inc_nr_wtod (struct fb_del_mngr_t *delm) {
 	delm->nr_wtod++;
 }
 
-u32 fb_del_get_nr_wtod (struct fb_del_mngr_t *delm){
+static u32 fb_del_get_nr_wtod (struct fb_del_mngr_t *delm){
 	return delm->nr_wtod;
 }
 
-void fb_del_set_nr_wtod (struct fb_del_mngr_t *delm, u32 new) {
+static void fb_del_set_nr_wtod (struct fb_del_mngr_t *delm, u32 new) {
 	delm->nr_wtod = new;
 }
 
-u32 fb_del_get_nr_pgs_to_copy (struct fb_del_mngr_t *delm) {
+static u32 fb_del_get_nr_pgs_to_copy (struct fb_del_mngr_t *delm) {
 	return delm->nr_pgs_to_copy;
 }
 
-void fb_del_set_nr_pgs_to_copy (struct fb_del_mngr_t *delm, u32 new) {
+static void fb_del_set_nr_pgs_to_copy (struct fb_del_mngr_t *delm, u32 new) {
 	delm->nr_pgs_to_copy = new;
 }
 
-void fb_del_inc_nr_pgs_to_copy (struct fb_del_mngr_t *delm) {
+static void fb_del_inc_nr_pgs_to_copy (struct fb_del_mngr_t *delm) {
 	delm->nr_pgs_to_copy++;
 }
 
-void init_delm (struct fb_del_mngr_t *delm) {
+static void init_delm (struct fb_del_mngr_t *delm) {
 	fb_del_set_nr_btod (delm, 0);
 	HASH_CLEAR (hh, delm->hash_btod);
 	delm->hash_btod = NULL;
@@ -370,11 +370,11 @@ static void destroy_del_mngr (struct fb_del_mngr_t *delm) {
 }
 
 
-u32* fb_del_get_lpas_to_copy (struct fb_del_mngr_t *delm) {
+static u32* fb_del_get_lpas_to_copy (struct fb_del_mngr_t *delm) {
 	return delm->lpas_to_copy;
 }
 
-u8* fb_del_get_data_to_copy (struct fb_del_mngr_t *delm) {
+static u8* fb_del_get_data_to_copy (struct fb_del_mngr_t *delm) {
 	return delm->data_to_copy;
 }
 
@@ -433,7 +433,7 @@ int fb_del_put_live_pgs_to_wb (struct fb_context_t *fb) {
 }
 */
 
-int fb_del_invalidate_pgs (struct fb_context_t* fb, struct fb_bio_t* fb_bio) {
+static int fb_del_invalidate_pgs (struct fb_context_t* fb, struct fb_bio_t* fb_bio) {
 	return _fb_del_invalidate_pgs (fb, fb_bio->req_count, fb_bio->lpas);
 }
 

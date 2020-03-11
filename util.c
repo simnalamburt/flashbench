@@ -112,7 +112,7 @@ static int fb_proc_open (__attribute__((unused)) struct inode *inode, struct fil
 	return single_open (file, fb_proc_summary, NULL);
 }
 
-struct file* file_open(const char* path, int flags, int rights) {
+static struct file* file_open(const char* path, int flags, int rights) {
 	struct file* filp = NULL;
 	mm_segment_t oldfs;
 	int err = 0;
@@ -128,7 +128,7 @@ struct file* file_open(const char* path, int flags, int rights) {
 	return filp;
 }
 
-void file_close(struct file* file) {
+static void file_close(struct file* file) {
 	filp_close(file, NULL);
 }
 

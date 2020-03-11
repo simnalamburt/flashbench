@@ -144,11 +144,11 @@ void update_act_blk (struct fb_context_t* fb, u8 bus, u8 chip) {
 	}
 }
 
-u32 get_mapped_ppa (struct page_mapping_context_t *ftl, u32 lpa) {
+static u32 get_mapped_ppa (struct page_mapping_context_t *ftl, u32 lpa) {
 	return ftl->ptr_mapping_table->mappings[lpa];
 }
 
-void set_mapped_ppa (struct page_mapping_context_t *ftl, u32 lpa, u32 ppa) {
+static void set_mapped_ppa (struct page_mapping_context_t *ftl, u32 lpa, u32 ppa) {
 	ftl->ptr_mapping_table->mappings[lpa] = ppa;
 }
 
