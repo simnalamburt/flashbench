@@ -15,19 +15,16 @@ struct fb_wb {
 	u32 pg_size;
 	u32 nr_entries;
 
-	struct fb_wb_pg_t* free_pgs; 	//page list head
+	struct fb_wb_pg_t* free_pgs; //page list head
 	struct fb_wb_pg_t* writing_pgs;
 	struct fb_wb_pg_t* buf_pgs;
 
-	struct fb_wb_pg_t* hash_pgs;	//hashed page
+	struct fb_wb_pg_t* hash_pgs; //hashed page
 
 	u8 *pg_buf;
 
 	struct completion wb_lock;
-	//spinlock_t wb_lock;
 };
-
-#define fb_wb_get_pg_buf(a) (a->pg_buf)
 
 struct fb_wb *fb_create_write_buffer (u32 nr_max_entries, u32 pg_size);
 

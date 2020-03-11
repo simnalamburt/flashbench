@@ -718,9 +718,10 @@ static int fb_wb_flush (struct fb_context_t *fb) {
 
 	u32 lpas[NR_LP_IN_PP];
 
-	while (fb_get_pgs_to_write (wb, NR_LP_IN_PP, lpas, fb_wb_get_pg_buf (wb)) != -1) {
+	while (fb_get_pgs_to_write (wb, NR_LP_IN_PP, lpas, wb->pg_buf) != -1) {
 		if (make_write_request_page_mapping (
-					fb, lpas, fb_wb_get_pg_buf (wb)) == -1) {
+					fb, lpas, wb->pg_buf) == -1) {
+
 			fb_print_err ("Handling a write request filed.\n");
 
 			return -1;

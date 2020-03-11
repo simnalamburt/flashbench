@@ -1,7 +1,5 @@
 #include <linux/types.h>
 
-#define MAX_SUMMARY_BUFFER 4096
-
 void perf_inc_nr_incomming_write(void);
 void perf_inc_nr_wordline_prog_fg(void);
 void perf_inc_nr_wordline_prog_bg(void);

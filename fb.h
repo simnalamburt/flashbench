@@ -3,8 +3,6 @@
 
 #include "option.h"
 
-extern struct fb_bio_t fb_bio;
-
 #define NR_MAX_REQ_BIO 256
 
 struct fb_lbs_mngr_t;
@@ -21,7 +19,6 @@ struct fb_bio_t {
 };
 
 u32 dec_bio_req_count (struct fb_bio_t *ptr_bio);
-u32 get_bio_req_count (struct fb_bio_t *ptr_bio);
 
 struct fb_context_t {
 	int err;

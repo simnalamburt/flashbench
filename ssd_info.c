@@ -12,45 +12,19 @@
 #define IDLE 0
 
 static void set_nr_invalid_lps (struct flash_page *pgi, u32 value);
-static int get_del_flag_pg (struct flash_page *pgi);
 static void set_del_flag_pg (struct flash_page *pgi, int flag);
 static u32 get_bus_idx (struct flash_block *blki);
 static u32 get_chip_idx (struct flash_block *blki);
 
-static u32 get_nr_valid_pgs (struct flash_block *blki);
 static u32 get_nr_invalid_pgs (struct flash_block *blki);
 static void set_nr_valid_pgs (struct flash_block *blki, u32 value);
 static void set_nr_invalid_pgs (struct flash_block *blki, u32 value);
 static void set_nr_free_pgs (struct flash_block *blki, u32 value);
-static u32 inc_nr_free_pgs (struct flash_block *blki);
-static u32 dec_nr_invalid_pgs (struct flash_block *blki);
 
 static void set_nr_valid_lps_in_blk (struct flash_block *blki, u32 value);
 static void set_nr_invalid_lps_in_blk (struct flash_block *blki, u32 value);
-static u32 dec_nr_invalid_lps_in_blk (struct flash_block *blk);
 
-static u32 get_bers_cnt (struct flash_block *blki);
-static void set_bers_cnt (struct flash_block *blki, u32 value);
-
-static int is_bad_blk (struct flash_block *blki);
-static void set_bad_blk_flag (struct flash_block *blki, int flag);
-
-static int is_rsv_blk (struct flash_block *blki);
-
-static int is_act_blk (struct flash_block *blki);
-
-static int get_del_flag_blk (struct flash_block *blki);
 static void set_del_flag_blk (struct flash_block *blki, int flag);
-
-static int is_dirt_blk (struct flash_block *blki);
-
-static u32 get_nr_free_blks (struct flash_chip *chipi);
-static void set_nr_free_blks (struct flash_chip *chipi, u32 value);
-static u32 inc_nr_free_blks (struct flash_chip *chipi);
-static u32 dec_nr_free_blks (struct flash_chip *chipi);
-
-static int get_chip_status(struct ssd_info *ptr_ssd_info, u8 bus, u8 chip);
-static void set_chip_status(struct ssd_info *ptr_ssd_info, u8 bus, u8 chip, int new_status);
 
 struct flash_page {
 	enum fb_pg_status_t page_status[NR_LP_IN_PP];
@@ -167,11 +141,6 @@ inline struct flash_block *get_dirt_block (struct ssd_info *ssdi, u32 bus, u32 c
 
 inline u32 get_nr_dirt_blks_in_chip (struct flash_chip *ci) {
 	return ci->nr_dirt_blks;
-}
-
-inline int is_dirt_blk (struct flash_block *blki) {
-	return (get_nr_invalid_pgs (blki) == NUM_PAGES_PER_BLOCK) ?
-		TRUE : FALSE;
 }
 
 
@@ -396,30 +365,6 @@ struct flash_page* get_page_info(
 	return &(ptr_ssd_info->list_buses[bus].list_chips[chip].list_blocks[block].list_pages[page]);
 }
 
-inline int get_chip_status(
-		struct ssd_info *ptr_ssd_info,
-		u8 bus,
-		u8 chip)
-{
-	int ret_value;
-	struct flash_chip *ptr_flash_chip = get_chip_info(ptr_ssd_info, bus, chip);
-
-	ret_value = ptr_flash_chip->chip_status;
-
-	return ret_value;
-}
-
-inline void set_chip_status(
-		struct ssd_info *ptr_ssd_info,
-		u8 bus,
-		u8 chip,
-		int new_status)
-{
-	struct flash_chip *ptr_flash_chip = get_chip_info(ptr_ssd_info, bus, chip);
-
-	ptr_flash_chip->chip_status = new_status;
-}
-
 
 inline u32 get_mapped_lpa (struct flash_page *pgi, u8 ofs) {
 	return pgi->no_logical_page_addr[ofs];
@@ -447,10 +392,6 @@ inline void set_nr_invalid_lps (struct flash_page *pgi, u32 value) {
 
 inline u32 inc_nr_invalid_lps (struct flash_page *pgi) {
 	return ++(pgi->nr_invalid_log_pages);
-}
-
-inline int get_del_flag_pg (struct flash_page *pgi) {
-	return pgi->del_flag;
 }
 
 inline void set_del_flag_pg (struct flash_page *pgi, int flag) {
@@ -503,10 +444,6 @@ inline struct flash_page *get_pgi_from_blki (struct flash_block *blki, u32 pg) {
 	return (blki->list_pages + pg);
 }
 
-inline u32 get_nr_valid_pgs (struct flash_block *blki) {
-	return blki->nr_valid_pages;
-}
-
 inline u32 get_nr_invalid_pgs (struct flash_block *blki) {
 	return blki->nr_invalid_pages;
 }
@@ -535,16 +472,8 @@ inline u32 inc_nr_invalid_pgs (struct flash_block *blki) {
 	return ++(blki->nr_invalid_pages);
 }
 
-inline u32 inc_nr_free_pgs (struct flash_block *blki) {
-	return ++(blki->nr_free_pages);
-}
-
 inline u32 dec_nr_valid_pgs (struct flash_block *blki) {
 	return --(blki->nr_valid_pages);
-}
-
-inline u32 dec_nr_invalid_pgs (struct flash_block *blki) {
-	return --(blki->nr_invalid_pages);
 }
 
 inline u32 dec_nr_free_pgs (struct flash_block *blki) {
@@ -579,65 +508,18 @@ inline u32 dec_nr_valid_lps_in_blk (struct flash_block *blki) {
 	return --(blki->nr_valid_log_pages);
 }
 
-inline u32 dec_nr_invalid_lps_in_blk (struct flash_block *blki) {
-	return --(blki->nr_invalid_log_pages);
-}
-
-inline u32 get_bers_cnt (struct flash_block *blki) {
-	return blki->nr_erase_cnt;
-}
-
-inline void set_bers_cnt (struct flash_block *blki, u32 value) {
-	blki->nr_erase_cnt = value;
-}
-
 inline u32 inc_bers_cnt (struct flash_block *blki) {
 	return ++(blki->nr_erase_cnt);
-}
-
-inline int is_bad_blk (struct flash_block *blki) {
-	return (blki->is_bad_block);
-}
-
-inline void set_bad_blk_flag (struct flash_block *blki, int flag) {
-	blki->is_bad_block = flag;
-}
-
-inline int is_rsv_blk (struct flash_block *blki) {
-	return blki->is_reserved_block;
 }
 
 inline void set_rsv_blk_flag (struct flash_block *blki, int flag) {
 	blki->is_reserved_block = flag;
 }
 
-inline int is_act_blk (struct flash_block *blki) {
-	return blki->is_active_block;
-}
-
 inline void set_act_blk_flag (struct flash_block *blki, int flag) {
 	blki->is_active_block = flag;
 }
 
-inline int get_del_flag_blk (struct flash_block *blki) {
-	return blki->del_flag;
-}
 inline void set_del_flag_blk (struct flash_block *blki, int flag) {
 	blki->del_flag = flag;
-}
-
-inline u32 get_nr_free_blks (struct flash_chip *chipi) {
-	return chipi->nr_free_blocks;
-}
-
-inline void set_nr_free_blks (struct flash_chip *chipi, u32 value) {
-	chipi->nr_free_blocks = value;
-}
-
-inline u32 inc_nr_free_blks (struct flash_chip *chipi) {
-	return ++(chipi->nr_free_blocks);
-}
-
-inline u32 dec_nr_free_blks (struct flash_chip *chipi) {
-	return --(chipi->nr_free_blocks);
 }

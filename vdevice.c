@@ -8,10 +8,6 @@
 #endif
 
 
-static void vdevice_plock(struct vdevice_t *ptr_vdevice, u8 bus, u8 chip);
-static void vdevice_block(struct vdevice_t *ptr_vdevice, u8 bus, u8 chip);
-static u32 convert_to_wl_idx(u32 bus, u32 chip, u32 block, u32 pg_idx);
-
 #if (VDEVICE_TYPE==RAM_DISK)
 struct vdevice_t *create_vdevice(void)
 {
@@ -161,27 +157,6 @@ void vdevice_write(
 #endif
 }
 
-// for plock and block, all we have to do is making chip busy.
-void vdevice_plock (
-		struct vdevice_t *ptr_vdevice,
-		u8 bus,
-		u8 chip) {
-#if (VDEVICE_TIME_MODELED==TRUE)
-	fb_issue_operation(ptr_vdevice->ptr_bus_controller[bus], chip,
-			OP_PLOCK, NULL);
-#endif
-}
-
-void vdevice_block (
-		struct vdevice_t *ptr_vdevice,
-		u8 bus,
-		u8 chip) {
-#if (VDEVICE_TIME_MODELED==TRUE)
-	fb_issue_operation(ptr_vdevice->ptr_bus_controller[bus], chip,
-			OP_BLOCK, NULL);
-#endif
-}
-
 void vdevice_erase(
 		struct vdevice_t *ptr_vdevice,
 		u8 bus,
@@ -198,12 +173,12 @@ void vdevice_erase(
 }
 #endif
 
-inline int is_valid_address_range(u32 logical_page_address)
+int is_valid_address_range(u32 logical_page_address)
 {
 	return logical_page_address < NUM_LOG_PAGES;
 }
 
-inline u32 convert_to_physical_address(
+u32 convert_to_physical_address(
 		u32 bus, u32 chip, u32 block, u32 page)
 {
 	//return (bus << 27) | (chip << 21) | (block << 8) | page;
@@ -214,12 +189,7 @@ inline u32 convert_to_physical_address(
 	return (bus << 28) | (chip << 24) | (block << 12) | page;
 }
 
-inline u32 convert_to_wl_idx (
-		u32 bus, u32 chip, u32 block, u32 pg_idx) {
-	return convert_to_physical_address (bus, chip, block, (pg_idx / 3));
-}
-
-inline void convert_to_ssd_layout(u32 logical_page_address,
+void convert_to_ssd_layout(u32 logical_page_address,
 		u32 *ptr_bus, u32 *ptr_chip, u32 *ptr_block, u32 *ptr_page)
 {
 	*ptr_bus = (0xF & logical_page_address >> 28);
@@ -229,7 +199,7 @@ inline void convert_to_ssd_layout(u32 logical_page_address,
 }
 
 #if (VDEVICE_TIME_MODELED==TRUE)
-inline u32 operation_time (enum fb_dev_op_t op) {
+u32 operation_time (enum fb_dev_op_t op) {
 	switch (op) {
 		case OP_READ:
 			return TREAD;

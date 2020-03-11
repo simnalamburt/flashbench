@@ -13,19 +13,8 @@
 static int fb_proc_open (struct inode *inode, struct file *file);
 static int fb_proc_summary (struct seq_file *m, void *v);
 
-static u32 get_nr_plocks (void);
-static u32 get_nr_blocks (void);
-static void perf_inc_nr_plocks (void);
-static void perf_inc_nr_blocks (void);
-static void perf_inc_nr_gc_trigger_fg(void);
-static void perf_inc_nr_lsb_pg_backup (void);
-static u32 get_nr_incomming_write (void);
-static u32 get_nr_wordline_prog_fg (void);
 static struct file* file_open(const char* path, int flags, int rights);
-static struct file* file_open_read(const char* path);
 static void file_close(struct file* file);
-static int file_sync(struct file* file);
-static int proc_read_summary(char *page, char **start, off_t off,  int count, int *eof, void *data);
 
 // file operation 구조체, 초기화를 이렇게 함
 // read 함수는 개발자가 직접 작성 X
@@ -35,6 +24,8 @@ static const struct file_operations fb_proc_fops = {
 	.open = fb_proc_open,   // 파일(/proc/summary)을 열 때 불리는 함수
 	.read = seq_read,       // 파일(/proc/summary)을 읽을 때 불리는 함수
 };
+
+static struct proc_dir_entry *proc_dir;
 
 static u32 _perf_nr_incomming_write = 0;
 static u32 _perf_nr_wordline_prog_fg = 0;
@@ -49,8 +40,6 @@ static u32 _perf_nr_discarded_lpgs = 0;
 static u32 _perf_nr_plocks = 0;
 static u32 _perf_nr_blocks = 0;
 
-
-static struct proc_dir_entry *proc_dir;
 
 static int fb_proc_summary (struct seq_file *m, __attribute__((unused)) void *v) {
 	seq_printf(m, "===================Total read/write requests summary=================\n");
@@ -70,34 +59,6 @@ static int fb_proc_summary (struct seq_file *m, __attribute__((unused)) void *v)
 	//seq_printf(m, "FlashBench: # of slow blocks: %u, dirt blocks: %u\n", util_slow_blk (), util_dirt_blk());
 
 	return 0;
-}
-
-u32 get_nr_plocks (void) {
-	return _perf_nr_plocks;
-}
-
-u32 get_nr_blocks (void) {
-	return _perf_nr_blocks;
-}
-
-void perf_inc_nr_plocks (void) {
-	_perf_nr_plocks++;
-}
-
-void perf_inc_nr_blocks (void) {
-	_perf_nr_blocks++;
-}
-
-u32 get_nr_incomming_write (void) {
-	return _perf_nr_incomming_write;
-}
-
-u32 get_nr_wordline_prog_fg (void) {
-	return _perf_nr_wordline_prog_fg;
-}
-
-void perf_inc_nr_lsb_pg_backup (void) {
-	_perf_nr_lsb_pg_backup++;
 }
 
 void perf_inc_nr_incomming_write(void)
@@ -123,11 +84,6 @@ void perf_inc_nr_page_reads(void)
 void perf_inc_nr_blk_erasures(void)
 {
 	_perf_nr_blk_erasures++;
-}
-
-void perf_inc_nr_gc_trigger_fg(void)
-{
-	_perf_nr_gc_trigger_fg++;
 }
 
 void perf_inc_nr_gc_trigger_bg(void)
@@ -172,22 +128,6 @@ struct file* file_open(const char* path, int flags, int rights) {
 	return filp;
 }
 
-struct file* file_open_read(const char* path) {
-	struct file* filp = NULL;
-	mm_segment_t oldfs;
-	int err = 0;
-
-	oldfs = get_fs();
-	set_fs(get_ds());
-	filp = filp_open(path, O_RDONLY, 0);
-	set_fs(oldfs);
-	if(IS_ERR(filp)) {
-		err = PTR_ERR(filp);
-		return NULL;
-	}
-	return filp;
-}
-
 void file_close(struct file* file) {
 	filp_close(file, NULL);
 }
@@ -204,11 +144,6 @@ static int file_write(struct file* file, const char* data, size_t size, loff_t o
 
 	set_fs(oldfs);
 	return ret;
-}
-
-int file_sync(struct file* file) {
-	vfs_fsync(file, 0);
-	return 0;
 }
 
 void fb_file_log (const char* filename, const char* string)

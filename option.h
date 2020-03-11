@@ -1,4 +1,4 @@
-#define	TRUE 1
+#define TRUE 1
 #define FALSE 0
 
 // Parameterf for DEL manager
@@ -11,8 +11,6 @@
 // Parameters for the write buffer
 #define WRITE_BUFFER_ENABLE TRUE
 #define NUM_PAGES_IN_WRITE_BUFFER NR_LP_IN_PP * NUM_CHIPS
-#define NUM_HASH 1024
-#define HASH_MASK 0x1FF
 
 // Hardware configuration
 
@@ -24,10 +22,8 @@
 
 #define NUM_CHIPS (NUM_BUSES*NUM_CHIPS_PER_BUS)
 #define NUM_BLOCKS (NUM_CHIPS*NUM_BLOCKS_PER_CHIP)
-#define NUM_WORDLINE (NUM_BLOCKS*NUM_WORDLINE_PER_BLOCK)
 #define NUM_PAGES (NUM_BLOCKS*NUM_PAGES_PER_BLOCK)
 #define NUM_LOG_PAGES (NUM_PAGES * NR_LP_IN_PP * CFACTOR_PERCENT / 100)
-#define DEVICE_CAPACITY (NUM_PAGES*PHYSICAL_PAGE_SIZE)
 #define CFACTOR_PERCENT 90
 #define NR_LP_IN_PP 4
 #define LP_PAGE_MASK 0x3
@@ -35,10 +31,8 @@
 #define LOGICAL_PAGE_SIZE 4096
 
 #define SECTOR_SIZE 512
-#define SEC_SHIFT_FOR_LP 3
 
 #define RAM_DISK 0
-#define FILE_IO 1
 
 #define VDEVICE_TYPE RAM_DISK
 #define VDEVICE_TIME_MODELED TRUE
@@ -52,28 +46,12 @@
 #define TPLOCK 100
 #define TBLOCK 100
 
-/*
-#define TREAD_LSB 6
-#define TREAD_MSB 10
-#define TPROG_LSB 60
-#define TPROG_MSB 200
-#define TBERS 500
-
-#define TREAD_LSB 0
-#define TREAD_MSB 0
-#define TPROG_LSB 0
-#define TPROG_MSB 0
-#define TBERS 0
-*/
 #define NUM_MAX_ENTRIES_OPR_QUEUE 4
 
 #define LOG_TIMING FALSE
 
 #endif
 
-#define BGC_ENABLE TRUE
-
 #define BGC_TH_INTV 5000
 #define BGC_TH_WB_UTIL 5
-#define BGC_TH_WB_ENTRY ((NUM_PAGES_IN_WRITE_BUFFER*BGC_TH_WB_UTIL)/100)
 #define BGC_TH_NR_BLKS 14

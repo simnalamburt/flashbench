@@ -13,7 +13,6 @@ flashbench-objs := \
 	page_mapping_function.o \
 	gc_page_mapping.o \
 	write_buffer.o \
-	bitmap.o \
 	bus_controller.o
 
 ccflags-y := -std=gnu11 -Wextra -Wpedantic

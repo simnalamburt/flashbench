@@ -137,7 +137,7 @@ struct fb_wb *fb_create_write_buffer (u32 nr_max_entries, u32 pg_size) {
 		fb_wb_set_free_pg (wb, wb_pg);
 	}
 
-	if ((fb_wb_get_pg_buf (wb) = (u8 *) vmalloc (
+	if ((wb->pg_buf = (u8 *) vmalloc (
 					sizeof (u8) * PHYSICAL_PAGE_SIZE)) == NULL) {
 		fb_print_err ("WB - Allocating page buffer failed.\n");
 		goto FAIL;

@@ -35,7 +35,6 @@ static inline u64 fb_get_bgc_ts (struct fb_context_t *fb);
 static inline void fb_update_bgc_ts (struct fb_context_t* fb);
 static inline int fb_is_bgc_ts_expired (struct fb_context_t* fb, u64 threshold);
 u32 dec_bio_req_count (struct fb_bio_t *ptr_bio);
-u32 get_bio_req_count (struct fb_bio_t *ptr_bio);
 static struct fb_bio_t *fb_build_bio (struct bio *bio);
 static void fb_destroy_bio (struct fb_bio_t *fbio);
 static blk_qc_t make_request(struct request_queue *ptr_req_queue, struct bio *bio);
@@ -511,18 +510,6 @@ u32 dec_bio_req_count (struct fb_bio_t *fbio) {
 	ret = fbio->req_count;
 
 	fb_unlock (&fbio->bio_lock);
-
-	return ret;
-}
-
-u32 get_bio_req_count (struct fb_bio_t *fbio) {
-	u32 ret;
-
-	fb_lock (fb_bio_get_lock (fbio));
-
-	ret = fbio->req_count;
-
-	fb_unlock (fb_bio_get_lock (fbio));
 
 	return ret;
 }
