@@ -2,6 +2,7 @@
 /rust/target
 /*.mod.c
 /*.o
+/*.o.d
 /*.ko
 # Log of executed commands used to build the corresponding file
 /*.cmd
