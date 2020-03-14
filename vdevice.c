@@ -11,7 +11,7 @@ struct vdevice_t *create_vdevice(void) {
   if ((ptr_vdevice = (struct vdevice_t *)vmalloc(sizeof(struct vdevice_t))) ==
       NULL) {
     printk(KERN_ERR
-           "[FlashBench] Allocating virtual device structure failed.\n");
+           "flashbench: Allocating virtual device structure failed.\n");
     goto FAIL_ALLOC_VDEVICE;
   }
 
@@ -25,7 +25,7 @@ struct vdevice_t *create_vdevice(void) {
   for (bus_loop = 0; bus_loop < NUM_BUSES; bus_loop++) {
     if ((ptr_vdevice->ptr_vdisk[bus_loop] =
              (u8 *)vmalloc(sizeof(u8) * bus_capacity)) == NULL) {
-      printk(KERN_ERR "[FlashBench] Allocating virtual disk failed.\n");
+      printk(KERN_ERR "flashbench: Allocating virtual disk failed.\n");
       goto FAIL_ALLOC_VDISK;
     }
   }

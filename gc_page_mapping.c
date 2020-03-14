@@ -95,7 +95,7 @@ static int set_vic_blks(struct fb_context_t *fb) {
       else {
         if ((blki = select_vic_blk_greedy(ssdi, bus, chip)) == NULL) {
           printk(KERN_ERR
-                 "[FlashBench] gc_page_mapping: There is no avaiable victim "
+                 "flashbench: gc_page_mapping: There is no avaiable victim "
                  "block.\n");
           return -1;
         }
@@ -182,7 +182,7 @@ static int prog_valid_pgs_to_gc_blks(struct fb_context_t *fb) {
     get_next_bus_chip(fb, &bus, &chip);
 
     if (alloc_new_page(fb, bus, chip, &blk, &pg) == -1) {
-      printk(KERN_ERR "Wrong active block handling\n");
+      printk(KERN_ERR "flashbench: Wrong active block handling\n");
       print_blk_mgmt(fb);
       return -1;
     }
@@ -198,7 +198,7 @@ static int prog_valid_pgs_to_gc_blks(struct fb_context_t *fb) {
     vdevice_write(vdev, bus, chip, blk, pg, ptr_data, NULL);
 
     if (map_logical_to_physical(fb, ptr_lpa, bus, chip, blk, pg) == -1) {
-      printk(KERN_ERR "[FlashBench] Mapping L2P in GC failed.\n");
+      printk(KERN_ERR "flashbench: Mapping L2P in GC failed.\n");
       return -1;
     }
 
@@ -225,7 +225,7 @@ static int prepare_act_blks(struct fb_context_t *fb) {
       if (get_curr_active_block(fb, bus, chip) != NULL) continue;
 
       if ((blki = get_curr_gc_block(fb, bus, chip)) == NULL) {
-        printk(KERN_ERR "Wrong GC block handling\n");
+        printk(KERN_ERR "flashbench: Wrong GC block handling\n");
         print_blk_mgmt(fb);
         return -1;
       }
@@ -255,7 +255,7 @@ static int update_gc_blks(struct fb_context_t *fb) {
       if (get_curr_gc_block(fb, bus, chip) == NULL) {
         if ((gc_blki = get_dirt_block(get_ssd_inf(fb), bus, chip)) == NULL) {
           if (get_curr_active_block(fb, bus, chip) == NULL) {
-            printk(KERN_ERR "Wrong block management handling\n");
+            printk(KERN_ERR "flashbench: Wrong block management handling\n");
             print_blk_mgmt(fb);
             return -1;
           }
@@ -278,38 +278,38 @@ struct fb_gc_mngr_t *create_gc_mngr(struct fb_context_t *fb) {
 
   if ((gcm = (struct fb_gc_mngr_t *)vmalloc(sizeof(struct fb_gc_mngr_t))) ==
       NULL) {
-    printk(KERN_ERR "Allocating GC manager failed.\n");
+    printk(KERN_ERR "flashbench: Allocating GC manager failed.\n");
     goto FAIL;
   }
 
   if ((gcm->gc_blks = (struct flash_block **)vmalloc(
            sizeof(struct flash_block *) * NUM_CHIPS)) == NULL) {
-    printk(KERN_ERR "Allocating GC block list failed.\n");
+    printk(KERN_ERR "flashbench: Allocating GC block list failed.\n");
     goto FAIL;
   }
 
   if ((gcm->vic_blks = (struct flash_block **)vmalloc(
            sizeof(struct flash_block *) * NUM_CHIPS)) == NULL) {
-    printk(KERN_ERR "Allocating victim block list failed.\n");
+    printk(KERN_ERR "flashbench: Allocating victim block list failed.\n");
     goto FAIL;
   }
 
   if ((gcm->lpas_to_copy = (u32 *)vmalloc(sizeof(u32) * NUM_CHIPS *
                                           NUM_PAGES_PER_BLOCK * NR_LP_IN_PP)) ==
       NULL) {
-    printk(KERN_ERR "Allocating LPA list failed.\n");
+    printk(KERN_ERR "flashbench: Allocating LPA list failed.\n");
     goto FAIL;
   }
 
   if ((gcm->data_to_copy =
            (u8 *)vmalloc(sizeof(u32) * NUM_CHIPS * NUM_PAGES_PER_BLOCK *
                          NR_LP_IN_PP * LOGICAL_PAGE_SIZE)) == NULL) {
-    printk(KERN_ERR "Allocating valid page buffer failed.\n");
+    printk(KERN_ERR "flashbench: Allocating valid page buffer failed.\n");
     goto FAIL;
   }
 
   if ((gcm->first_valid_pg = (u32 *)vmalloc(sizeof(u32) * NUM_CHIPS)) == NULL) {
-    printk(KERN_ERR "Allocating page_offset failed.\n");
+    printk(KERN_ERR "flashbench: Allocating page_offset failed.\n");
     goto FAIL;
   }
 
@@ -318,7 +318,7 @@ struct fb_gc_mngr_t *create_gc_mngr(struct fb_context_t *fb) {
   for (bus = 0; bus < NUM_BUSES; bus++) {
     for (chip = 0; chip < NUM_CHIPS_PER_BUS; chip++) {
       if ((blki = get_free_block(ssdi, bus, chip)) == NULL) {
-        printk(KERN_ERR "Getting new gc block failed.\n");
+        printk(KERN_ERR "flashbench: Getting new gc block failed.\n");
         goto FAIL;
       }
 
@@ -357,13 +357,13 @@ int trigger_gc_page_mapping(struct fb_context_t *fb) {
 
   // 1. erase GC blocks and set them as active blocks
   if (prepare_act_blks(fb) != 0) {
-    printk(KERN_ERR "[FlashBench] Preparing GC blocks failed.\n");
+    printk(KERN_ERR "flashbench: Preparing GC blocks failed.\n");
     return -1;
   }
 
   // 2. select a victim block for every parallel unit
   if (set_vic_blks(fb) != 0) {
-    printk(KERN_ERR "[FlashBench] Setting victim blocks failed.\n");
+    printk(KERN_ERR "flashbench: Setting victim blocks failed.\n");
     return -1;
   }
 
@@ -373,13 +373,13 @@ int trigger_gc_page_mapping(struct fb_context_t *fb) {
 
   // 4. write read data to other pages
   if (prog_valid_pgs_to_gc_blks(fb) != 0) {
-    printk(KERN_ERR "[FlashBench] Writing valid data failed.\n");
+    printk(KERN_ERR "flashbench: Writing valid data failed.\n");
     return -1;
   }
 
   // 5. set GC blocks with dirt blocks
   if (update_gc_blks(fb) != 0) {
-    printk(KERN_ERR "[FlahsBench] Updating GC blocks failed.\n");
+    printk(KERN_ERR "flashbench: Updating GC blocks failed.\n");
     return -1;
   }
 
@@ -397,7 +397,7 @@ static int fb_bgc_prepare_act_blks(struct fb_context_t *fb) {
     get_next_bus_chip(fb, &bus, &chip);
 
     if ((blki = get_curr_gc_block(fb, bus, chip)) == NULL) {
-      printk(KERN_ERR "Wrong BGC block handling\n");
+      printk(KERN_ERR "flashbench: Wrong BGC block handling\n");
       print_blk_mgmt(fb);
       return -1;
     }
@@ -458,7 +458,7 @@ static int fb_bgc_set_vic_blks(struct fb_context_t *fb) {
 
         // find a new one
         if ((blki = select_vic_blk_from_used(ssdi, bus, chip)) == NULL) {
-          printk(KERN_ERR "Wrong block managment\n");
+          printk(KERN_ERR "flashbench: Wrong block managment\n");
           print_blk_mgmt(fb);
           return -1;
         }
@@ -504,7 +504,7 @@ static int fb_bgc_read_valid_pgs(struct fb_context_t *fb) {
     pgi = get_pgi_from_blki(vic_blki, pg);
 
     if ((nr_pgs_to_read = NR_LP_IN_PP - get_nr_invalid_lps(pgi)) == 0) {
-      printk(KERN_ERR "Wrong page offset in victim block\n");
+      printk(KERN_ERR "flashbench: Wrong page offset in victim block\n");
       return -1;
     }
 
@@ -553,7 +553,7 @@ int trigger_bg_gc(struct fb_context_t *fb) {
     // there is no free block:
     // as long as a free block exists, it is used for active block
     if (fb_bgc_prepare_act_blks(fb) != 0) {
-      printk(KERN_ERR "Preparing active blocks for BGC failed.\n");
+      printk(KERN_ERR "flashbench: Preparing active blocks for BGC failed.\n");
       goto FAIL;
     }
 
@@ -567,12 +567,12 @@ int trigger_bg_gc(struct fb_context_t *fb) {
   init_gcm(gcm);
 
   if (fb_bgc_set_vic_blks(fb) != 0) {
-    printk(KERN_ERR "Setting victim blocks for BGC failed.\n");
+    printk(KERN_ERR "flashbench: Setting victim blocks for BGC failed.\n");
     goto FAIL;
   }
 
   if (fb_bgc_read_valid_pgs(fb) != 0) {
-    printk(KERN_ERR "Reading valid pages for BGC failed.\n");
+    printk(KERN_ERR "flashbench: Reading valid pages for BGC failed.\n");
     goto FAIL;
   }
 
@@ -584,12 +584,12 @@ int trigger_bg_gc(struct fb_context_t *fb) {
   perf_inc_nr_gc_trigger_bg();
 
   if (fb_bgc_write_valid_pgs(fb) != 0) {
-    printk(KERN_ERR "Writing valid pages for BGC failed.\n");
+    printk(KERN_ERR "flashbench: Writing valid pages for BGC failed.\n");
     goto FAIL;
   }
 
   if (update_gc_blks(fb) != 0) {
-    printk(KERN_ERR "Updating GC blocks for BGC failed.\n");
+    printk(KERN_ERR "flashbench: Updating GC blocks for BGC failed.\n");
     goto FAIL;
   }
 

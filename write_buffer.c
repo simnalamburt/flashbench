@@ -33,12 +33,12 @@ static struct fb_wb_pg_t *fb_create_wb_entry(u32 pg_size) {
 
   if ((wb_pg = (struct fb_wb_pg_t *)vmalloc(sizeof(struct fb_wb_pg_t))) ==
       NULL) {
-    printk(KERN_ERR "write_buffer: Allocating buffered page failed.\n");
+    printk(KERN_ERR "flashbench: Allocating buffered page failed.\n");
     goto FAIL;
   }
 
   if ((wb_pg->data = (u8 *)vmalloc(sizeof(u8) * pg_size)) == NULL) {
-    printk(KERN_ERR "write_buffer: Allocating data buffer failed.\n");
+    printk(KERN_ERR "flashbench: Allocating data buffer failed.\n");
     goto FAIL;
   }
 
@@ -107,7 +107,7 @@ struct fb_wb *fb_create_write_buffer(u32 nr_max_entries, u32 pg_size) {
   u32 i;
 
   if ((wb = (struct fb_wb *)vmalloc(sizeof(struct fb_wb))) == NULL) {
-    printk(KERN_ERR "write_buffer: Allocating write buffer failed.\n");
+    printk(KERN_ERR "flashbench: Allocating write buffer failed.\n");
     goto FAIL;
   }
 
@@ -122,7 +122,7 @@ struct fb_wb *fb_create_write_buffer(u32 nr_max_entries, u32 pg_size) {
 
   for (i = 0; i < nr_max_entries; i++) {
     if ((wb_pg = fb_create_wb_entry(pg_size)) == NULL) {
-      printk(KERN_ERR "write_buffer: Creating wb entry failed.\n");
+      printk(KERN_ERR "flashbench: Creating wb entry failed.\n");
       goto FAIL;
     }
 
@@ -130,7 +130,7 @@ struct fb_wb *fb_create_write_buffer(u32 nr_max_entries, u32 pg_size) {
   }
 
   if ((wb->pg_buf = (u8 *)vmalloc(sizeof(u8) * PHYSICAL_PAGE_SIZE)) == NULL) {
-    fb_print_err("WB - Allocating page buffer failed.\n");
+    printk(KERN_ERR "flashbench: Allocating page buffer failed.\n");
     goto FAIL;
   }
 

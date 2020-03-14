@@ -65,7 +65,7 @@ static blk_qc_t make_request(
   }
 
   if ((fbio = fb_build_bio(bio)) == NULL) {
-    fb_print_inf("Building bio structure failed.\n");
+    printk(KERN_ERR "flashbench: Building bio structure failed.\n");
     ret_value = -ENODEV;
     goto FAIL;
   }
@@ -97,7 +97,7 @@ static blk_qc_t make_request(
     case WRITE:
 
       if (fb_del_invalid_data(_fb, fbio) == -1) {
-        fb_print_err("Invalidation failed.\n");
+        printk(KERN_ERR "flashbench: Invalidation failed.\n");
         goto FAIL;
       }
 
@@ -108,7 +108,7 @@ static blk_qc_t make_request(
         } else {
           // flush write buffer
           if (_fb->wb_flush(_fb) == -1) {
-            fb_print_err("WB flushing failed.\n");
+            printk(KERN_ERR "flashbench: WB flushing failed.\n");
             goto FAIL;
           }
           // retry
@@ -119,7 +119,7 @@ static blk_qc_t make_request(
       break;
 
     default:
-      fb_print_err("Invalid I/O type (%d)\n", rw);
+      printk(KERN_ERR "flashbench: Invalid I/O type (%d)\n", rw);
       ret_value = -ENOMSG;
       goto FAIL;
   }
@@ -157,33 +157,33 @@ fb_init(void)  // __init: 해당 함수 혹은 변수가 초기화 과정에서�
   if ((_fb = (struct fb_context_t *)kmalloc(sizeof(struct fb_context_t),
                                             GFP_ATOMIC)) == NULL) {
     printk(KERN_ERR
-           "[FlashBench] Memory allocation for FlashBench context failed.\n");
+           "flashbench: Memory allocation for FlashBench context failed.\n");
     ret_value = -ENOMEM;
     goto FAIL_ALLOC_CONTEXT;
   }
 
   if ((_fb->ptr_vdevice = create_vdevice()) == NULL) {
-    printk(KERN_ERR "[FlashBench] Creating a virtual device failed.\n");
+    printk(KERN_ERR "flashbench: Creating a virtual device failed.\n");
     ret_value = -ENOMEM;
     goto FAIL_CREATE_VDEVICE;
   }
 
   if ((_fb->ptr_ssd_info = create_ssd_info()) == NULL) {
     printk(KERN_ERR
-           "[FlashBench] Creating information structure of virtual device "
+           "flashbench: Creating information structure of virtual device "
            "failed.\n");
     ret_value = -ENOMEM;
     goto FAIL_CREATE_SSD_INFO;
   }
 
   if ((_fb->ptr_mapping_context = create_pg_ftl(_fb)) == NULL) {
-    printk(KERN_ERR "[FlashBench] Creating a mapping context failed.\n");
+    printk(KERN_ERR "flashbench: Creating a mapping context failed.\n");
     ret_value = -ENOMEM;
     goto FAIL_CREATE_MAPPING_CONTEXT;
   }
 
   if (!(_fb->ptr_req_queue = blk_alloc_queue(GFP_KERNEL))) {
-    printk(KERN_ERR "[FlashBench] Allocating a block queue failed.\n");
+    printk(KERN_ERR "flashbench: Allocating a block queue failed.\n");
     ret_value = -ENOMEM;
     goto FAIL_ALLOC_BDEV_QUEUE;
   }
@@ -219,14 +219,14 @@ fb_init(void)  // __init: 해당 함수 혹은 변수가 초기화 과정에서�
 
   if ((_fb->device_major_num =
            register_blkdev(_fb->device_major_num, DEV_NAME)) < 0) {
-    printk(KERN_ERR "[FlashBench] Registering a block device failed.\n");
+    printk(KERN_ERR "flashbench: Registering a block device failed.\n");
     ret_value = _fb->device_major_num;
     goto FAIL_REGISTER_BDEV;
   }
 
   // Logical Disk를 등록시키기 위한 자료구조인 gendisk를 할당받는다
   if (!(_fb->gd = alloc_disk(1))) {
-    printk(KERN_ERR "[FlashBench] Allocating a disk failed.\n");
+    printk(KERN_ERR "flashbench: Allocating a disk failed.\n");
     ret_value = -ENOMEM;
     goto FAIL_ALLOC_DISK;
   }
@@ -234,14 +234,14 @@ fb_init(void)  // __init: 해당 함수 혹은 변수가 초기화 과정에서�
 #if (WRITE_BUFFER_ENABLE == TRUE)
   if ((_fb->wb = fb_create_write_buffer(NUM_PAGES_IN_WRITE_BUFFER,
                                         LOGICAL_PAGE_SIZE)) == NULL) {
-    printk(KERN_ERR "[FlashBench] Creating a write buffer failed.\n");
+    printk(KERN_ERR "flashbench: Creating a write buffer failed.\n");
     ret_value = -ENOMEM;
     goto FAIL_CREATE_WRITE_BUFFER;
   }
 
   _fb->flag_enable_wb_thread = 1;
   if (fb_init_write_buffer_thread() == -1) {
-    printk(KERN_ERR "[FlashBench] Creating write buffer thread failed.\n");
+    printk(KERN_ERR "flashbench: Creating write buffer thread failed.\n");
     goto FAIL_WRITE_BUFFER_THREAD;
   }
 #endif
@@ -401,7 +401,7 @@ static int fb_write_buffer_thread(__attribute__((unused)) void *arg) {
 
     if (fb_is_bgc_ts_expired(_fb, BGC_TH_INTV) == TRUE) {
       if (_fb->background_gc(_fb) == -1) {
-        printk(KERN_ERR "[FlashBench] BGC falied.\n");
+        printk(KERN_ERR "flashbench: BGC falied.\n");
         goto FINISH;
       }
     }
@@ -415,7 +415,7 @@ static int fb_write_buffer_thread(__attribute__((unused)) void *arg) {
   }
 
 FINISH:
-  printk(KERN_INFO "[FlashBench] End condition of write buffer thread\n");
+  printk(KERN_INFO "flashbench: End condition of write buffer thread\n");
   _fb->flag_enable_wb_thread = 0;
   _fb->ptr_wb_task = NULL;
 
@@ -483,7 +483,7 @@ static struct fb_bio_t *fb_build_bio(struct bio *bio) {
   u8 *ptr_page_buffer;
 
   if ((fbio = (struct fb_bio_t *)vmalloc(sizeof(struct fb_bio_t))) == NULL) {
-    printk(KERN_ERR "Allocating bio structure failed.\n");
+    printk(KERN_ERR "flashbench: Allocating bio structure failed.\n");
     return NULL;
   }
 

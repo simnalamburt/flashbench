@@ -75,20 +75,20 @@ static struct fb_act_blk_mngr_t *create_act_blk_mngr(struct fb_context_t *fb) {
 
   if ((abm = (struct fb_act_blk_mngr_t *)vmalloc(
            sizeof(struct fb_act_blk_mngr_t))) == NULL) {
-    printk(KERN_ERR "Allocating active block manager failed.\n");
+    printk(KERN_ERR "flashbench: Allocating active block manager failed.\n");
     goto FAIL;
   }
 
   if ((abm->act_blks = (struct flash_block **)vmalloc(
            sizeof(struct flash_block *) * NUM_CHIPS)) == NULL) {
-    printk(KERN_ERR "Allocating active block list failed.\n");
+    printk(KERN_ERR "flashbench: Allocating active block list failed.\n");
     goto FAIL;
   }
 
   for (bus = 0; bus < NUM_BUSES; bus++) {
     for (chip = 0; chip < NUM_CHIPS_PER_BUS; chip++) {
       if ((blki = get_free_block(ssdi, bus, chip)) == NULL) {
-        printk(KERN_ERR "Getting new active block failed.\n");
+        printk(KERN_ERR "flashbench: Getting new active block failed.\n");
         goto FAIL;
       }
 
@@ -132,38 +132,40 @@ void *create_pg_ftl(struct fb_context_t *fb) {
   if ((ftl = (struct page_mapping_context_t *)vmalloc(
            sizeof(struct page_mapping_context_t))) == NULL) {
     printk(KERN_ERR
-           "[FlashBench] fb_page_mapping: Allocating mapping table failed.\n");
+           "flashbench: Allocating mapping table failed during "
+           "create_pg_ftl().\n");
     goto FAIL;
   }
 
   if ((ftl->ptr_mapping_table = create_page_mapping_table()) == NULL) {
-    printk(KERN_ERR
-           "[FlashBench] fb_page_mapping: Creating mapping table failed.\n");
+    printk(
+        KERN_ERR
+        "flashbench: Creating mapping table failed during create_pg_ftl().\n");
     goto FAIL;
   }
 
   if ((ftl->abm = create_act_blk_mngr(fb)) == NULL) {
     printk(KERN_ERR
-           "[FlashBench] fb_page_mapping: Creating active block manager "
+           "flashbench: fb_page_mapping: Creating active block manager "
            "failed.\n");
     goto FAIL;
   }
 
   if ((ftl->delm = create_del_mngr()) == NULL) {
     printk(KERN_ERR
-           "[FlashBench] fb_page_mapping: Creating del manager failed.\n");
+           "flashbench: fb_page_mapping: Creating del manager failed.\n");
     goto FAIL;
   }
 
   if ((ftl->gcm = create_gc_mngr(fb)) == NULL) {
     printk(KERN_ERR
-           "[FlashBench] fb_page_mapping: Creating GC manager failed.\n");
+           "flashbench: fb_page_mapping: Creating GC manager failed.\n");
     goto FAIL;
   }
 
   if ((ftl->lpas_to_discard =
            (u32 *)vmalloc(NR_MAX_LPAS_DISCARD * sizeof(u32))) == NULL) {
-    printk(KERN_ERR "[FlashBench] fb_page_mapping: Allocating lpas failed.\n");
+    printk(KERN_ERR "flashbench: fb_page_mapping: Allocating lpas failed.\n");
 
     goto FAIL;
   }
@@ -230,13 +232,13 @@ static struct fb_del_mngr_t *create_del_mngr(void) {
 
   if ((delm = (struct fb_del_mngr_t *)vmalloc(sizeof(struct fb_del_mngr_t))) ==
       NULL) {
-    printk(KERN_ERR "Allocating DEL manager failed.\n");
+    printk(KERN_ERR "flashbench: Allocating DEL manager failed.\n");
     goto FAIL;
   }
 
   if ((delm->btod = (struct fb_btod_t *)vmalloc(sizeof(struct fb_btod_t) *
                                                 NUM_BTODS)) == NULL) {
-    printk(KERN_ERR "Allocating DEL block list failed.\n");
+    printk(KERN_ERR "flashbench: Allocating DEL block list failed.\n");
     goto FAIL;
   }
 
@@ -246,7 +248,7 @@ static struct fb_del_mngr_t *create_del_mngr(void) {
 
   if ((delm->wtod = (struct fb_wtod_t *)vmalloc(sizeof(struct fb_wtod_t) *
                                                 NUM_WTODS)) == NULL) {
-    printk(KERN_ERR "Allocating DEL WL list failed.\n");
+    printk(KERN_ERR "flashbench: Allocating DEL WL list failed.\n");
     goto FAIL;
   }
 
@@ -256,19 +258,19 @@ static struct fb_del_mngr_t *create_del_mngr(void) {
 
   if ((delm->ppas = (u32 *)vmalloc(sizeof(u32) * NR_MAX_LPAS_DISCARD)) ==
       NULL) {
-    printk(KERN_ERR "Allocating PPA list failed.\n");
+    printk(KERN_ERR "flashbench: Allocating PPA list failed.\n");
     goto FAIL;
   }
 
   if ((delm->lpas_to_copy = (u32 *)vmalloc(sizeof(u32) * NR_MAX_LPGS_COPY)) ==
       NULL) {
-    printk(KERN_ERR "Allocating LPA list failed.\n");
+    printk(KERN_ERR "flashbench: Allocating LPA list failed.\n");
     goto FAIL;
   }
 
   if ((delm->data_to_copy = (u8 *)vmalloc(sizeof(u8) * LOGICAL_PAGE_SIZE *
                                           NR_MAX_LPGS_COPY)) == NULL) {
-    printk(KERN_ERR "Allocating valid page buffer failed.\n");
+    printk(KERN_ERR "flashbench: Allocating valid page buffer failed.\n");
     goto FAIL;
   }
 
@@ -431,7 +433,7 @@ static int make_write_request_page_mapping(struct fb_context_t *fb, u32 *lpa,
   // Check foreground GC condition, check if the GC block is null
   if (is_fgc_needed(fb, bus, chip) == TRUE) {
     if (trigger_gc_page_mapping(fb) == -1) {
-      printk(KERN_ERR "[FlashBench] fb_page_mapping: Foreground GC failed.\n");
+      printk(KERN_ERR "flashbench: fb_page_mapping: Foreground GC failed.\n");
       goto FAILED;
     }
   }
@@ -440,7 +442,7 @@ static int make_write_request_page_mapping(struct fb_context_t *fb, u32 *lpa,
 
   if ((alloc_new_page(fb, bus, chip, &blk, &pg)) == -1) {
     if (trigger_gc_page_mapping(fb) == -1) {
-      printk(KERN_ERR "[FlashBench] fb_page_mapping: Foreground GC failed.\n");
+      printk(KERN_ERR "flashbench: fb_page_mapping: Foreground GC failed.\n");
       goto FAILED;
     }
 
@@ -448,7 +450,7 @@ static int make_write_request_page_mapping(struct fb_context_t *fb, u32 *lpa,
 
     if ((alloc_new_page(fb, bus, chip, &blk, &pg)) == -1) {
       printk(KERN_ERR
-             "[FlashBench] fb_page_mapping: There is not sufficient space.\n");
+             "flashbench: fb_page_mapping: There is not sufficient space.\n");
       goto FAILED;
     }
   }
@@ -459,7 +461,7 @@ static int make_write_request_page_mapping(struct fb_context_t *fb, u32 *lpa,
 
   if (map_logical_to_physical(fb, lpa, bus, chip, blk, pg) == -1) {
     printk(KERN_ERR
-           "[FlashBench] fb_page_mapping: Mapping LPA to PPA failed.\n");
+           "flashbench: fb_page_mapping: Mapping LPA to PPA failed.\n");
     goto FAILED;
   }
 
@@ -477,7 +479,7 @@ FAILED:
 }
 
 static int make_flush_request_page_mapping(void) {
-  printk("FLUSH\n");
+  printk(KERN_INFO "flashbench: FLUSH\n");
   return 0;
 }
 
@@ -547,7 +549,8 @@ static struct page_mapping_table_t *create_page_mapping_table(void) {
   if ((ptr_mapping_table = (struct page_mapping_table_t *)kmalloc(
            sizeof(struct page_mapping_table_t), GFP_ATOMIC)) == NULL) {
     printk(KERN_ERR
-           "[FlashBench] fb_page_mapping: Allocating mapping table failed.\n");
+           "flashbench: Allocating mapping table failed during "
+           "create_page_mapping_table().\n");
     goto FAIL_ALLOC_TABLE;
   }
 
@@ -559,9 +562,9 @@ static struct page_mapping_table_t *create_page_mapping_table(void) {
 
   if ((ptr_mapping_table->mappings = (u32 *)vmalloc(
            sizeof(u32) * ptr_mapping_table->nr_entries)) == NULL) {
-    printk(
-        KERN_ERR
-        "[FlashBench] fb_page_mapping: Allocating mapping entries failed.\n");
+    printk(KERN_ERR
+           "flashbench: Allocating mapping entries failed during "
+           "create_page_mapping_table().\n");
     goto FAIL_ALLOC_ENTRIES;
   }
 
@@ -584,13 +587,14 @@ void print_blk_mgmt(struct fb_context_t *fb) {
 
   get_next_bus_chip(fb, &bus, &chip);
 
-  printk(KERN_INFO "Current bus: %u, chip: %u\n", bus, chip);
+  printk(KERN_INFO "flashbench: Current bus: %u, chip: %u\n", bus, chip);
 
   for (chip = 0; chip < NUM_CHIPS_PER_BUS; chip++) {
     for (bus = 0; bus < NUM_BUSES; bus++) {
       printk(
           KERN_INFO
-          "Block Status b(%u), c(%u) - act: %s(%u), gc: %s, free: %u, used: "
+          "flashbench: Block Status b(%u), c(%u) - act: %s(%u), gc: %s, free: "
+          "%u, used: "
           "%u, dirt: %u\n",
           bus, chip, (get_curr_active_block(fb, bus, chip) == NULL) ? "X" : "O",
           (get_curr_active_block(fb, bus, chip) == NULL)
@@ -611,7 +615,7 @@ static int fb_wb_flush(struct fb_context_t *fb) {
 
   while (fb_get_pgs_to_write(wb, NR_LP_IN_PP, lpas, wb->pg_buf) != -1) {
     if (make_write_request_page_mapping(fb, lpas, wb->pg_buf) == -1) {
-      fb_print_err("Handling a write request filed.\n");
+      printk(KERN_ERR "flashbench: Handling a write request filed.\n");
 
       return -1;
     }

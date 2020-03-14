@@ -37,22 +37,22 @@ static int fb_proc_summary(struct seq_file *m,
   seq_printf(m,
              "===================Total read/write requests "
              "summary=================\n");
-  seq_printf(m, "FlashBench: # of total write from OS: %u\n",
+  seq_printf(m, "flashbench: # of total write from OS: %u\n",
              _perf_nr_incomming_write);
-  seq_printf(m, "FlashBench: # of read pages: %u\n", _perf_nr_page_reads);
-  seq_printf(m, "FlashBench: # of write pages in FG procedures: %u\n",
+  seq_printf(m, "flashbench: # of read pages: %u\n", _perf_nr_page_reads);
+  seq_printf(m, "flashbench: # of write pages in FG procedures: %u\n",
              _perf_nr_wordline_prog_fg);
-  seq_printf(m, "FlashBench: # of write pages in BG procedures: %u\n",
+  seq_printf(m, "flashbench: # of write pages in BG procedures: %u\n",
              _perf_nr_wordline_prog_bg);
-  seq_printf(m, "FlashBench: # of erase blocks: %u\n", _perf_nr_blk_erasures);
-  seq_printf(m, "FlashBench: # of FG GC: %u\n", _perf_nr_gc_trigger_fg);
-  seq_printf(m, "FlashBench: # of BG GC: %u\n", _perf_nr_gc_trigger_bg);
-  seq_printf(m, "FlashBench: # of LSB page backups: %u\n",
+  seq_printf(m, "flashbench: # of erase blocks: %u\n", _perf_nr_blk_erasures);
+  seq_printf(m, "flashbench: # of FG GC: %u\n", _perf_nr_gc_trigger_fg);
+  seq_printf(m, "flashbench: # of BG GC: %u\n", _perf_nr_gc_trigger_bg);
+  seq_printf(m, "flashbench: # of LSB page backups: %u\n",
              _perf_nr_lsb_pg_backup);
-  seq_printf(m, "FlashBench: # of discard reqs: %u (%u)\n",
+  seq_printf(m, "flashbench: # of discard reqs: %u (%u)\n",
              _perf_nr_discard_reqs, _perf_nr_discarded_lpgs);
-  seq_printf(m, "FlashBench: # of plocks: %u\n", _perf_nr_plocks);
-  seq_printf(m, "FlashBench: # of blocks: %u\n", _perf_nr_blocks);
+  seq_printf(m, "flashbench: # of plocks: %u\n", _perf_nr_plocks);
+  seq_printf(m, "flashbench: # of blocks: %u\n", _perf_nr_blocks);
 
   return 0;
 }
@@ -124,7 +124,7 @@ void fb_file_log(const char *filename, const char *string) {
   struct file *fp = NULL;
 
   if ((fp = file_open(filename, O_CREAT | O_WRONLY | O_APPEND, 0777)) == NULL) {
-    printk(KERN_INFO "blueftl_log: file_open error (%s)\n", filename);
+    printk(KERN_ERR "flashbench: file_open error (%s)\n", filename);
     return;
   }
 
@@ -135,22 +135,22 @@ void fb_file_log(const char *filename, const char *string) {
 
 void perf_display_result(void) {
   printk(KERN_INFO
-         "===================Total read/write requests "
+         "flashbench: ===================Total read/write requests "
          "summary=================\n");
-  printk(KERN_INFO "FlashBench: # of total write from OS: %u\n",
+  printk(KERN_INFO "flashbench: # of total write from OS: %u\n",
          _perf_nr_incomming_write);
-  printk(KERN_INFO "FlashBench: # of read pages: %u\n", _perf_nr_page_reads);
-  printk(KERN_INFO "FlashBench: # of write pages in FG procedures: %u\n",
+  printk(KERN_INFO "flashbench: # of read pages: %u\n", _perf_nr_page_reads);
+  printk(KERN_INFO "flashbench: # of write pages in FG procedures: %u\n",
          _perf_nr_wordline_prog_fg);
-  printk(KERN_INFO "FlashBench: # of write pages in BG procedures: %u\n",
+  printk(KERN_INFO "flashbench: # of write pages in BG procedures: %u\n",
          _perf_nr_wordline_prog_bg);
-  printk(KERN_INFO "FlashBench: # of erase blocks: %u\n",
+  printk(KERN_INFO "flashbench: # of erase blocks: %u\n",
          _perf_nr_blk_erasures);
-  printk(KERN_INFO "FlashBench: # of FG GC: %u\n", _perf_nr_gc_trigger_fg);
-  printk(KERN_INFO "FlashBench: # of BG GC: %u\n", _perf_nr_gc_trigger_bg);
-  printk(KERN_INFO "FlashBench: # of LSB page backups: %u\n",
+  printk(KERN_INFO "flashbench: # of FG GC: %u\n", _perf_nr_gc_trigger_fg);
+  printk(KERN_INFO "flashbench: # of BG GC: %u\n", _perf_nr_gc_trigger_bg);
+  printk(KERN_INFO "flashbench: # of LSB page backups: %u\n",
          _perf_nr_lsb_pg_backup);
-  printk(KERN_INFO "FlashBench: # of discard reqs: %u (%u)\n",
+  printk(KERN_INFO "flashbench: # of discard reqs: %u (%u)\n",
          _perf_nr_discard_reqs, _perf_nr_discarded_lpgs);
 }
 
@@ -162,7 +162,7 @@ void perf_init(void) {
   proc_dir = proc_create("summary", 0444, NULL, &fb_proc_fops);
 
   if (proc_dir == NULL) {
-    printk(KERN_INFO "proc summary creation failed \n");
+    printk(KERN_ERR "flashbench: proc summary creation failed \n");
     // TODO: Handle error properly
     // return -EEXIST;
   }

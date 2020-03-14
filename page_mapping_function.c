@@ -17,7 +17,7 @@ u32 get_mapped_physical_address(struct fb_context_t *ptr_fb_context,
 
   if (is_valid_address_range(logical_page_address) == FALSE) {
     printk(KERN_ERR
-           "[FlashBench] fb_page_mapping: Invalid logical page range (%d)\n",
+           "flashbench: fb_page_mapping: Invalid logical page range (%d)\n",
            logical_page_address);
     goto FINISH;
   }
