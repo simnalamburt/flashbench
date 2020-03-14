@@ -9,10 +9,14 @@
 #include "ssd_info.h"
 #include "util.h"
 #include "vdevice.h"
-
-#if (WRITE_BUFFER_ENABLE == TRUE)
-
+#ifdef WRITE_BUFFER_ENABLE
 #include "write_buffer.h"
+#endif
+
+//
+// Prototypes
+//
+#ifdef WRITE_BUFFER_ENABLE
 static int fb_init_write_buffer_thread(void);
 static void fb_stop_write_buffer_thread(void);
 static int fb_write_buffer_thread(void *arg);
@@ -31,12 +35,18 @@ static blk_qc_t make_request(struct request_queue *ptr_req_queue,
 static int __init fb_init(void);
 static void __exit fb_exit(void);
 
+//
+// Global Variables
+//
 static struct fb_context_t *_fb;
 
 static struct block_device_operations bdops = {
     .owner = THIS_MODULE,
 };
 
+//
+// Function definitions
+//
 static blk_qc_t make_request(
     __attribute__((unused)) struct request_queue *ptr_req_queue,
     struct bio *bio) {
@@ -233,7 +243,7 @@ fb_init(void)  // __init: 해당 함수 혹은 변수가 초기화 과정에서�
     goto FAIL_ALLOC_DISK;
   }
 // TODO GH
-#if (WRITE_BUFFER_ENABLE == TRUE)
+#ifdef WRITE_BUFFER_ENABLE
   if ((_fb->wb = fb_create_write_buffer(NUM_PAGES_IN_WRITE_BUFFER,
                                         LOGICAL_PAGE_SIZE)) == NULL) {
     printk(KERN_ERR "flashbench: Creating a write buffer failed.\n");
@@ -260,7 +270,7 @@ fb_init(void)  // __init: 해당 함수 혹은 변수가 초기화 과정에서�
 
   return 0;
 
-#if (WRITE_BUFFER_ENABLE == TRUE)
+#ifdef WRITE_BUFFER_ENABLE
 FAIL_WRITE_BUFFER_THREAD:
   if (_fb->wb != NULL) {
     fb_destroy_write_buffer(_fb->wb);
@@ -306,7 +316,7 @@ static void __exit fb_exit(void) {
   unregister_blkdev(_fb->device_major_num, DEV_NAME);
 
   blk_cleanup_queue(_fb->ptr_req_queue);
-#if (WRITE_BUFFER_ENABLE == TRUE)
+#ifdef WRITE_BUFFER_ENABLE
   _fb->flag_enable_wb_thread = 0;
   fb_stop_write_buffer_thread();
 
@@ -336,7 +346,7 @@ static void __exit fb_exit(void) {
   perf_exit();
 }
 
-#if (WRITE_BUFFER_ENABLE == TRUE)
+#ifdef WRITE_BUFFER_ENABLE
 static int fb_init_write_buffer_thread(void) {
   int rc;
   int ret = 0;

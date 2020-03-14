@@ -36,7 +36,7 @@ struct fb_bus_controller_t {
   struct task_struct *ptr_task;
 };
 
-#if (LOG_TIMING == TRUE)
+#ifdef LOG_TIMING
 static u32 nr_timer_log_delay_records[NUM_BUSES] = {
     0,
 };
@@ -115,7 +115,7 @@ static int chip_status_busy(struct fb_bus_controller_t *ptr_bus_controller,
 static u32 get_chip_wakeup_time(struct fb_bus_controller_t *ptr_bus_controller,
                                 u32 chip);
 
-#if (LOG_TIMING == TRUE)
+#ifdef LOG_TIMING
 static u32 get_chip_issue_time(struct fb_bus_controller_t *ptr_bus_controller,
                                u32 chip);
 #endif
@@ -386,7 +386,7 @@ static int fb_bus_ctrl_thread(void *arg) {
                get_chip_wakeup_time(ptr_bus_controller, loop_chip)) > 0) {
         // Check the condition
         if (wakeup_time_in_us <= current_time_in_us) {
-#if (LOG_TIMING == TRUE)
+#ifdef LOG_TIMING
           if (nr_timer_log_delay_records[bus] < max_timer_log_delay_records) {
             timer_log_delay_records[bus][nr_timer_log_delay_records[bus]] =
                 current_time_in_us - wakeup_time_in_us;
@@ -478,7 +478,7 @@ static int fb_init_bus_ctrl_thread(
 
 static void fb_stop_bus_ctrl_thread(
     struct fb_bus_controller_t *ptr_bus_controller) {
-#if (LOG_TIMING == TRUE)
+#ifdef LOG_TIMING
   int i;
   u32 bus = ptr_bus_controller->num_bus;
 
@@ -727,7 +727,7 @@ static u32 get_chip_wakeup_time(struct fb_bus_controller_t *ptr_bus_controller,
   return ptr_bus_controller->chip_busies[chip].wakeup_time_in_us;
 }
 
-#if (LOG_TIMING == TRUE)
+#ifdef LOG_TIMING
 static u32 get_chip_issue_time(struct fb_bus_controller_t *ptr_bus_controller,
                                u32 chip) {
   return ptr_bus_controller->chip_busies[chip].issue_time_in_us;
