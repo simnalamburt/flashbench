@@ -1,4 +1,5 @@
+[alias]
+xbuild = "build -Z build-std=core"
+
 [build]
 target = "x86_64-linux-kernel"
-# Reference:
-#   https://github.com/rust-lang/rust/blob/3dbade6/src/librustc_target/spec/x86_64_linux_kernel.rs
