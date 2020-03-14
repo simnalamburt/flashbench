@@ -2,7 +2,7 @@
 #include <linux/freezer.h>
 #include <linux/kthread.h>
 #include <linux/module.h>
-#include <linux/vmalloc.h>
+#include "linux_header_light.h"
 
 #include "ftl_algorithm_page_mapping.h"
 #include "macro.h"

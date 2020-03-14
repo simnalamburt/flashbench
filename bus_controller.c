@@ -2,7 +2,7 @@
 #include <linux/freezer.h>
 #include <linux/kthread.h>
 #include <linux/slab.h>
-#include <linux/vmalloc.h>
+#include "linux_header_light.h"
 
 #include "main.h"
 #include "util.h"

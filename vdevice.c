@@ -1,4 +1,4 @@
-#include <linux/vmalloc.h>
+#include "linux_header_light.h"
 
 #include "bus_controller.h"
 #include "vdevice.h"

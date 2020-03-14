@@ -1,6 +1,6 @@
 #include <linux/bio.h>
 #include <linux/slab.h>
-#include <linux/vmalloc.h>
+#include "linux_header_light.h"
 
 #include "ftl_algorithm_page_mapping.h"
 #include "gc_page_mapping.h"

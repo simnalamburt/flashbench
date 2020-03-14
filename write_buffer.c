@@ -1,5 +1,5 @@
 #include <linux/slab.h>
-#include <linux/vmalloc.h>
+#include "linux_header_light.h"
 
 #include "macro.h"
 #include "option.h"
