@@ -1,6 +1,6 @@
 #include <linux/buffer_head.h>
 #include <linux/proc_fs.h>
-#include <linux/seq_file.h>
+#include "linux_header_light.h"
 
 static int fb_proc_open(struct inode *inode, struct file *file);
 static int fb_proc_summary(struct seq_file *m, void *v);
