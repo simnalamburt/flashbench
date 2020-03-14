@@ -1,3 +1,4 @@
+#pragma once
 struct fb_gc_mngr_t;
 struct fb_context_t;
 

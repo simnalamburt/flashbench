@@ -1,3 +1,4 @@
+#pragma once
 #include <linux/types.h>
 
 struct vdevice_t;

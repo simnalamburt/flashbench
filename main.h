@@ -1,3 +1,4 @@
+#pragma once
 #include <linux/blk_types.h>
 #include <linux/completion.h>
 #include <linux/types.h>

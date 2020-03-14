@@ -1,3 +1,4 @@
+#pragma once
 #include <linux/types.h>
 
 void perf_inc_nr_incomming_write(void);
