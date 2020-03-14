@@ -23,9 +23,6 @@ void vfree(const void *addr);
 // linux/bio.h
 struct bio;
 void bio_endio(struct bio *);
-#ifndef bio_sectors
-#define bio_sectors(bio) ((bio)->bi_iter.bi_size >> 9)
-#endif
 
 // linux/seq_file.h
 struct file;

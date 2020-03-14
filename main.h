@@ -17,6 +17,9 @@ struct fb_bio_t {
   u32 lpas[NR_MAX_REQ_BIO];
   u8 *kpages[NR_MAX_REQ_BIO];
   struct bio *bio;
+
+  // Initial state (state after `fb_build_bio()` call) of this completion is
+  // "done"
   struct completion bio_lock;
 };
 

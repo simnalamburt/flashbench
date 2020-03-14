@@ -1,7 +1,6 @@
 #include <linux/slab.h>
 #include "linux_header_light.h"
 
-#include "macro.h"
 #include "option.h"
 #include "uthash/utlist.h"
 #include "write_buffer.h"

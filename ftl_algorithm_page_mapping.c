@@ -3,7 +3,6 @@
 
 #include "ftl_algorithm_page_mapping.h"
 #include "gc_page_mapping.h"
-#include "macro.h"
 #include "main.h"
 #include "page_mapping_function.h"
 #include "ssd_info.h"
@@ -325,7 +324,10 @@ static int _fb_del_invalidate_pgs(struct fb_context_t *fb, u32 nr_reqs,
   u32 loop = 0;
   init_delm(delm);
 
-  fb_lock(&ftl->mapping_context_lock);
+  // TODO: Race condition! wait_for_completion + reinit_completion is NOT
+  // atomic!
+  wait_for_completion(&ftl->mapping_context_lock);
+  reinit_completion(&ftl->mapping_context_lock);
 
   for (loop = 0; loop < nr_reqs; loop++) {
     // 1. invalidate the lpa
@@ -335,7 +337,7 @@ static int _fb_del_invalidate_pgs(struct fb_context_t *fb, u32 nr_reqs,
     // this is all we have to do here.
   }
 
-  fb_unlock(&ftl->mapping_context_lock);
+  complete(&ftl->mapping_context_lock);
 
   return 0;
 }
@@ -501,7 +503,7 @@ static int make_discard_request_page_mapping(struct fb_context_t *fb,
   u32 lp_loop, bio_loop;
 
   sec_start = (bio->bi_iter.bi_sector + 7) & (~(7));
-  sec_end = (bio->bi_iter.bi_sector + bio_sectors(bio)) & (~(7));
+  sec_end = (bio->bi_iter.bi_sector + (bio->bi_iter.bi_size >> 9)) & (~(7));
 
   lpa_start = sec_start >> 3;
   nr_lpgs = (sec_start < sec_end) ? ((sec_end - sec_start) >> 3) : 0;

@@ -5,7 +5,6 @@
 #include "linux_header_light.h"
 
 #include "ftl_algorithm_page_mapping.h"
-#include "macro.h"
 #include "main.h"
 #include "ssd_info.h"
 #include "util.h"
@@ -48,7 +47,10 @@ static blk_qc_t make_request(
 
   struct fb_bio_t *fbio = NULL;
 
-  fb_lock(&_fb->dev_lock);
+  // TODO: Race condition! wait_for_completion + reinit_completion is NOT
+  // atomic!
+  wait_for_completion(&_fb->dev_lock);
+  reinit_completion(&_fb->dev_lock);
 
   fb_update_bgc_ts(_fb);
 
@@ -132,7 +134,7 @@ REQ_FINISH:
 
   fb_update_bgc_ts(_fb);
 
-  fb_unlock(&_fb->dev_lock);
+  complete(&_fb->dev_lock);
 
   return BLK_QC_T_NONE;
 
@@ -142,7 +144,7 @@ FAIL:
   bio->bi_error = ret_value;
   bio_endio(bio);
   if (fbio != NULL) fb_destroy_bio(fbio);
-  fb_unlock(&_fb->dev_lock);
+  complete(&_fb->dev_lock);
   return BLK_QC_T_NONE;
 }
 
@@ -464,12 +466,15 @@ static void destroy_mapping_context(struct fb_context_t *ptr_fb_context) {
 u32 dec_bio_req_count(struct fb_bio_t *fbio) {
   u32 ret;
 
-  fb_lock(&fbio->bio_lock);
+  // TODO: Race condition! wait_for_completion + reinit_completion is NOT
+  // atomic!
+  wait_for_completion(&fbio->bio_lock);
+  reinit_completion(&fbio->bio_lock);
 
   fbio->req_count--;
   ret = fbio->req_count;
 
-  fb_unlock(&fbio->bio_lock);
+  complete(&fbio->bio_lock);
 
   return ret;
 }
@@ -512,7 +517,8 @@ static struct fb_bio_t *fb_build_bio(struct bio *bio) {
     sec_start += 8;
   }
 
-  fb_init_lock(&fbio->bio_lock);
+  init_completion(&fbio->bio_lock);
+  complete(&fbio->bio_lock);
 
   return fbio;
 }
