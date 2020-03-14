@@ -3,6 +3,9 @@
 [[package]]
 name = "flashbench"
 version = "0.1.0"
+dependencies = [
+ "linux_types 0.1.0",
+]
 
 [[package]]
 name = "linux_types"
