@@ -38,11 +38,9 @@ static void __exit fb_exit(void);
 //
 // Global Variables
 //
+static const char *DEV_NAME = "fbSSD";
 static struct fb_context_t *_fb;
-
-static struct block_device_operations bdops = {
-    .owner = THIS_MODULE,
-};
+static struct block_device_operations bdops = {.owner = THIS_MODULE};
 
 //
 // Function definitions

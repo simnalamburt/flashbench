@@ -2,7 +2,6 @@
 #define TRUE 1
 #define FALSE 0
 #define WRITE_BUFFER_ENABLE
-#define DEV_NAME "fbSSD"
 #undef LOG_TIMING
 
 enum {
