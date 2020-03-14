@@ -1,4 +1,4 @@
-#include <linux/module.h>
+#include <linux/bio.h>
 #include <linux/slab.h>
 #include <linux/vmalloc.h>
 
@@ -8,8 +8,6 @@
 #include "main.h"
 #include "page_mapping_function.h"
 #include "ssd_info.h"
-#include "uthash/uthash.h"
-#include "uthash/utlist.h"
 #include "util.h"
 #include "vdevice.h"
 #include "write_buffer.h"

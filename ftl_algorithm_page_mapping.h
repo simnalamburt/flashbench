@@ -1,6 +1,5 @@
 #include <linux/completion.h>
 #include <linux/types.h>
-#include "uthash/uthash.h"
 
 #define PAGE_UNMAPPED -1
 

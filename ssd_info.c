@@ -1,9 +1,6 @@
-#include <linux/mm.h>
-#include <linux/module.h>
 #include <linux/slab.h>
 
 #include "ftl_algorithm_page_mapping.h"
-#include "main.h"
 #include "option.h"
 #include "ssd_info.h"
 #include "uthash/utlist.h"

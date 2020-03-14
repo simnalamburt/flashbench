@@ -1,7 +1,5 @@
 #include <linux/vmalloc.h>
 
-#include "main.h"
-#include "option.h"
 #include "vdevice.h"
 #if (VDEVICE_TIME_MODELED == TRUE)
 #include "bus_controller.h"

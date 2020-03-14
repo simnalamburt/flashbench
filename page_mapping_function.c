@@ -1,10 +1,6 @@
-#include <linux/module.h>
-#include <linux/slab.h>
-
+#include "page_mapping_function.h"
 #include "ftl_algorithm_page_mapping.h"
 #include "main.h"
-#include "option.h"
-#include "page_mapping_function.h"
 #include "ssd_info.h"
 #include "vdevice.h"
 

@@ -1,21 +1,12 @@
 #include <linux/blkdev.h>
-#include <linux/completion.h>
 #include <linux/freezer.h>
-#include <linux/fs.h>
-#include <linux/init.h>
-#include <linux/interrupt.h>
-#include <linux/kernel.h>
 #include <linux/kthread.h>
 #include <linux/module.h>
-#include <linux/moduleparam.h>
-#include <linux/stat.h>
 #include <linux/vmalloc.h>
 
 #include "ftl_algorithm_page_mapping.h"
-#include "gc_page_mapping.h"
 #include "macro.h"
 #include "main.h"
-#include "option.h"
 #include "ssd_info.h"
 #include "util.h"
 #include "vdevice.h"

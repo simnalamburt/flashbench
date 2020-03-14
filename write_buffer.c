@@ -1,10 +1,8 @@
-#include <linux/mm.h>
 #include <linux/slab.h>
 #include <linux/vmalloc.h>
 
 #include "macro.h"
 #include "option.h"
-#include "uthash/uthash.h"
 #include "uthash/utlist.h"
 #include "write_buffer.h"
 

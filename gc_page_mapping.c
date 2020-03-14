@@ -1,20 +1,13 @@
-#include <linux/completion.h>
-#include <linux/freezer.h>
-#include <linux/interrupt.h>
-#include <linux/kthread.h>
-#include <linux/time.h>
 #include <linux/vmalloc.h>
 
 #include "ftl_algorithm_page_mapping.h"
 #include "gc_page_mapping.h"
 #include "main.h"
-#include "option.h"
 #include "page_mapping_function.h"
 #include "ssd_info.h"
 #include "uthash/utlist.h"
 #include "util.h"
 #include "vdevice.h"
-#include "write_buffer.h"
 
 static void init_gcm(struct fb_gc_mngr_t *gcm) { gcm->nr_pgs_to_copy = 0; }
 

@@ -1,17 +1,10 @@
-#include <linux/blkdev.h>
-#include <linux/completion.h>
+#include <linux/bio.h>
 #include <linux/freezer.h>
-#include <linux/hrtimer.h>
 #include <linux/kthread.h>
-#include <linux/ktime.h>
-#include <linux/mm.h>
-#include <linux/module.h>
 #include <linux/slab.h>
 #include <linux/vmalloc.h>
 
-#include "bus_controller.h"
 #include "main.h"
-#include "option.h"
 #include "util.h"
 #include "vdevice.h"
 
