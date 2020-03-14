@@ -2,9 +2,7 @@
 #include "option.h"
 
 struct fb_bio_t;
-#if (VDEVICE_TIME_MODELED == TRUE)
 struct fb_bus_controller_t;
-#endif
 
 enum fb_dev_op_t {
   OP_READ,
@@ -37,9 +35,7 @@ struct vdevice_t {
   u8 *ptr_vdisk[NUM_BUSES];
   struct vdevice_bus_t buses[NUM_BUSES];
 
-#if (VDEVICE_TIME_MODELED == TRUE)
   struct fb_bus_controller_t **ptr_bus_controller;
-#endif
 };
 
 struct vdevice_t *create_vdevice(void);
@@ -62,6 +58,4 @@ u32 convert_to_physical_address(u32 bus, u32 chip, u32 block, u32 page);
 void convert_to_ssd_layout(u32 logical_page_address, u32 *ptr_bus,
                            u32 *ptr_chip, u32 *ptr_block, u32 *ptr_page);
 
-#if (VDEVICE_TIME_MODELED == TRUE)
 u32 operation_time(enum fb_dev_op_t op);
-#endif

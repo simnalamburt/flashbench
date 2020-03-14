@@ -32,13 +32,7 @@
 
 #define SECTOR_SIZE 512
 
-#define RAM_DISK 0
-
-#define VDEVICE_TYPE RAM_DISK
-#define VDEVICE_TIME_MODELED TRUE
 #define DEV_NAME "fbSSD"
-
-#if (VDEVICE_TIME_MODELED == TRUE)
 
 #define TREAD 80
 #define TPROG 800
@@ -49,8 +43,6 @@
 #define NUM_MAX_ENTRIES_OPR_QUEUE 4
 
 #define LOG_TIMING FALSE
-
-#endif
 
 #define BGC_TH_INTV 5000
 #define BGC_TH_WB_UTIL 5

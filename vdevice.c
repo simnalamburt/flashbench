@@ -1,11 +1,8 @@
 #include <linux/vmalloc.h>
 
-#include "vdevice.h"
-#if (VDEVICE_TIME_MODELED == TRUE)
 #include "bus_controller.h"
-#endif
+#include "vdevice.h"
 
-#if (VDEVICE_TYPE == RAM_DISK)
 struct vdevice_t *create_vdevice(void) {
   struct vdevice_t *ptr_vdevice = NULL;
   u64 bus_loop, chip_loop, block_loop, page_loop;
@@ -59,11 +56,9 @@ struct vdevice_t *create_vdevice(void) {
     }
   }
 
-#if (VDEVICE_TIME_MODELED == TRUE)
   if (fb_bus_controller_init(ptr_vdevice, NUM_MAX_ENTRIES_OPR_QUEUE) == -1) {
     goto FAIL_ALLOC_VDISK;
   }
-#endif
 
   return ptr_vdevice;
 
@@ -106,10 +101,8 @@ void vdevice_read(struct vdevice_t *ptr_vdevice, u8 bus, u8 chip, u32 block,
     ptr_src += LOGICAL_PAGE_SIZE;
   }
 
-#if (VDEVICE_TIME_MODELED == TRUE)
   fb_issue_operation(ptr_vdevice->ptr_bus_controller[bus], chip, OP_READ,
                      ptr_fb_bio);
-#endif
 }
 
 void vdevice_write(struct vdevice_t *ptr_vdevice, u8 bus, u8 chip, u32 block,
@@ -119,10 +112,8 @@ void vdevice_write(struct vdevice_t *ptr_vdevice, u8 bus, u8 chip, u32 block,
 
   memcpy(ptr_dest, ptr_src, PHYSICAL_PAGE_SIZE);
 
-#if (VDEVICE_TIME_MODELED == TRUE)
   fb_issue_operation(ptr_vdevice->ptr_bus_controller[bus], chip, OP_PROG,
                      ptr_fb_bio);
-#endif
 }
 
 void vdevice_erase(struct vdevice_t *ptr_vdevice, u8 bus, u8 chip, u32 block,
@@ -131,12 +122,9 @@ void vdevice_erase(struct vdevice_t *ptr_vdevice, u8 bus, u8 chip, u32 block,
       ptr_vdevice->buses[bus].chips[chip].blocks[block].pages[0].ptr_data;
 
   memset(ptr_dest, 0xFF, NUM_PAGES_PER_BLOCK * PHYSICAL_PAGE_SIZE);
-#if (VDEVICE_TIME_MODELED == TRUE)
   fb_issue_operation(ptr_vdevice->ptr_bus_controller[bus], chip, OP_BERS,
                      ptr_fb_bio);
-#endif
 }
-#endif
 
 int is_valid_address_range(u32 logical_page_address) {
   return logical_page_address < NUM_LOG_PAGES;
@@ -159,7 +147,6 @@ void convert_to_ssd_layout(u32 logical_page_address, u32 *ptr_bus,
   *ptr_page = (0xFFF & logical_page_address);
 }
 
-#if (VDEVICE_TIME_MODELED == TRUE)
 u32 operation_time(enum fb_dev_op_t op) {
   switch (op) {
     case OP_READ:
@@ -176,4 +163,3 @@ u32 operation_time(enum fb_dev_op_t op) {
       return 0;
   }
 }
-#endif
