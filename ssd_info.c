@@ -221,12 +221,12 @@ struct ssd_info *create_ssd_info(void) {
         ptr_block->nr_free_pages = NUM_PAGES_PER_BLOCK;
 
         ptr_block->nr_erase_cnt = 0;
-        ptr_block->is_bad_block = FALSE;
-        ptr_block->is_reserved_block = FALSE;
-        ptr_block->is_active_block = FALSE;
+        ptr_block->is_bad_block = false;
+        ptr_block->is_reserved_block = false;
+        ptr_block->is_active_block = false;
         ptr_block->last_modified_time = 0;
 
-        set_del_flag_blk(ptr_block, FALSE);
+        set_del_flag_blk(ptr_block, false);
         // timestamp is set to 0 if the block is not used after initialization
 
         if ((ptr_block->list_pages = (struct flash_page *)kmalloc(
@@ -249,7 +249,7 @@ struct ssd_info *create_ssd_info(void) {
             ptr_page->page_status[lp_loop] =
                 PAGE_STATUS_FREE;  // free page (by default)
           }
-          set_del_flag_pg(ptr_page, FALSE);
+          set_del_flag_pg(ptr_page, false);
         }
 
         set_free_blk(ptr_ssd_info, ptr_block);
@@ -382,8 +382,8 @@ void init_blk_inf(struct flash_block *blki) {
   u32 pg;
   struct flash_page *pgi;
 
-  set_act_blk_flag(blki, FALSE);
-  set_rsv_blk_flag(blki, FALSE);
+  set_act_blk_flag(blki, false);
+  set_rsv_blk_flag(blki, false);
 
   set_nr_free_pgs(blki, NUM_PAGES_PER_BLOCK);
   set_nr_valid_pgs(blki, 0);
@@ -391,14 +391,14 @@ void init_blk_inf(struct flash_block *blki) {
   set_nr_valid_lps_in_blk(blki, 0);
   set_nr_invalid_lps_in_blk(blki, 0);
 
-  set_del_flag_blk(blki, FALSE);
+  set_del_flag_blk(blki, false);
 
   for (pg = 0; pg < NUM_PAGES_PER_BLOCK; pg++) {
     pgi = get_pgi_from_blki(blki, pg);
 
     set_nr_invalid_lps(pgi, 0);
 
-    set_del_flag_pg(pgi, FALSE);
+    set_del_flag_pg(pgi, false);
 
     for (lp = 0; lp < NR_LP_IN_PP; lp++) {
       set_mapped_lpa(pgi, lp, PAGE_UNMAPPED);

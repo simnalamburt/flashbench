@@ -62,7 +62,7 @@ static blk_qc_t make_request(
 
   fb_update_bgc_ts(_fb);
 
-  if (_fb->err == TRUE) goto FAIL;
+  if (_fb->err == true) goto FAIL;
 
   if (unlikely(bio->bi_opf & REQ_PREFLUSH)) {
     _fb->make_flush_request();
@@ -147,7 +147,7 @@ REQ_FINISH:
   return BLK_QC_T_NONE;
 
 FAIL:
-  _fb->err = TRUE;
+  _fb->err = true;
 
   bio->bi_error = ret_value;
   bio_endio(bio);
@@ -409,7 +409,7 @@ static int fb_write_buffer_thread(__attribute__((unused)) void *arg) {
 
     disallow_signal(SIGHUP);
 
-    if (fb_is_bgc_ts_expired(_fb, BGC_TH_INTV) == TRUE) {
+    if (fb_is_bgc_ts_expired(_fb, BGC_TH_INTV) == true) {
       if (_fb->background_gc(_fb) == -1) {
         printk(KERN_ERR "flashbench: BGC falied.\n");
         goto FINISH;
@@ -462,7 +462,7 @@ static void fb_update_bgc_ts(struct fb_context_t *fb) {
 }
 
 static int fb_is_bgc_ts_expired(struct fb_context_t *fb, u64 threshold) {
-  return ((fb_get_time_in_us() - fb_get_bgc_ts(fb)) > threshold) ? TRUE : FALSE;
+  return ((fb_get_time_in_us() - fb_get_bgc_ts(fb)) > threshold) ? true : false;
 }
 
 static void destroy_mapping_context(struct fb_context_t *ptr_fb_context) {

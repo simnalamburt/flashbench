@@ -15,7 +15,7 @@ u32 get_mapped_physical_address(struct fb_context_t *ptr_fb_context,
       (struct page_mapping_context_t *)ptr_fb_context->ptr_mapping_context;
   u32 physical_page_address = (u32)PAGE_UNMAPPED;
 
-  if (is_valid_address_range(logical_page_address) == FALSE) {
+  if (is_valid_address_range(logical_page_address) == false) {
     printk(KERN_ERR
            "flashbench: fb_page_mapping: Invalid logical page range (%d)\n",
            logical_page_address);
@@ -113,7 +113,7 @@ void update_act_blk(struct fb_context_t *fb, u8 bus, u8 chip) {
 
   if (get_nr_free_pgs(blki) == 0) {
     struct ssd_info *ssdi = get_ssd_inf(fb);
-    set_act_blk_flag(blki, FALSE);
+    set_act_blk_flag(blki, false);
     set_used_blk(ssdi, blki);
 
     if ((blki = get_free_block(ssdi, bus, chip)) != NULL)
@@ -218,7 +218,7 @@ void set_curr_gc_block(struct fb_context_t *fb, u32 bus, u32 chip,
 
   *(ftl->gcm->gc_blks + (bus * NUM_CHIPS_PER_BUS + chip)) = blki;
 
-  if (blki != NULL) set_rsv_blk_flag(blki, TRUE);
+  if (blki != NULL) set_rsv_blk_flag(blki, true);
 }
 
 struct flash_block *get_curr_active_block(struct fb_context_t *fb, u32 bus,
@@ -236,5 +236,5 @@ void set_curr_active_block(struct fb_context_t *fb, u32 bus, u32 chip,
 
   *(ftl->abm->act_blks + (bus * NUM_CHIPS_PER_BUS + chip)) = blki;
 
-  if (blki != NULL) set_act_blk_flag(blki, TRUE);
+  if (blki != NULL) set_act_blk_flag(blki, true);
 }

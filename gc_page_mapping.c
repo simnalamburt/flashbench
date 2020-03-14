@@ -323,7 +323,7 @@ struct fb_gc_mngr_t *create_gc_mngr(struct fb_context_t *fb) {
       }
 
       reset_free_blk(ssdi, blki);
-      set_rsv_blk_flag(blki, TRUE);
+      set_rsv_blk_flag(blki, true);
       gcm->gc_blks[bus * NUM_CHIPS_PER_BUS + chip] = blki;
     }
   }

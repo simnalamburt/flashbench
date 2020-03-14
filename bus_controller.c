@@ -414,8 +414,8 @@ static int fb_bus_ctrl_thread(void *arg) {
       // Check whether the operation queue for the chip is empty or not,
       // and the chip is available or not.
       if (opr_queue_empty(ptr_bus_controller->ptr_opr_queue[loop_chip]) ==
-              FALSE &&
-          chip_status_busy(ptr_bus_controller, loop_chip) == FALSE) {
+              false &&
+          chip_status_busy(ptr_bus_controller, loop_chip) == false) {
         // Get informations of the first request for the chip
         if (opr_queue_get_first(ptr_bus_controller->ptr_opr_queue[loop_chip],
                                 &operation, &ptr_fb_bio) == -1) {
@@ -567,14 +567,14 @@ static u32 opr_queue_num_entries(struct fb_opr_queue_t *ptr_opr_queue) {
 static int opr_queue_full(struct fb_opr_queue_t *ptr_opr_queue) {
   return (ptr_opr_queue->num_max_entries ==
           opr_queue_num_entries(ptr_opr_queue))
-             ? TRUE
-             : FALSE;
+             ? true
+             : false;
 }
 
 // Check whether the operation queue is empty or not(empty: TRUE, otherwise:
 // FALSE)
 static int opr_queue_empty(struct fb_opr_queue_t *ptr_opr_queue) {
-  return (opr_queue_num_entries(ptr_opr_queue) == 0) ? TRUE : FALSE;
+  return (opr_queue_num_entries(ptr_opr_queue) == 0) ? true : false;
 }
 
 // Put an entry into the target operation queue(success: 0, error: -1)
@@ -589,7 +589,7 @@ static int opr_queue_put_entry(struct fb_opr_queue_t *ptr_opr_queue,
 
   // Check whether the queue is full or not
   // If it is full, return error for putting the request into it.
-  if (opr_queue_full(ptr_opr_queue) == TRUE) {
+  if (opr_queue_full(ptr_opr_queue) == true) {
     ret = -1;
     goto FINISH;
   }
@@ -630,7 +630,7 @@ static int opr_queue_get_first(struct fb_opr_queue_t *ptr_opr_queue,
   reinit_completion(&ptr_opr_queue->queue_lock);
 
   // Error if the queue is emptry
-  if (opr_queue_empty(ptr_opr_queue) == TRUE) {
+  if (opr_queue_empty(ptr_opr_queue) == true) {
     ret = -1;
     goto FINISH;
   }
@@ -659,7 +659,7 @@ static int opr_queue_remove_first(struct fb_opr_queue_t *ptr_opr_queue) {
   reinit_completion(&ptr_opr_queue->queue_lock);
 
   // Error if the queue is emptry
-  if (opr_queue_empty(ptr_opr_queue) == TRUE) {
+  if (opr_queue_empty(ptr_opr_queue) == true) {
     ret = -1;
     goto FINISH;
   }
@@ -718,8 +718,8 @@ static int chip_status_busy(struct fb_bus_controller_t *ptr_bus_controller,
                             u32 chip) {
   return (ptr_bus_controller->chip_busies[chip].wakeup_time_in_us == 0 &&
           ptr_bus_controller->chip_busies[chip].issue_time_in_us == 0)
-             ? FALSE
-             : TRUE;
+             ? false
+             : true;
 }
 
 static u32 get_chip_wakeup_time(struct fb_bus_controller_t *ptr_bus_controller,

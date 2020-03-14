@@ -42,7 +42,7 @@ static struct fb_wb_pg_t *fb_create_wb_entry(u32 pg_size) {
   }
 
   fb_wb_set_pg_lpa(wb_pg, -1);
-  fb_wb_set_pg_wflag(wb_pg, FALSE);
+  fb_wb_set_pg_wflag(wb_pg, false);
 
   return wb_pg;
 
@@ -66,7 +66,7 @@ static void fb_wb_reset_free_pg(struct fb_wb *wb, struct fb_wb_pg_t *wb_pg) {
 
 static void fb_wb_set_writing_pg(struct fb_wb *wb, struct fb_wb_pg_t *wb_pg) {
   DL_APPEND(wb->writing_pgs, wb_pg);
-  fb_wb_set_pg_wflag(wb_pg, TRUE);
+  fb_wb_set_pg_wflag(wb_pg, true);
 }
 
 static struct fb_wb_pg_t *fb_wb_get_writing_pg(struct fb_wb *wb) {
@@ -75,7 +75,7 @@ static struct fb_wb_pg_t *fb_wb_get_writing_pg(struct fb_wb *wb) {
 
 static void fb_wb_reset_writing_pg(struct fb_wb *wb, struct fb_wb_pg_t *wb_pg) {
   DL_DELETE(wb->writing_pgs, wb_pg);
-  fb_wb_set_pg_wflag(wb_pg, FALSE);
+  fb_wb_set_pg_wflag(wb_pg, false);
 }
 
 static u32 fb_wb_set_buf_pg(struct fb_wb *wb, struct fb_wb_pg_t *wb_pg) {
@@ -178,14 +178,14 @@ void fb_destroy_write_buffer(struct fb_wb *wb) {
 static u32 fb_get_nr_pgs_in_wb(struct fb_wb *wb, int lock) {
   u32 ret;
 
-  if (lock == TRUE) {
+  if (lock == true) {
     wait_for_completion(&wb->wb_lock);
     reinit_completion(&wb->wb_lock);
   }
 
   ret = wb->nr_entries;
 
-  if (lock == TRUE) complete(&wb->wb_lock);
+  if (lock == true) complete(&wb->wb_lock);
 
   return ret;
 }
@@ -215,7 +215,7 @@ int fb_get_pgs_to_write(struct fb_wb *wb, u32 nr_pgs, u32 *lpas, u8 *dest) {
   wait_for_completion(&wb->wb_lock);
   reinit_completion(&wb->wb_lock);
 
-  if (fb_get_nr_pgs_in_wb(wb, FALSE) >= nr_pgs) {
+  if (fb_get_nr_pgs_in_wb(wb, false) >= nr_pgs) {
     for (i = 0; i < nr_pgs; i++) {
       wb_pg = fb_wb_get_buf_pg_head(wb);
       fb_wb_reset_buf_pg(wb, wb_pg);
@@ -245,7 +245,7 @@ int fb_put_pg(struct fb_wb *wb, u32 lpa, u8 *src) {
     fb_wb_set_pg_lpa(wb_pg, lpa);
     HASH_ADD(hh, wb->hash_pgs, lpa, sizeof(u32), wb_pg);
   } else {
-    if (fb_wb_get_pg_wflag(wb_pg) == TRUE)
+    if (fb_wb_get_pg_wflag(wb_pg) == true)
       fb_wb_reset_writing_pg(wb, wb_pg);
     else
       fb_wb_reset_buf_pg(wb, wb_pg);
@@ -276,7 +276,7 @@ void fb_rm_buf_pg(struct fb_wb *wb, u32 lpa) {
   struct fb_wb_pg_t *wb_pg;
 
   if ((wb_pg = fb_wb_get_buf_pg(wb, lpa)) != NULL) {
-    if (fb_wb_get_pg_wflag(wb_pg) == TRUE)
+    if (fb_wb_get_pg_wflag(wb_pg) == true)
       fb_wb_reset_writing_pg(wb, wb_pg);
     else
       fb_wb_reset_buf_pg(wb, wb_pg);

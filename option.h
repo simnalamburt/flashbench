@@ -1,6 +1,4 @@
 #pragma once
-#define TRUE 1
-#define FALSE 0
 #define WRITE_BUFFER_ENABLE
 #undef LOG_TIMING
 

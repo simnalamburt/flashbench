@@ -92,7 +92,7 @@ static struct fb_act_blk_mngr_t *create_act_blk_mngr(struct fb_context_t *fb) {
       }
 
       reset_free_blk(ssdi, blki);
-      set_act_blk_flag(blki, TRUE);
+      set_act_blk_flag(blki, true);
       abm->act_blks[bus * NUM_CHIPS_PER_BUS + chip] = blki;
     }
   }
@@ -412,12 +412,12 @@ static int is_fgc_needed(struct fb_context_t *fb, u8 bus, u8 chip) {
     for (bus_idx = bus; bus_idx < NUM_BUSES; bus_idx++) {
       if ((get_curr_gc_block(fb, bus, chip) == NULL) &&
           (get_free_block(get_ssd_inf(fb), bus, chip) == NULL)) {
-        return TRUE;
+        return true;
       }
     }
   }
 
-  return FALSE;
+  return false;
 }
 
 static int make_write_request_page_mapping(struct fb_context_t *fb, u32 *lpa,
@@ -433,7 +433,7 @@ static int make_write_request_page_mapping(struct fb_context_t *fb, u32 *lpa,
 
   get_next_bus_chip(fb, &bus, &chip);
   // Check foreground GC condition, check if the GC block is null
-  if (is_fgc_needed(fb, bus, chip) == TRUE) {
+  if (is_fgc_needed(fb, bus, chip) == true) {
     if (trigger_gc_page_mapping(fb) == -1) {
       printk(KERN_ERR "flashbench: fb_page_mapping: Foreground GC failed.\n");
       goto FAILED;
