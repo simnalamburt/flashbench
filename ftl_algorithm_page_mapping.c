@@ -1,9 +1,12 @@
+#include <linux/blk_types.h>
 #include <linux/slab.h>
 #include "linux_header_light.h"
 
 #include "ftl_algorithm_page_mapping.h"
+#include "ftl_algorithm_page_mapping_ex.h"
 #include "gc_page_mapping.h"
 #include "main.h"
+#include "main_ex.h"
 #include "page_mapping_function.h"
 #include "ssd_info.h"
 #include "util.h"

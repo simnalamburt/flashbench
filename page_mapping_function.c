@@ -1,6 +1,8 @@
 #include "page_mapping_function.h"
 #include "ftl_algorithm_page_mapping.h"
+#include "ftl_algorithm_page_mapping_ex.h"
 #include "main.h"
+#include "main_ex.h"
 #include "ssd_info.h"
 #include "vdevice.h"
 

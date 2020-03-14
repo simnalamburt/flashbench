@@ -4,6 +4,7 @@
 #include "linux_header_light.h"
 
 #include "main.h"
+#include "main_ex.h"
 #include "util.h"
 #include "vdevice.h"
 
