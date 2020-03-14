@@ -1,5 +1,5 @@
 # Build results
-/rust/target
+/rust/target/
 /*.mod.c
 /*.o
 /*.o.d
