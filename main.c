@@ -9,18 +9,14 @@
 #include "ssd_info.h"
 #include "util.h"
 #include "vdevice.h"
-#ifdef WRITE_BUFFER_ENABLE
 #include "write_buffer.h"
-#endif
 
 //
 // Prototypes
 //
-#ifdef WRITE_BUFFER_ENABLE
 static int fb_init_write_buffer_thread(void);
 static void fb_stop_write_buffer_thread(void);
 static int fb_write_buffer_thread(void *arg);
-#endif
 static void fb_init_bgc_ts(struct fb_context_t *fb);
 static u64 fb_get_time_in_us(void);
 static u64 fb_get_bgc_ts(struct fb_context_t *fb);
@@ -240,8 +236,8 @@ fb_init(void)  // __init: 해당 함수 혹은 변수가 초기화 과정에서�
     ret_value = -ENOMEM;
     goto FAIL_ALLOC_DISK;
   }
-// TODO GH
-#ifdef WRITE_BUFFER_ENABLE
+
+  // TODO GH
   if ((_fb->wb = fb_create_write_buffer(NUM_PAGES_IN_WRITE_BUFFER,
                                         LOGICAL_PAGE_SIZE)) == NULL) {
     printk(KERN_ERR "flashbench: Creating a write buffer failed.\n");
@@ -254,7 +250,6 @@ fb_init(void)  // __init: 해당 함수 혹은 변수가 초기화 과정에서�
     printk(KERN_ERR "flashbench: Creating write buffer thread failed.\n");
     goto FAIL_WRITE_BUFFER_THREAD;
   }
-#endif
 
   _fb->gd->major = _fb->device_major_num;
   _fb->gd->first_minor = 0;
@@ -268,7 +263,6 @@ fb_init(void)  // __init: 해당 함수 혹은 변수가 초기화 과정에서�
 
   return 0;
 
-#ifdef WRITE_BUFFER_ENABLE
 FAIL_WRITE_BUFFER_THREAD:
   if (_fb->wb != NULL) {
     fb_destroy_write_buffer(_fb->wb);
@@ -276,7 +270,6 @@ FAIL_WRITE_BUFFER_THREAD:
 
 FAIL_CREATE_WRITE_BUFFER:
   del_gendisk(_fb->gd);
-#endif
 
 FAIL_ALLOC_DISK:
   unregister_blkdev(_fb->device_major_num, DEV_NAME);
@@ -314,14 +307,12 @@ static void __exit fb_exit(void) {
   unregister_blkdev(_fb->device_major_num, DEV_NAME);
 
   blk_cleanup_queue(_fb->ptr_req_queue);
-#ifdef WRITE_BUFFER_ENABLE
   _fb->flag_enable_wb_thread = 0;
   fb_stop_write_buffer_thread();
 
   if (_fb->wb != NULL) {
     fb_destroy_write_buffer(_fb->wb);
   }
-#endif
 
   if (_fb->ptr_mapping_context != NULL) {
     destroy_mapping_context(_fb);
@@ -344,7 +335,6 @@ static void __exit fb_exit(void) {
   perf_exit();
 }
 
-#ifdef WRITE_BUFFER_ENABLE
 static int fb_init_write_buffer_thread(void) {
   int rc;
   int ret = 0;
@@ -431,7 +421,6 @@ FINISH:
 
   return 0;
 }
-#endif
 
 struct fb_wb *get_write_buffer(struct fb_context_t *fb) {
   return fb->wb;

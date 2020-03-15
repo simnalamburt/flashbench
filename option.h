@@ -1,5 +1,4 @@
 #pragma once
-#define WRITE_BUFFER_ENABLE
 #undef LOG_TIMING
 
 enum {
