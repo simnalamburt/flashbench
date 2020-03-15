@@ -1,7 +1,6 @@
 #include "linux_header_light.h"
 
 #include "ftl_algorithm_page_mapping.h"
-#include "ftl_algorithm_page_mapping_ex.h"
 #include "rust/libflashbench.h"
 #include "main.h"
 #include "page_mapping_function.h"

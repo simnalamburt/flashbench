@@ -1,7 +1,6 @@
 #include "ftl_algorithm_page_mapping.h"
-#include "ftl_algorithm_page_mapping_ex.h"
 #include "rust/libflashbench.h"
-#include "main_ex.h"
+#include "main.h"
 #include "ssd_info.h"
 
 u32 get_mapped_physical_address(struct fb_context_t *ptr_fb_context,

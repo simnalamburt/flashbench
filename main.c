@@ -7,7 +7,6 @@
 #include "ftl_algorithm_page_mapping.h"
 #include "rust/libflashbench.h"
 #include "main.h"
-#include "main_ex.h"
 #include "option.h"
 #include "ssd_info.h"
 #include "util.h"
