@@ -1,5 +1,4 @@
 #![no_std]
-#![register_tool(c2rust)]
 #![feature(core_intrinsics, extern_types, register_tool)]
 
 mod gc_page_mapping;
