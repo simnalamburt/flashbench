@@ -13,6 +13,7 @@ flashbench-objs := \
 	page_mapping_function.o \
 	page_mapping_function_rs.o \
 	gc_page_mapping.o \
+	gc_page_mapping_rs.o \
 	write_buffer.o \
 	bus_controller.o
 
