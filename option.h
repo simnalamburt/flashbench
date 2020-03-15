@@ -1,6 +1,4 @@
 #pragma once
-#undef LOG_TIMING
-
 enum {
   //
   // Parameterf for DEL manager

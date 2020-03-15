@@ -36,20 +36,6 @@ struct fb_bus_controller_t {
   struct task_struct *ptr_task;
 };
 
-#ifdef LOG_TIMING
-static u32 nr_timer_log_delay_records[NUM_BUSES] = {
-    0,
-};
-static u32 max_timer_log_delay_records = 1000000;
-static u32 timer_log_delay_records[NUM_BUSES][1000000];
-
-static u32 nr_timer_log_resp_records[NUM_BUSES] = {
-    0,
-};
-static u32 max_timer_log_resp_records = 1000000;
-static u32 timer_log_resp_records[NUM_BUSES][1000000];
-#endif
-
 // ---------------- prototypes of static functions: bus controller
 // ----------------------------
 // Creating an bus controller for a bus
@@ -115,10 +101,6 @@ static int chip_status_busy(struct fb_bus_controller_t *ptr_bus_controller,
 static u32 get_chip_wakeup_time(struct fb_bus_controller_t *ptr_bus_controller,
                                 u32 chip);
 
-#ifdef LOG_TIMING
-static u32 get_chip_issue_time(struct fb_bus_controller_t *ptr_bus_controller,
-                               u32 chip);
-#endif
 
 // ----------------- Public functions ----------------------------------------
 // Creating and initialize bus controllers in the virtual device structure
@@ -386,20 +368,6 @@ static int fb_bus_ctrl_thread(void *arg) {
                get_chip_wakeup_time(ptr_bus_controller, loop_chip)) > 0) {
         // Check the condition
         if (wakeup_time_in_us <= current_time_in_us) {
-#ifdef LOG_TIMING
-          if (nr_timer_log_delay_records[bus] < max_timer_log_delay_records) {
-            timer_log_delay_records[bus][nr_timer_log_delay_records[bus]] =
-                current_time_in_us - wakeup_time_in_us;
-            nr_timer_log_delay_records[bus]++;
-          }
-
-          if (nr_timer_log_resp_records[bus] < max_timer_log_resp_records) {
-            timer_log_resp_records[bus][nr_timer_log_resp_records[bus]] =
-                current_time_in_us -
-                get_chip_issue_time(ptr_bus_controller, loop_chip);
-            nr_timer_log_resp_records[bus]++;
-          }
-#endif
           // Release lock
           // If ptr_fb_bio for the chip is not null, the request count
           // decreases.
@@ -478,27 +446,6 @@ static int fb_init_bus_ctrl_thread(
 
 static void fb_stop_bus_ctrl_thread(
     struct fb_bus_controller_t *ptr_bus_controller) {
-#ifdef LOG_TIMING
-  int i;
-  u32 bus = ptr_bus_controller->num_bus;
-
-  char dest[512];
-  char src[128];
-
-  sprintf(dest, "/var/log/flashbench/delay_%d.log", bus);
-
-  for (i = 0; i < nr_timer_log_delay_records[bus]; i++) {
-    sprintf(src, "%d\n", timer_log_delay_records[bus][i]);
-    fb_file_log(dest, src);
-  }
-
-  sprintf(dest, "/var/log/flashbench/resp_%d.log", bus);
-
-  for (i = 0; i < nr_timer_log_resp_records[bus]; i++) {
-    sprintf(src, "%d\n", timer_log_resp_records[bus][i]);
-    fb_file_log(dest, src);
-  }
-#endif
   if (ptr_bus_controller->ptr_task != NULL) {
     kthread_stop(ptr_bus_controller->ptr_task);
   }
@@ -726,10 +673,3 @@ static u32 get_chip_wakeup_time(struct fb_bus_controller_t *ptr_bus_controller,
                                 u32 chip) {
   return ptr_bus_controller->chip_busies[chip].wakeup_time_in_us;
 }
-
-#ifdef LOG_TIMING
-static u32 get_chip_issue_time(struct fb_bus_controller_t *ptr_bus_controller,
-                               u32 chip) {
-  return ptr_bus_controller->chip_busies[chip].issue_time_in_us;
-}
-#endif
