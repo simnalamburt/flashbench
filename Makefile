@@ -33,7 +33,7 @@ clean:
 #
 $(src)/rust/target/x86_64-linux-kernel/release/libflashbench.a: $(src)/rust/Cargo.toml $(wildcard $(src)/rust/src/*.rs)
 	cd $(src)/rust &&\
-	  env -u MAKE -u MAKEFLAGS cargo +nightly build --release -Z build-std=core
+	  env -u MAKE -u MAKEFLAGS cargo +nightly xbuild --release
 
 %.rust.o: rust/target/x86_64-linux-kernel/release/lib%.a
 	$(LD) -r -o $@ --whole-archive $<
