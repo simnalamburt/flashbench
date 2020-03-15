@@ -9,7 +9,8 @@
 __attribute__((format(printf, 1, 2))) __attribute__((__cold__)) int printk(
     const char *fmt, ...);
 #ifndef KERN_ERR
-// NOTE: 이 매크로는 c2rust에 의해 못생기게 트랜스파일되는것을 감수하고 *_ex.h 에 두지 않기로했음
+// NOTE: 이 매크로는 c2rust에 의해 못생기게 트랜스파일되는것을 감수하고 *_ex.h
+// 에 두지 않기로했음
 #define KERN_ERR "\0013"
 #endif
 

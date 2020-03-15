@@ -1,4 +1,6 @@
 #pragma once
+#include "rust/libflashbench.h"
+
 enum {
   //
   // Parameterf for DEL manager
@@ -11,11 +13,6 @@ enum {
   //
   // Hardware configuration
   //
-  NUM_BUSES = 1,
-  NUM_CHIPS_PER_BUS = 2,
-  NUM_BLOCKS_PER_CHIP = 171,
-  NUM_PAGES_PER_BLOCK = 16 * 4 * 3,  // v-layer * h-layer * multi-level degree
-
   CFACTOR_PERCENT = 90,
   NR_LP_IN_PP = 4,
   LP_PAGE_MASK = 0x3,

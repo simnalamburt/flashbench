@@ -2,10 +2,9 @@
 
 #include "ftl_algorithm_page_mapping.h"
 #include "ftl_algorithm_page_mapping_ex.h"
-#include "gc_page_mapping_rs.h"
+#include "rust/libflashbench.h"
 #include "main.h"
 #include "page_mapping_function.h"
-#include "page_mapping_function_rs.h"
 #include "util.h"
 
 int trigger_bg_gc(struct fb_context_t *fb) {

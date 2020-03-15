@@ -3,10 +3,10 @@
 #include <linux/slab.h>
 #include "linux_header_light.h"
 
+#include "rust/libflashbench.h"
 #include "main.h"
 #include "main_ex.h"
 #include "util.h"
-#include "vdevice_rs.h"
 
 struct fb_operation_t {
   u32 operation;
@@ -101,7 +101,6 @@ static int chip_status_busy(struct fb_bus_controller_t *ptr_bus_controller,
 
 static u32 get_chip_wakeup_time(struct fb_bus_controller_t *ptr_bus_controller,
                                 u32 chip);
-
 
 // ----------------- Public functions ----------------------------------------
 // Creating and initialize bus controllers in the virtual device structure

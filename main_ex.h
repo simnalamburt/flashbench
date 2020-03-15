@@ -1,6 +1,6 @@
 #pragma once
 #include <linux/completion.h>
-#include "main.h" // NR_MAX_REQ_BIO
+#include "main.h"  // NR_MAX_REQ_BIO
 
 struct bio;
 struct fb_lbs_mngr_t;

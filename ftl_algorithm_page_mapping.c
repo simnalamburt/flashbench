@@ -5,14 +5,13 @@
 #include "ftl_algorithm_page_mapping.h"
 #include "ftl_algorithm_page_mapping_ex.h"
 #include "gc_page_mapping.h"
-#include "gc_page_mapping_rs.h"
+#include "rust/libflashbench.h"
 #include "main.h"
 #include "main_ex.h"
+#include "option.h"
 #include "page_mapping_function.h"
-#include "page_mapping_function_rs.h"
 #include "ssd_info.h"
 #include "util.h"
-#include "vdevice_rs.h"
 #include "write_buffer.h"
 
 struct fb_btod_t {  // block to del

@@ -1,9 +1,8 @@
 #include "ftl_algorithm_page_mapping.h"
 #include "ftl_algorithm_page_mapping_ex.h"
+#include "rust/libflashbench.h"
 #include "main_ex.h"
 #include "ssd_info.h"
-#include "vdevice_rs.h"
-
 
 u32 get_mapped_physical_address(struct fb_context_t *ptr_fb_context,
                                 u32 logical_page_address, u32 *ptr_bus,
@@ -59,8 +58,7 @@ u32 get_mapped_ppa(struct page_mapping_context_t *ftl, u32 lpa) {
   return ftl->ptr_mapping_table->mappings[lpa];
 }
 
-void set_mapped_ppa(struct page_mapping_context_t *ftl, u32 lpa,
-                           u32 ppa) {
+void set_mapped_ppa(struct page_mapping_context_t *ftl, u32 lpa, u32 ppa) {
   ftl->ptr_mapping_table->mappings[lpa] = ppa;
 }
 
