@@ -1,9 +1,10 @@
+#include <linux/bio.h>
 #include <linux/freezer.h>
 #include <linux/kthread.h>
 #include <linux/slab.h>
-#include "linux_header_light.h"
-
+#include <linux/vmalloc.h>
 #include "rust/libflashbench.h"
+
 #include "main.h"
 #include "util.h"
 

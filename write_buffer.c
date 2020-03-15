@@ -1,8 +1,8 @@
 #include <linux/slab.h>
-#include "linux_header_light.h"
+#include <linux/vmalloc.h>
+#include "uthash/utlist.h"
 
 #include "option.h"
-#include "uthash/utlist.h"
 #include "write_buffer.h"
 
 static u32 fb_get_nr_pgs_in_wb(struct fb_wb *wb, int lock);

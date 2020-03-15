@@ -1,5 +1,6 @@
-#include "ftl_algorithm_page_mapping.h"
 #include "rust/libflashbench.h"
+
+#include "ftl_algorithm_page_mapping.h"
 #include "main.h"
 #include "ssd_info.h"
 

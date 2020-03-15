@@ -1,9 +1,9 @@
 #include <linux/slab.h>
+#include "uthash/utlist.h"
 
 #include "ftl_algorithm_page_mapping.h"
 #include "option.h"
 #include "ssd_info.h"
-#include "uthash/utlist.h"
 
 #define IDLE 0
 
