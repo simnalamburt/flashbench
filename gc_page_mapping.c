@@ -5,6 +5,7 @@
 #include "gc_page_mapping.h"
 #include "main.h"
 #include "page_mapping_function.h"
+#include "page_mapping_function_rs.h"
 #include "ssd_info.h"
 #include "uthash/utlist.h"
 #include "util.h"

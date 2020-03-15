@@ -8,6 +8,7 @@
 #include "main.h"
 #include "main_ex.h"
 #include "page_mapping_function.h"
+#include "page_mapping_function_rs.h"
 #include "ssd_info.h"
 #include "util.h"
 #include "vdevice_rs.h"

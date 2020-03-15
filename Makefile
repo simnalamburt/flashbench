@@ -11,6 +11,7 @@ flashbench-objs := \
 	ssd_info.o \
 	ftl_algorithm_page_mapping.o \
 	page_mapping_function.o \
+	page_mapping_function_rs.o \
 	gc_page_mapping.o \
 	write_buffer.o \
 	bus_controller.o
