@@ -1,7 +1,8 @@
 #![allow(dead_code, mutable_transmutes, non_camel_case_types, non_snake_case,
          non_upper_case_globals, unused_assignments, unused_mut)]
-#![register_tool(c2rust)]
-#![feature(extern_types, register_tool)]
+
+use linux_types as libc;
+
 extern "C" {
     pub type fb_bus_controller_t;
     pub type fb_bio_t;
@@ -113,7 +114,7 @@ pub unsafe extern "C" fn create_vdevice() -> *mut vdevice_t {
     let mut page_loop: u64_0 = 0;
     let mut bus_capacity: u64_0 = 0;
     ptr_vdevice =
-        vmalloc(::std::mem::size_of::<vdevice_t>() as libc::c_ulong) as
+        vmalloc(::core::mem::size_of::<vdevice_t>() as libc::c_ulong) as
             *mut vdevice_t;
     if ptr_vdevice.is_null() {
         printk(b"\x013flashbench: Allocating virtual device structure failed.\n\x00"
@@ -148,7 +149,7 @@ pub unsafe extern "C" fn create_vdevice() -> *mut vdevice_t {
                 break ;
             }
             (*ptr_vdevice).ptr_vdisk[bus_loop as usize] =
-                vmalloc((::std::mem::size_of::<u8_0>() as libc::c_ulong as
+                vmalloc((::core::mem::size_of::<u8_0>() as libc::c_ulong as
                              libc::c_ulonglong).wrapping_mul(bus_capacity) as
                             libc::c_ulong) as *mut u8_0;
             if (*ptr_vdevice).ptr_vdisk[bus_loop as usize].is_null() {

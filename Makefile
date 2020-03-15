@@ -7,13 +7,10 @@ flashbench-objs := \
 	main.o \
 	flashbench.rust.o \
 	util.o \
-	vdevice_rs.o \
 	ssd_info.o \
 	ftl_algorithm_page_mapping.o \
 	page_mapping_function.o \
-	page_mapping_function_rs.o \
 	gc_page_mapping.o \
-	gc_page_mapping_rs.o \
 	write_buffer.o \
 	bus_controller.o
 

@@ -1,7 +1,8 @@
 #![allow(dead_code, mutable_transmutes, non_camel_case_types, non_snake_case,
          non_upper_case_globals, unused_assignments, unused_mut)]
-#![register_tool(c2rust)]
-#![feature(extern_types, register_tool)]
+
+use linux_types as libc;
+
 extern "C" {
     pub type flash_page;
     pub type fb_context_t;
@@ -566,14 +567,14 @@ pub unsafe extern "C" fn create_gc_mngr(mut fb: *mut fb_context_t)
     let mut bus: u32_0 = 0;
     let mut chip: u32_0 = 0;
     gcm =
-        vmalloc(::std::mem::size_of::<fb_gc_mngr_t>() as libc::c_ulong) as
+        vmalloc(::core::mem::size_of::<fb_gc_mngr_t>() as libc::c_ulong) as
             *mut fb_gc_mngr_t;
     if gcm.is_null() {
         printk(b"\x013flashbench: Allocating GC manager failed.\n\x00" as
                    *const u8 as *const libc::c_char);
     } else {
         (*gcm).gc_blks =
-            vmalloc((::std::mem::size_of::<*mut flash_block>() as
+            vmalloc((::core::mem::size_of::<*mut flash_block>() as
                          libc::c_ulong).wrapping_mul(NUM_CHIPS as libc::c_int
                                                          as libc::c_ulong)) as
                 *mut *mut flash_block;
@@ -582,7 +583,7 @@ pub unsafe extern "C" fn create_gc_mngr(mut fb: *mut fb_context_t)
                        as *const u8 as *const libc::c_char);
         } else {
             (*gcm).vic_blks =
-                vmalloc((::std::mem::size_of::<*mut flash_block>() as
+                vmalloc((::core::mem::size_of::<*mut flash_block>() as
                              libc::c_ulong).wrapping_mul(NUM_CHIPS as
                                                              libc::c_int as
                                                              libc::c_ulong))
@@ -592,7 +593,7 @@ pub unsafe extern "C" fn create_gc_mngr(mut fb: *mut fb_context_t)
                            as *const u8 as *const libc::c_char);
             } else {
                 (*gcm).lpas_to_copy =
-                    vmalloc((::std::mem::size_of::<u32_0>() as
+                    vmalloc((::core::mem::size_of::<u32_0>() as
                                  libc::c_ulong).wrapping_mul(NUM_CHIPS as
                                                                  libc::c_int
                                                                  as
@@ -611,7 +612,7 @@ pub unsafe extern "C" fn create_gc_mngr(mut fb: *mut fb_context_t)
                                as *const u8 as *const libc::c_char);
                 } else {
                     (*gcm).data_to_copy =
-                        vmalloc((::std::mem::size_of::<u32_0>() as
+                        vmalloc((::core::mem::size_of::<u32_0>() as
                                      libc::c_ulong).wrapping_mul(NUM_CHIPS as
                                                                      libc::c_int
                                                                      as
@@ -634,7 +635,7 @@ pub unsafe extern "C" fn create_gc_mngr(mut fb: *mut fb_context_t)
                                    as *const u8 as *const libc::c_char);
                     } else {
                         (*gcm).first_valid_pg =
-                            vmalloc((::std::mem::size_of::<u32_0>() as
+                            vmalloc((::core::mem::size_of::<u32_0>() as
                                          libc::c_ulong).wrapping_mul(NUM_CHIPS
                                                                          as
                                                                          libc::c_int

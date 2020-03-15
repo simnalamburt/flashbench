@@ -1,7 +1,8 @@
 #![allow(dead_code, mutable_transmutes, non_camel_case_types, non_snake_case,
          non_upper_case_globals, unused_assignments, unused_mut)]
-#![register_tool(c2rust)]
-#![feature(extern_types, register_tool)]
+
+use linux_types as libc;
+
 extern "C" {
     pub type fb_context_t;
     pub type page_mapping_context_t;

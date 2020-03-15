@@ -1,10 +1,14 @@
 #![no_std]
-#![feature(core_intrinsics)]
+#![register_tool(c2rust)]
+#![feature(core_intrinsics, extern_types, register_tool)]
 
-extern {
-}
+mod gc_page_mapping;
+mod page_mapping_function;
+mod vdevice;
 
-// TODO: Let's implement something!
+pub use gc_page_mapping::*;
+pub use page_mapping_function::*;
+pub use vdevice::*;
 
 /// Abort on panic
 ///
