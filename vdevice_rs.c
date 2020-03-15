@@ -1,7 +1,7 @@
 #include "linux_header_light.h"
 
 #include "bus_controller.h"
-#include "vdevice.h"
+#include "vdevice_rs.h"
 
 struct vdevice_t *create_vdevice(void) {
   struct vdevice_t *ptr_vdevice = NULL;

@@ -6,7 +6,7 @@
 #include "main.h"
 #include "main_ex.h"
 #include "util.h"
-#include "vdevice.h"
+#include "vdevice_rs.h"
 
 struct fb_operation_t {
   u32 operation;

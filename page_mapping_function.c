@@ -4,7 +4,7 @@
 #include "main.h"
 #include "main_ex.h"
 #include "ssd_info.h"
-#include "vdevice.h"
+#include "vdevice_rs.h"
 
 int __map_logical_to_physical(struct fb_context_t *ptr_fb_context,
                               u32 logical_page_address, u32 bus, u32 chip,

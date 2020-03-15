@@ -9,7 +9,7 @@
 #include "main_ex.h"
 #include "ssd_info.h"
 #include "util.h"
-#include "vdevice.h"
+#include "vdevice_rs.h"
 #include "write_buffer.h"
 
 //

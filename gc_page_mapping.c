@@ -8,7 +8,7 @@
 #include "ssd_info.h"
 #include "uthash/utlist.h"
 #include "util.h"
-#include "vdevice.h"
+#include "vdevice_rs.h"
 
 static void init_gcm(struct fb_gc_mngr_t *gcm) { gcm->nr_pgs_to_copy = 0; }
 
