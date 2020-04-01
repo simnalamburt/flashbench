@@ -1,6 +1,8 @@
 #![allow(dead_code, mutable_transmutes, non_camel_case_types, non_snake_case,
          non_upper_case_globals, unused_assignments, unused_mut)]
 
+use core::ffi::c_void;
+
 extern "C" {
     pub type flash_page;
     pub type fb_context_t;
@@ -18,9 +20,9 @@ extern "C" {
     fn printk(fmt: *const i8, _: ...) -> i32;
     // linux/vmalloc.h
     #[no_mangle]
-    fn vmalloc(size: u64) -> *mut core::ffi::c_void;
+    fn vmalloc(size: u64) -> *mut c_void;
     #[no_mangle]
-    fn vfree(addr: *const core::ffi::c_void);
+    fn vfree(addr: *const c_void);
     #[no_mangle]
     fn get_gcm(ftl: *mut page_mapping_context_t) -> *mut fb_gc_mngr_t;
     #[no_mangle]
@@ -30,7 +32,7 @@ extern "C" {
     #[no_mangle]
     fn get_vdev(fb: *mut fb_context_t) -> *mut vdevice_t;
     #[no_mangle]
-    fn get_ftl(fb: *mut fb_context_t) -> *mut core::ffi::c_void;
+    fn get_ftl(fb: *mut fb_context_t) -> *mut c_void;
     #[no_mangle]
     fn set_prev_bus_chip(ptr_fb_context: *mut fb_context_t, bus: u8, chip: u8);
     #[no_mangle]
@@ -714,18 +716,18 @@ pub unsafe extern "C" fn create_gc_mngr(mut fb: *mut fb_context_t) -> *mut fb_gc
 pub unsafe extern "C" fn destroy_gc_mngr(mut gcm: *mut fb_gc_mngr_t) {
     if !gcm.is_null() {
         if !(*gcm).gc_blks.is_null() {
-            vfree((*gcm).gc_blks as *const core::ffi::c_void);
+            vfree((*gcm).gc_blks as *const c_void);
         }
         if !(*gcm).vic_blks.is_null() {
-            vfree((*gcm).vic_blks as *const core::ffi::c_void);
+            vfree((*gcm).vic_blks as *const c_void);
         }
         if !(*gcm).lpas_to_copy.is_null() {
-            vfree((*gcm).lpas_to_copy as *const core::ffi::c_void);
+            vfree((*gcm).lpas_to_copy as *const c_void);
         }
         if !(*gcm).data_to_copy.is_null() {
-            vfree((*gcm).data_to_copy as *const core::ffi::c_void);
+            vfree((*gcm).data_to_copy as *const c_void);
         }
-        vfree(gcm as *const core::ffi::c_void);
+        vfree(gcm as *const c_void);
     };
 }
 #[no_mangle]

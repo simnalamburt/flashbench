@@ -1,19 +1,21 @@
 #![allow(dead_code, mutable_transmutes, non_camel_case_types, non_snake_case,
          non_upper_case_globals, unused_assignments, unused_mut)]
 
+use core::ffi::c_void;
+
 extern "C" {
     pub type fb_bus_controller_t;
     pub type fb_bio_t;
     #[no_mangle]
     fn printk(fmt: *const i8, _: ...) -> i32;
     #[no_mangle]
-    fn memset(_: *mut core::ffi::c_void, _: i32, _: u64) -> *mut core::ffi::c_void;
+    fn memset(_: *mut c_void, _: i32, _: u64) -> *mut c_void;
     #[no_mangle]
-    fn memcpy(_: *mut core::ffi::c_void, _: *const core::ffi::c_void, _: u64) -> *mut core::ffi::c_void;
+    fn memcpy(_: *mut c_void, _: *const c_void, _: u64) -> *mut c_void;
     #[no_mangle]
-    fn vmalloc(size: u64) -> *mut core::ffi::c_void;
+    fn vmalloc(size: u64) -> *mut c_void;
     #[no_mangle]
-    fn vfree(addr: *const core::ffi::c_void);
+    fn vfree(addr: *const c_void);
     #[no_mangle]
     fn fb_bus_controller_init(
         ptr_vdevice: *mut vdevice_t,
@@ -215,7 +217,7 @@ pub unsafe extern "C" fn create_vdevice() -> *mut vdevice_t {
             _ => {}
         }
         if !ptr_vdevice.is_null() {
-            vfree(ptr_vdevice as *const core::ffi::c_void);
+            vfree(ptr_vdevice as *const c_void);
         }
     }
     return 0 as *mut vdevice_t;
@@ -228,11 +230,11 @@ pub unsafe extern "C" fn destroy_vdevice(mut ptr_vdevice: *mut vdevice_t) {
         loop_bus = 0 as i32 as u32;
         while loop_bus < NUM_BUSES as i32 as u32 {
             if !(*ptr_vdevice).ptr_vdisk[loop_bus as usize].is_null() {
-                vfree((*ptr_vdevice).ptr_vdisk[loop_bus as usize] as *const core::ffi::c_void);
+                vfree((*ptr_vdevice).ptr_vdisk[loop_bus as usize] as *const c_void);
             }
             loop_bus = loop_bus.wrapping_add(1)
         }
-        vfree(ptr_vdevice as *const core::ffi::c_void);
+        vfree(ptr_vdevice as *const c_void);
     };
 }
 #[no_mangle]
@@ -256,8 +258,8 @@ pub unsafe extern "C" fn vdevice_read(
     while (lp_loop as i32) < NR_LP_IN_PP as i32 {
         if *page_bitmap.offset(lp_loop as isize) as i32 == 1 as i32 {
             memcpy(
-                ptr_curr as *mut core::ffi::c_void,
-                ptr_src as *const core::ffi::c_void,
+                ptr_curr as *mut c_void,
+                ptr_src as *const c_void,
                 LOGICAL_PAGE_SIZE as i32 as u64,
             );
             ptr_curr = ptr_curr.offset(LOGICAL_PAGE_SIZE as i32 as isize)
@@ -287,8 +289,8 @@ pub unsafe extern "C" fn vdevice_write(
         .pages[page as usize]
         .ptr_data;
     memcpy(
-        ptr_dest as *mut core::ffi::c_void,
-        ptr_src as *const core::ffi::c_void,
+        ptr_dest as *mut c_void,
+        ptr_src as *const c_void,
         PHYSICAL_PAGE_SIZE as i32 as u64,
     );
     fb_issue_operation(
@@ -311,7 +313,7 @@ pub unsafe extern "C" fn vdevice_erase(
         .pages[0 as i32 as usize]
         .ptr_data;
     memset(
-        ptr_dest as *mut core::ffi::c_void,
+        ptr_dest as *mut c_void,
         0xff as i32,
         (NUM_PAGES_PER_BLOCK as i32 * PHYSICAL_PAGE_SIZE as i32) as u64,
     );

@@ -1,6 +1,8 @@
 #![allow(dead_code, mutable_transmutes, non_camel_case_types, non_snake_case,
          non_upper_case_globals, unused_assignments, unused_mut)]
 
+use core::ffi::c_void;
+
 extern "C" {
     pub type fb_context_t;
     pub type page_mapping_context_t;
@@ -41,7 +43,7 @@ extern "C" {
     #[no_mangle]
     fn get_ssd_inf(fb: *mut fb_context_t) -> *mut ssd_info;
     #[no_mangle]
-    fn get_ftl(fb: *mut fb_context_t) -> *mut core::ffi::c_void;
+    fn get_ftl(fb: *mut fb_context_t) -> *mut c_void;
     #[no_mangle]
     fn set_mapped_lpa(pgi: *mut flash_page, ofs: u8, lpa: u32);
     #[no_mangle]
