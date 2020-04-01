@@ -1,10 +1,8 @@
-#![allow(mutable_transmutes, non_camel_case_types, non_snake_case, non_upper_case_globals)]
-
 use core::ffi::c_void;
 
 pub const PAGE_UNMAPPED: i32 = -1;
 
-pub type fb_pg_status_t = u32;
+#[allow(non_camel_case_types)] pub type fb_pg_status_t = u32;
 //pub const PAGE_STATUS_FREE: fb_pg_status_t = 0;
 pub const PAGE_STATUS_VALID: fb_pg_status_t = 1;
 pub const PAGE_STATUS_INVALID: fb_pg_status_t = 2;

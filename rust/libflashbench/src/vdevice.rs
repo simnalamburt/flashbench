@@ -1,5 +1,3 @@
-#![allow(mutable_transmutes, non_camel_case_types, non_snake_case, non_upper_case_globals)]
-
 use core::ffi::c_void;
 
 pub const NUM_MAX_ENTRIES_OPR_QUEUE: u32 = 4;
@@ -32,7 +30,7 @@ pub const NUM_CHIPS_PER_BUS: u32 = 2;
 //
 pub const NUM_BUSES: u32 = 1;
 
-pub type fb_dev_op_t = u32;
+#[allow(non_camel_case_types)] pub type fb_dev_op_t = u32;
 pub const OP_BERS: fb_dev_op_t = 4;
 pub const OP_BLOCK: fb_dev_op_t = 3;
 pub const OP_PLOCK: fb_dev_op_t = 2;
