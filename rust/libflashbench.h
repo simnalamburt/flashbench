@@ -12,20 +12,20 @@ struct flash_block;
 //
 struct fb_gc_mngr_t *create_gc_mngr(struct fb_context_t *fb);
 void destroy_gc_mngr(struct fb_gc_mngr_t *gcm);
-int trigger_gc_page_mapping(struct fb_context_t *ptr_fb_context);
+s32 trigger_gc_page_mapping(struct fb_context_t *ptr_fb_context);
 void init_gcm(struct fb_gc_mngr_t *gcm);
-int update_gc_blks(struct fb_context_t *fb);
-int fb_bgc_prepare_act_blks(struct fb_context_t *fb);
-int fb_bgc_set_vic_blks(struct fb_context_t *fb);
-int fb_bgc_read_valid_pgs(struct fb_context_t *fb);
-int prog_valid_pgs_to_gc_blks(struct fb_context_t *fb);
+s32 update_gc_blks(struct fb_context_t *fb);
+s32 fb_bgc_prepare_act_blks(struct fb_context_t *fb);
+s32 fb_bgc_set_vic_blks(struct fb_context_t *fb);
+s32 fb_bgc_read_valid_pgs(struct fb_context_t *fb);
+s32 prog_valid_pgs_to_gc_blks(struct fb_context_t *fb);
 
 //
 // page_mapping_function
 //
-int alloc_new_page(struct fb_context_t *ptr_fb_context, u8 bus, u8 chip,
+s32 alloc_new_page(struct fb_context_t *ptr_fb_context, u8 bus, u8 chip,
                    u32 *ptr_block, u32 *ptr_page);
-int map_logical_to_physical(struct fb_context_t *ptr_fb_context,
+s32 map_logical_to_physical(struct fb_context_t *ptr_fb_context,
                             u32 *logical_page_address, u32 bus, u32 chip,
                             u32 block, u32 page);
 void update_act_blk(struct fb_context_t *fb, u8 bus, u8 chip);
@@ -73,7 +73,7 @@ void vdevice_write(struct vdevice_t *ptr_vdevice, u8 bus, u8 chip, u32 block,
                    u32 page, const u8 *ptr_src, struct fb_bio_t *ptr_fb_bio);
 void vdevice_erase(struct vdevice_t *ptr_vdevice, u8 bus, u8 chip, u32 block,
                    struct fb_bio_t *ptr_fb_bio);
-int is_valid_address_range(u32 logical_page_address);
+s32 is_valid_address_range(u32 logical_page_address);
 u32 convert_to_physical_address(u32 bus, u32 chip, u32 block, u32 page);
 void convert_to_ssd_layout(u32 logical_page_address, u32 *ptr_bus,
                            u32 *ptr_chip, u32 *ptr_block, u32 *ptr_page);
