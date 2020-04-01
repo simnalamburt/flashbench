@@ -6,6 +6,8 @@ edition = "2018"
 
 [lib]
 crate-type = ["staticlib"]
+test = false
+bench = false
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
