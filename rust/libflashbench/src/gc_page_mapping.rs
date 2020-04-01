@@ -1,5 +1,5 @@
 #![allow(dead_code, mutable_transmutes, non_camel_case_types, non_snake_case,
-         non_upper_case_globals, unused_assignments)]
+         non_upper_case_globals)]
 
 use core::ffi::c_void;
 
@@ -297,8 +297,8 @@ unsafe extern "C" fn set_vic_blk(
     *fresh0 = blki;
 }
 unsafe extern "C" fn find_first_valid_pg(blki: *mut flash_block, start_pg: u32) -> u32 {
-    let mut pgi: *mut flash_page = 0 as *mut flash_page;
-    let mut pg: u32 = 0;
+    let mut pgi: *mut flash_page;
+    let mut pg: u32;
     pg = start_pg;
     while pg < NUM_PAGES_PER_BLOCK as i32 as u32 {
         pgi = get_pgi_from_blki(blki, pg);
@@ -336,9 +336,9 @@ unsafe extern "C" fn select_vic_blk_from_used(
     chip: u32,
 ) -> *mut flash_block {
     let mut vic_blki: *mut flash_block = 0 as *mut flash_block;
-    let mut blki: *mut flash_block = 0 as *mut flash_block;
+    let mut blki: *mut flash_block;
     let mut nr_max_invalid_lpgs: u32 = 0 as i32 as u32;
-    let mut nr_invalid_lpgs: u32 = 0;
+    let mut nr_invalid_lpgs: u32;
     blki = get_used_block(ssdi, bus, chip);
     while !blki.is_null() {
         nr_invalid_lpgs = get_nr_invalid_lps_in_blk(blki);
@@ -355,10 +355,10 @@ unsafe extern "C" fn select_vic_blk_greedy(
     bus: u32,
     chip: u32,
 ) -> *mut flash_block {
-    let mut vic_blki: *mut flash_block = 0 as *mut flash_block;
-    let mut blki: *mut flash_block = 0 as *mut flash_block;
+    let mut vic_blki: *mut flash_block;
+    let mut blki: *mut flash_block;
     let mut nr_max_invalid_lpgs: u32 = 0 as i32 as u32;
-    let mut nr_invalid_lpgs: u32 = 0;
+    let mut nr_invalid_lpgs: u32;
     vic_blki = get_dirt_block(ssdi, bus, chip);
     if !vic_blki.is_null() {
         return vic_blki;
@@ -378,9 +378,9 @@ unsafe extern "C" fn set_vic_blks(fb: *mut fb_context_t) -> i32 {
     let ftl: *mut page_mapping_context_t = get_ftl(fb) as *mut page_mapping_context_t;
     let mut gcm: *mut fb_gc_mngr_t = get_gcm(ftl);
     let ssdi: *mut ssd_info = get_ssd_inf(fb);
-    let mut blki: *mut flash_block = 0 as *mut flash_block;
-    let mut bus: u32 = 0;
-    let mut chip: u32 = 0;
+    let mut blki: *mut flash_block;
+    let mut bus: u32;
+    let mut chip: u32;
     bus = 0 as i32 as u32;
     while bus < NUM_BUSES as i32 as u32 {
         chip = 0 as i32 as u32;
@@ -421,17 +421,17 @@ unsafe extern "C" fn get_valid_pgs_in_vic_blks(fb: *mut fb_context_t) {
     let ftl: *mut page_mapping_context_t = get_ftl(fb) as *mut page_mapping_context_t;
     let gcm: *mut fb_gc_mngr_t = get_gcm(ftl);
     let vdev: *mut vdevice_t = get_vdev(fb);
-    let mut blki: *mut flash_block = 0 as *mut flash_block;
-    let mut pgi: *mut flash_page = 0 as *mut flash_page;
+    let mut blki: *mut flash_block;
+    let mut pgi: *mut flash_page;
     let mut nr_read_pgs: u32 = 0 as i32 as u32;
     let mut ptr_lpa: *mut u32 = (*gcm).lpas_to_copy;
     let mut ptr_data: *mut u8 = (*gcm).data_to_copy;
     let mut lp_bitmap: [u8; 4] = [0; 4];
-    let mut bus: u8 = 0;
-    let mut chip: u8 = 0;
-    let mut pg: u32 = 0;
-    let mut lp: u32 = 0;
-    let mut nr_pgs_to_read: u32 = 0;
+    let mut bus: u8;
+    let mut chip: u8;
+    let mut pg: u32;
+    let mut lp: u32;
+    let mut nr_pgs_to_read;
     while (*gcm).nr_pgs_to_copy > nr_read_pgs {
         pg = 0 as i32 as u32;
         while pg < NUM_PAGES_PER_BLOCK as i32 as u32 {
@@ -498,7 +498,7 @@ pub unsafe extern "C" fn prog_valid_pgs_to_gc_blks(fb: *mut fb_context_t) -> i32
     let mut chip: u8 = 0;
     let mut blk: u32 = 0;
     let mut pg: u32 = 0;
-    let mut lp: u32 = 0;
+    let mut lp: u32;
     while nr_pgs_to_prog > 0 as i32 {
         get_next_bus_chip(fb, &mut bus, &mut chip);
         if alloc_new_page(fb, bus, chip, &mut blk, &mut pg) == -(1 as i32) {
@@ -537,9 +537,9 @@ pub unsafe extern "C" fn prog_valid_pgs_to_gc_blks(fb: *mut fb_context_t) -> i32
 }
 unsafe extern "C" fn prepare_act_blks(fb: *mut fb_context_t) -> i32 {
     let vdev: *mut vdevice_t = get_vdev(fb);
-    let mut blki: *mut flash_block = 0 as *mut flash_block;
-    let mut bus: u8 = 0;
-    let mut chip: u8 = 0;
+    let mut blki: *mut flash_block;
+    let mut bus: u8;
+    let mut chip: u8;
     chip = 0 as i32 as u8;
     while (chip as i32) < NUM_CHIPS_PER_BUS as i32 {
         bus = 0 as i32 as u8;
@@ -569,9 +569,9 @@ unsafe extern "C" fn prepare_act_blks(fb: *mut fb_context_t) -> i32 {
 }
 #[no_mangle]
 pub unsafe extern "C" fn update_gc_blks(fb: *mut fb_context_t) -> i32 {
-    let mut gc_blki: *mut flash_block = 0 as *mut flash_block;
-    let mut bus: u32 = 0;
-    let mut chip: u32 = 0;
+    let mut gc_blki: *mut flash_block;
+    let mut bus: u32;
+    let mut chip: u32;
     bus = 0 as i32 as u32;
     while bus < NUM_BUSES as i32 as u32 {
         chip = 0 as i32 as u32;
@@ -602,10 +602,10 @@ pub unsafe extern "C" fn update_gc_blks(fb: *mut fb_context_t) -> i32 {
 pub unsafe extern "C" fn create_gc_mngr(fb: *mut fb_context_t) -> *mut fb_gc_mngr_t {
     let current_block: u64;
     let ssdi: *mut ssd_info = get_ssd_inf(fb);
-    let mut gcm: *mut fb_gc_mngr_t = 0 as *mut fb_gc_mngr_t;
-    let mut blki: *mut flash_block = 0 as *mut flash_block;
-    let mut bus: u32 = 0;
-    let mut chip: u32 = 0;
+    let mut gcm: *mut fb_gc_mngr_t;
+    let mut blki: *mut flash_block;
+    let mut bus: u32;
+    let mut chip: u32;
     gcm = vmalloc(::core::mem::size_of::<fb_gc_mngr_t>() as u64) as *mut fb_gc_mngr_t;
     if gcm.is_null() {
         printk(
@@ -780,10 +780,10 @@ pub unsafe extern "C" fn trigger_gc_page_mapping(fb: *mut fb_context_t) -> i32 {
 #[no_mangle]
 pub unsafe extern "C" fn fb_bgc_prepare_act_blks(fb: *mut fb_context_t) -> i32 {
     let ssdi: *mut ssd_info = get_ssd_inf(fb);
-    let mut blki: *mut flash_block = 0 as *mut flash_block;
+    let mut blki: *mut flash_block;
     let mut bus: u8 = 0;
     let mut chip: u8 = 0;
-    let mut i: u32 = 0;
+    let mut i: u32;
     i = 0 as i32 as u32;
     while i < NUM_CHIPS as i32 as u32 {
         get_next_bus_chip(fb, &mut bus, &mut chip);
@@ -826,10 +826,10 @@ pub unsafe extern "C" fn fb_bgc_set_vic_blks(fb: *mut fb_context_t) -> i32 {
     let ftl: *mut page_mapping_context_t = get_ftl(fb) as *mut page_mapping_context_t;
     let ssdi: *mut ssd_info = get_ssd_inf(fb);
     let gcm: *mut fb_gc_mngr_t = get_gcm(ftl);
-    let mut chipi: *mut flash_chip = 0 as *mut flash_chip;
-    let mut blki: *mut flash_block = 0 as *mut flash_block;
-    let mut bus: u8 = 0;
-    let mut chip: u8 = 0;
+    let mut chipi: *mut flash_chip;
+    let mut blki: *mut flash_block;
+    let mut bus: u8;
+    let mut chip: u8;
     // if necesary, find a new victim block for each chip
     bus = 0 as i32 as u8;
     while (bus as i32) < NUM_BUSES as i32 {
@@ -899,17 +899,17 @@ pub unsafe extern "C" fn fb_bgc_set_vic_blks(fb: *mut fb_context_t) -> i32 {
 pub unsafe extern "C" fn fb_bgc_read_valid_pgs(fb: *mut fb_context_t) -> i32 {
     let ftl: *mut page_mapping_context_t = get_ftl(fb) as *mut page_mapping_context_t;
     let mut gcm: *mut fb_gc_mngr_t = get_gcm(ftl);
-    let mut vic_blki: *mut flash_block = 0 as *mut flash_block;
-    let mut pgi: *mut flash_page = 0 as *mut flash_page;
+    let mut vic_blki: *mut flash_block;
+    let mut pgi: *mut flash_page;
     let mut bus: u8 = 0;
     let mut chip: u8 = 0;
-    let mut lp: u8 = 0;
-    let mut pg: u32 = 0;
-    let mut nr_pgs_to_read: u32 = 0;
+    let mut lp: u8;
+    let mut pg: u32;
+    let mut nr_pgs_to_read: u32;
     let mut lp_bitmap: [u8; 4] = [0; 4];
     let mut ptr_lpas: *mut u32 = (*gcm).lpas_to_copy;
     let mut ptr_data: *mut u8 = (*gcm).data_to_copy;
-    let mut i: u32 = 0;
+    let mut i: u32;
     i = 0 as i32 as u32;
     while i < NUM_CHIPS as i32 as u32 {
         get_next_bus_chip(fb, &mut bus, &mut chip);

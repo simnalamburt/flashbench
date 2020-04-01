@@ -1,5 +1,5 @@
 #![allow(dead_code, mutable_transmutes, non_camel_case_types, non_snake_case,
-         non_upper_case_globals, unused_assignments)]
+         non_upper_case_globals)]
 
 use core::ffi::c_void;
 
@@ -199,7 +199,7 @@ pub unsafe extern "C" fn alloc_new_page(
     pg: *mut u32,
 ) -> i32 {
     let ssdi: *mut ssd_info = get_ssd_inf(fb);
-    let mut blki: *mut flash_block = 0 as *mut flash_block;
+    let mut blki: *mut flash_block;
     blki = get_curr_active_block(fb, bus as u32, chip as u32);
     if blki.is_null() {
         blki = get_free_block(ssdi, bus as u32, chip as u32);
@@ -225,7 +225,7 @@ pub unsafe extern "C" fn map_logical_to_physical(
     block: u32,
     page: u32,
 ) -> i32 {
-    let mut lp_loop: u8 = 0;
+    let mut lp_loop: u8;
     let mut ret: i32 = -(1 as i32);
     lp_loop = 0 as i32 as u8;
     while (lp_loop as i32) < NR_LP_IN_PP as i32 {
@@ -269,8 +269,8 @@ pub unsafe extern "C" fn invalidate_lpg(fb: *mut fb_context_t, lpa: u32) -> u32 
         let mut chip: u32 = 0;
         let mut blk: u32 = 0;
         let mut pg: u32 = 0;
-        let mut blki: *mut flash_block = 0 as *mut flash_block;
-        let mut pgi: *mut flash_page = 0 as *mut flash_page;
+        let blki: *mut flash_block;
+        let pgi: *mut flash_page;
         convert_to_ssd_layout(ppa, &mut bus, &mut chip, &mut blk, &mut pg);
         blki = get_block_info(ssdi, bus, chip, blk);
         pgi = get_page_info(ssdi, bus, chip, blk, pg >> LP_PAGE_SHIFT as i32);

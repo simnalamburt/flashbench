@@ -1,5 +1,5 @@
 #![allow(dead_code, mutable_transmutes, non_camel_case_types, non_snake_case,
-         non_upper_case_globals, unused_assignments)]
+         non_upper_case_globals)]
 
 use core::ffi::c_void;
 
@@ -109,12 +109,12 @@ pub struct vdevice_page_t {
 #[no_mangle]
 pub unsafe extern "C" fn create_vdevice() -> *mut vdevice_t {
     let current_block: u64;
-    let mut ptr_vdevice: *mut vdevice_t = 0 as *mut vdevice_t;
-    let mut bus_loop: u64 = 0;
-    let mut chip_loop: u64 = 0;
-    let mut block_loop: u64 = 0;
-    let mut page_loop: u64 = 0;
-    let mut bus_capacity: u64 = 0;
+    let mut ptr_vdevice: *mut vdevice_t;
+    let mut bus_loop: u64;
+    let mut chip_loop: u64;
+    let mut block_loop: u64;
+    let mut page_loop: u64;
+    let mut bus_capacity: u64;
     ptr_vdevice = vmalloc(::core::mem::size_of::<vdevice_t>() as u64) as *mut vdevice_t;
     if ptr_vdevice.is_null() {
         printk(
@@ -227,7 +227,7 @@ pub unsafe extern "C" fn create_vdevice() -> *mut vdevice_t {
 }
 #[no_mangle]
 pub unsafe extern "C" fn destroy_vdevice(ptr_vdevice: *mut vdevice_t) {
-    let mut loop_bus: u32 = 0;
+    let mut loop_bus: u32;
     if !ptr_vdevice.is_null() {
         fb_bus_controller_destroy((*ptr_vdevice).ptr_bus_controller);
         loop_bus = 0 as i32 as u32;
@@ -255,7 +255,7 @@ pub unsafe extern "C" fn vdevice_read(
         [block as usize]
         .pages[page as usize]
         .ptr_data;
-    let mut lp_loop: u8 = 0;
+    let mut lp_loop: u8;
     let mut ptr_curr: *mut u8 = ptr_dest;
     lp_loop = 0 as i32 as u8;
     while (lp_loop as i32) < NR_LP_IN_PP as i32 {
