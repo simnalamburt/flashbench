@@ -3,7 +3,7 @@
 
 enum {
   //
-  // Parameterf for DEL manager
+  // Parameter for DEL manager
   //
   NR_MAX_LPAS_DISCARD = 2048,
   NUM_WTODS = NR_MAX_LPAS_DISCARD,
