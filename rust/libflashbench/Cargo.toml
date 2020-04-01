@@ -12,4 +12,3 @@ bench = false
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-linux_types = { path = "../linux_types" }
