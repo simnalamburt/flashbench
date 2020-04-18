@@ -60,8 +60,11 @@ pub const BGC_TH_NR_BLKS: u32 = 14;
 //
 pub const PAGE_UNMAPPED: i32 = -1;
 
-#[allow(non_camel_case_types)] pub type fb_pg_status_t = u32;
-pub const PAGE_STATUS_FREE: fb_pg_status_t = 0;
-pub const PAGE_STATUS_VALID: fb_pg_status_t = 1;
-pub const PAGE_STATUS_INVALID: fb_pg_status_t = 2;
-pub const PAGE_STATUS_DEL: fb_pg_status_t = 3;
+#[repr(C)]
+pub enum fb_pg_status_t {
+    // PAGE_STATUS_FREE = 0,
+    PAGE_STATUS_VALID = 1,
+    PAGE_STATUS_INVALID = 2,
+    // PAGE_STATUS_DEL = 3,
+}
+pub use fb_pg_status_t::*;
