@@ -1,11 +1,8 @@
 use core::ffi::c_void;
 use crate::constants::*;
+use crate::structs::*;
 
 extern "C" {
-    pub type fb_context_t;
-    pub type page_mapping_context_t;
-    pub type flash_page;
-    pub type ssd_info;
     #[no_mangle]
     fn set_curr_active_block(
         ptr_fb_context: *mut fb_context_t,
@@ -101,34 +98,6 @@ extern "C" {
         ptr_block: *mut u32,
         ptr_page: *mut u32,
     );
-}
-#[derive(Copy, Clone)]
-#[repr(C)]
-pub struct flash_block {
-    pub no_block: u32,
-    pub no_chip: u32,
-    pub no_bus: u32,
-    pub nr_valid_pages: u32,
-    pub nr_invalid_pages: u32,
-    pub nr_free_pages: u32,
-    pub nr_valid_log_pages: u32,
-    pub nr_invalid_log_pages: u32,
-    pub nr_erase_cnt: u32,
-    pub is_bad_block: i32,
-    pub last_modified_time: u32,
-    pub is_reserved_block: i32,
-    pub is_active_block: i32,
-    pub list_pages: *mut flash_page,
-    pub prev: *mut flash_block,
-    pub next: *mut flash_block,
-    pub del_flag: i32,
-}
-#[derive(Copy, Clone)]
-#[repr(C)]
-pub struct fb_act_blk_mngr_t {
-    pub act_blks: *mut *mut flash_block,
-    pub mru_bus: u32,
-    pub mru_chip: u32,
 }
 #[no_mangle]
 pub unsafe extern "C" fn get_prev_bus_chip(

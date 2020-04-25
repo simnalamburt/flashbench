@@ -1,9 +1,8 @@
 use core::ffi::c_void;
 use crate::constants::*;
+use crate::structs::*;
 
 extern "C" {
-    pub type fb_bus_controller_t;
-    pub type fb_bio_t;
     #[no_mangle]
     fn printk(fmt: *const i8, _: ...) -> i32;
     #[no_mangle]
@@ -28,35 +27,6 @@ extern "C" {
         operation: u32,
         ptr_bio: *mut fb_bio_t,
     ) -> i32;
-}
-#[derive(Copy, Clone)]
-#[repr(C)]
-pub struct vdevice_t {
-    pub device_capacity: u64,
-    pub logical_capacity: u64,
-    pub ptr_vdisk: [*mut u8; 1],
-    pub buses: [vdevice_bus_t; 1],
-    pub ptr_bus_controller: *mut *mut fb_bus_controller_t,
-}
-#[derive(Copy, Clone)]
-#[repr(C)]
-pub struct vdevice_bus_t {
-    pub chips: [vdevice_chip_t; 2],
-}
-#[derive(Copy, Clone)]
-#[repr(C)]
-pub struct vdevice_chip_t {
-    pub blocks: [vdevice_block_t; 171],
-}
-#[derive(Copy, Clone)]
-#[repr(C)]
-pub struct vdevice_block_t {
-    pub pages: [vdevice_page_t; 192],
-}
-#[derive(Copy, Clone)]
-#[repr(C)]
-pub struct vdevice_page_t {
-    pub ptr_data: *mut u8,
 }
 #[no_mangle]
 pub unsafe extern "C" fn create_vdevice() -> *mut vdevice_t {
