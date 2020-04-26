@@ -1,5 +1,5 @@
 #![no_std]
-#![feature(core_intrinsics, extern_types, register_tool)]
+#![feature(core_intrinsics, extern_types)]
 
 mod constants;
 mod structs;
