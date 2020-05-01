@@ -1,20 +1,9 @@
 use core::ffi::c_void;
 use crate::constants::*;
 use crate::structs::*;
+use crate::linux::*;
 
 extern "C" {
-    //
-    // Lightweight Linux header. It is designed to be included instead of the actual
-    // Linux header. Made for c2rust transpilation.
-    //
-    // linux/printk.h
-    #[no_mangle]
-    fn printk(fmt: *const i8, _: ...) -> i32;
-    // linux/vmalloc.h
-    #[no_mangle]
-    fn vmalloc(size: u64) -> *mut c_void;
-    #[no_mangle]
-    fn vfree(addr: *const c_void);
     #[no_mangle]
     fn get_gcm(ftl: *mut page_mapping_context_t) -> *mut fb_gc_mngr_t;
     #[no_mangle]

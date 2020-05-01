@@ -1,18 +1,9 @@
 use core::ffi::c_void;
 use crate::constants::*;
 use crate::structs::*;
+use crate::linux::*;
 
 extern "C" {
-    #[no_mangle]
-    fn printk(fmt: *const i8, _: ...) -> i32;
-    #[no_mangle]
-    fn memset(_: *mut c_void, _: i32, _: u64) -> *mut c_void;
-    #[no_mangle]
-    fn memcpy(_: *mut c_void, _: *const c_void, _: u64) -> *mut c_void;
-    #[no_mangle]
-    fn vmalloc(size: u64) -> *mut c_void;
-    #[no_mangle]
-    fn vfree(addr: *const c_void);
     #[no_mangle]
     fn fb_bus_controller_init(
         ptr_vdevice: *mut vdevice_t,
