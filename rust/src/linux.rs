@@ -1,6 +1,6 @@
 use core::ffi::c_void;
 
-extern "C" {
+extern {
     // linux/printk.h
     #[no_mangle]
     pub fn printk(fmt: *const i8, _: ...) -> i32;

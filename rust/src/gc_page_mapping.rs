@@ -3,7 +3,7 @@ use crate::constants::*;
 use crate::structs::*;
 use crate::linux::*;
 
-extern "C" {
+extern {
     #[no_mangle]
     fn get_gcm(ftl: *mut page_mapping_context_t) -> *mut fb_gc_mngr_t;
     #[no_mangle]
@@ -145,10 +145,10 @@ extern "C" {
     );
 }
 #[no_mangle]
-pub unsafe extern "C" fn init_gcm(mut gcm: *mut fb_gc_mngr_t) {
+pub unsafe extern fn init_gcm(mut gcm: *mut fb_gc_mngr_t) {
     (*gcm).nr_pgs_to_copy = 0 as i32 as u32;
 }
-unsafe extern "C" fn get_vic_blk(
+unsafe extern fn get_vic_blk(
     gcm: *mut fb_gc_mngr_t,
     bus: u32,
     chip: u32,
@@ -158,7 +158,7 @@ unsafe extern "C" fn get_vic_blk(
             .wrapping_add(chip) as isize,
     );
 }
-unsafe extern "C" fn set_vic_blk(
+unsafe extern fn set_vic_blk(
     gcm: *mut fb_gc_mngr_t,
     bus: u32,
     chip: u32,
@@ -170,7 +170,7 @@ unsafe extern "C" fn set_vic_blk(
     );
     *fresh0 = blki;
 }
-unsafe extern "C" fn find_first_valid_pg(blki: *mut flash_block, start_pg: u32) -> u32 {
+unsafe extern fn find_first_valid_pg(blki: *mut flash_block, start_pg: u32) -> u32 {
     let mut pgi: *mut flash_page;
     let mut pg: u32;
     pg = start_pg;
@@ -183,7 +183,7 @@ unsafe extern "C" fn find_first_valid_pg(blki: *mut flash_block, start_pg: u32) 
     }
     return pg;
 }
-unsafe extern "C" fn set_first_valid_pg(
+unsafe extern fn set_first_valid_pg(
     gcm: *mut fb_gc_mngr_t,
     bus: u32,
     chip: u32,
@@ -194,7 +194,7 @@ unsafe extern "C" fn set_first_valid_pg(
             .wrapping_add(chip) as isize,
     ) = pg;
 }
-unsafe extern "C" fn get_first_valid_pg(
+unsafe extern fn get_first_valid_pg(
     gcm: *mut fb_gc_mngr_t,
     bus: u32,
     chip: u32,
@@ -204,7 +204,7 @@ unsafe extern "C" fn get_first_valid_pg(
             .wrapping_add(chip) as isize,
     );
 }
-unsafe extern "C" fn select_vic_blk_from_used(
+unsafe extern fn select_vic_blk_from_used(
     ssdi: *mut ssd_info,
     bus: u32,
     chip: u32,
@@ -224,7 +224,7 @@ unsafe extern "C" fn select_vic_blk_from_used(
     }
     return vic_blki;
 }
-unsafe extern "C" fn select_vic_blk_greedy(
+unsafe extern fn select_vic_blk_greedy(
     ssdi: *mut ssd_info,
     bus: u32,
     chip: u32,
@@ -248,7 +248,7 @@ unsafe extern "C" fn select_vic_blk_greedy(
     }
     return vic_blki;
 }
-unsafe extern "C" fn set_vic_blks(fb: *mut fb_context_t) -> i32 {
+unsafe extern fn set_vic_blks(fb: *mut fb_context_t) -> i32 {
     let ftl: *mut page_mapping_context_t = get_ftl(fb) as *mut page_mapping_context_t;
     let mut gcm: *mut fb_gc_mngr_t = get_gcm(ftl);
     let ssdi: *mut ssd_info = get_ssd_inf(fb);
@@ -291,7 +291,7 @@ unsafe extern "C" fn set_vic_blks(fb: *mut fb_context_t) -> i32 {
     }
     return 0 as i32;
 }
-unsafe extern "C" fn get_valid_pgs_in_vic_blks(fb: *mut fb_context_t) {
+unsafe extern fn get_valid_pgs_in_vic_blks(fb: *mut fb_context_t) {
     let ftl: *mut page_mapping_context_t = get_ftl(fb) as *mut page_mapping_context_t;
     let gcm: *mut fb_gc_mngr_t = get_gcm(ftl);
     let vdev: *mut vdevice_t = get_vdev(fb);
@@ -361,7 +361,7 @@ unsafe extern "C" fn get_valid_pgs_in_vic_blks(fb: *mut fb_context_t) {
     }
 }
 #[no_mangle]
-pub unsafe extern "C" fn prog_valid_pgs_to_gc_blks(fb: *mut fb_context_t) -> i32 {
+pub unsafe extern fn prog_valid_pgs_to_gc_blks(fb: *mut fb_context_t) -> i32 {
     let ftl: *mut page_mapping_context_t = get_ftl(fb) as *mut page_mapping_context_t;
     let gcm: *mut fb_gc_mngr_t = get_gcm(ftl);
     let vdev: *mut vdevice_t = get_vdev(fb);
@@ -409,7 +409,7 @@ pub unsafe extern "C" fn prog_valid_pgs_to_gc_blks(fb: *mut fb_context_t) -> i32
     }
     return 0 as i32;
 }
-unsafe extern "C" fn prepare_act_blks(fb: *mut fb_context_t) -> i32 {
+unsafe extern fn prepare_act_blks(fb: *mut fb_context_t) -> i32 {
     let vdev: *mut vdevice_t = get_vdev(fb);
     let mut blki: *mut flash_block;
     let mut bus: u8;
@@ -442,7 +442,7 @@ unsafe extern "C" fn prepare_act_blks(fb: *mut fb_context_t) -> i32 {
     return 0 as i32;
 }
 #[no_mangle]
-pub unsafe extern "C" fn update_gc_blks(fb: *mut fb_context_t) -> i32 {
+pub unsafe extern fn update_gc_blks(fb: *mut fb_context_t) -> i32 {
     let mut gc_blki: *mut flash_block;
     let mut bus: u32;
     let mut chip: u32;
@@ -473,7 +473,7 @@ pub unsafe extern "C" fn update_gc_blks(fb: *mut fb_context_t) -> i32 {
     return 0 as i32;
 }
 #[no_mangle]
-pub unsafe extern "C" fn create_gc_mngr(fb: *mut fb_context_t) -> *mut fb_gc_mngr_t {
+pub unsafe extern fn create_gc_mngr(fb: *mut fb_context_t) -> *mut fb_gc_mngr_t {
     let current_block: u64;
     let ssdi: *mut ssd_info = get_ssd_inf(fb);
     let mut gcm: *mut fb_gc_mngr_t;
@@ -591,7 +591,7 @@ pub unsafe extern "C" fn create_gc_mngr(fb: *mut fb_context_t) -> *mut fb_gc_mng
     return 0 as *mut fb_gc_mngr_t;
 }
 #[no_mangle]
-pub unsafe extern "C" fn destroy_gc_mngr(gcm: *mut fb_gc_mngr_t) {
+pub unsafe extern fn destroy_gc_mngr(gcm: *mut fb_gc_mngr_t) {
     if !gcm.is_null() {
         if !(*gcm).gc_blks.is_null() {
             vfree((*gcm).gc_blks as *const c_void);
@@ -609,7 +609,7 @@ pub unsafe extern "C" fn destroy_gc_mngr(gcm: *mut fb_gc_mngr_t) {
     };
 }
 #[no_mangle]
-pub unsafe extern "C" fn trigger_gc_page_mapping(fb: *mut fb_context_t) -> i32 {
+pub unsafe extern fn trigger_gc_page_mapping(fb: *mut fb_context_t) -> i32 {
     let ftl: *mut page_mapping_context_t = get_ftl(fb) as *mut page_mapping_context_t;
     let gcm: *mut fb_gc_mngr_t = get_gcm(ftl);
     // initialize GC context
@@ -652,7 +652,7 @@ pub unsafe extern "C" fn trigger_gc_page_mapping(fb: *mut fb_context_t) -> i32 {
     return 0 as i32;
 }
 #[no_mangle]
-pub unsafe extern "C" fn fb_bgc_prepare_act_blks(fb: *mut fb_context_t) -> i32 {
+pub unsafe extern fn fb_bgc_prepare_act_blks(fb: *mut fb_context_t) -> i32 {
     let ssdi: *mut ssd_info = get_ssd_inf(fb);
     let mut blki: *mut flash_block;
     let mut bus: u8 = 0;
@@ -696,7 +696,7 @@ pub unsafe extern "C" fn fb_bgc_prepare_act_blks(fb: *mut fb_context_t) -> i32 {
     return 0 as i32;
 }
 #[no_mangle]
-pub unsafe extern "C" fn fb_bgc_set_vic_blks(fb: *mut fb_context_t) -> i32 {
+pub unsafe extern fn fb_bgc_set_vic_blks(fb: *mut fb_context_t) -> i32 {
     let ftl: *mut page_mapping_context_t = get_ftl(fb) as *mut page_mapping_context_t;
     let ssdi: *mut ssd_info = get_ssd_inf(fb);
     let gcm: *mut fb_gc_mngr_t = get_gcm(ftl);
@@ -770,7 +770,7 @@ pub unsafe extern "C" fn fb_bgc_set_vic_blks(fb: *mut fb_context_t) -> i32 {
     return 0 as i32;
 }
 #[no_mangle]
-pub unsafe extern "C" fn fb_bgc_read_valid_pgs(fb: *mut fb_context_t) -> i32 {
+pub unsafe extern fn fb_bgc_read_valid_pgs(fb: *mut fb_context_t) -> i32 {
     let ftl: *mut page_mapping_context_t = get_ftl(fb) as *mut page_mapping_context_t;
     let mut gcm: *mut fb_gc_mngr_t = get_gcm(ftl);
     let mut vic_blki: *mut flash_block;

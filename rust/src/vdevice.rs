@@ -3,7 +3,7 @@ use crate::constants::*;
 use crate::structs::*;
 use crate::linux::*;
 
-extern "C" {
+extern {
     #[no_mangle]
     fn fb_bus_controller_init(
         ptr_vdevice: *mut vdevice_t,
@@ -20,7 +20,7 @@ extern "C" {
     ) -> i32;
 }
 #[no_mangle]
-pub unsafe extern "C" fn create_vdevice() -> *mut vdevice_t {
+pub unsafe extern fn create_vdevice() -> *mut vdevice_t {
     let current_block: u64;
     let mut ptr_vdevice: *mut vdevice_t;
     let mut bus_loop: u64;
@@ -139,7 +139,7 @@ pub unsafe extern "C" fn create_vdevice() -> *mut vdevice_t {
     return 0 as *mut vdevice_t;
 }
 #[no_mangle]
-pub unsafe extern "C" fn destroy_vdevice(ptr_vdevice: *mut vdevice_t) {
+pub unsafe extern fn destroy_vdevice(ptr_vdevice: *mut vdevice_t) {
     let mut loop_bus: u32;
     if !ptr_vdevice.is_null() {
         fb_bus_controller_destroy((*ptr_vdevice).ptr_bus_controller);
@@ -154,7 +154,7 @@ pub unsafe extern "C" fn destroy_vdevice(ptr_vdevice: *mut vdevice_t) {
     };
 }
 #[no_mangle]
-pub unsafe extern "C" fn vdevice_read(
+pub unsafe extern fn vdevice_read(
     ptr_vdevice: *mut vdevice_t,
     bus: u8,
     chip: u8,
@@ -191,7 +191,7 @@ pub unsafe extern "C" fn vdevice_read(
     );
 }
 #[no_mangle]
-pub unsafe extern "C" fn vdevice_write(
+pub unsafe extern fn vdevice_write(
     ptr_vdevice: *mut vdevice_t,
     bus: u8,
     chip: u8,
@@ -217,7 +217,7 @@ pub unsafe extern "C" fn vdevice_write(
     );
 }
 #[no_mangle]
-pub unsafe extern "C" fn vdevice_erase(
+pub unsafe extern fn vdevice_erase(
     ptr_vdevice: *mut vdevice_t,
     bus: u8,
     chip: u8,
@@ -241,11 +241,11 @@ pub unsafe extern "C" fn vdevice_erase(
     );
 }
 #[no_mangle]
-pub unsafe extern "C" fn is_valid_address_range(logical_page_address: u32) -> i32 {
+pub unsafe extern fn is_valid_address_range(logical_page_address: u32) -> i32 {
     return (logical_page_address < NUM_LOG_PAGES as i32 as u32) as i32;
 }
 #[no_mangle]
-pub unsafe extern "C" fn convert_to_physical_address(
+pub unsafe extern fn convert_to_physical_address(
     bus: u32,
     chip: u32,
     block: u32,
@@ -262,7 +262,7 @@ pub unsafe extern "C" fn convert_to_physical_address(
         | page;
 }
 #[no_mangle]
-pub unsafe extern "C" fn convert_to_ssd_layout(
+pub unsafe extern fn convert_to_ssd_layout(
     logical_page_address: u32,
     ptr_bus: *mut u32,
     ptr_chip: *mut u32,
@@ -275,7 +275,7 @@ pub unsafe extern "C" fn convert_to_ssd_layout(
     *ptr_page = 0xfff as i32 as u32 & logical_page_address;
 }
 #[no_mangle]
-pub unsafe extern "C" fn operation_time(op: fb_dev_op_t) -> u32 {
+pub unsafe extern fn operation_time(op: fb_dev_op_t) -> u32 {
     match op as u32 {
         0 => return TREAD as i32 as u32,
         1 => return TPROG as i32 as u32,

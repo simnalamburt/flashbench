@@ -19,6 +19,6 @@ pub use vdevice::*;
 /// [`BUG()`]: https://github.com/torvalds/linux/blob/69973b830859bc6529a7a0468ba0d80ee5117826/arch/x86/include/asm/bug.h#L30
 #[panic_handler]
 #[no_mangle]
-extern "C" fn panic(_info: &core::panic::PanicInfo) -> ! {
+extern fn panic(_info: &core::panic::PanicInfo) -> ! {
     unsafe { core::intrinsics::abort() }
 }
