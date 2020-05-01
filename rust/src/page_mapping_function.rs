@@ -1,86 +1,57 @@
-use core::ffi::c_void;
 use crate::constants::*;
 use crate::structs::*;
 
 extern {
-    #[no_mangle]
     fn set_curr_active_block(
         ptr_fb_context: *mut fb_context_t,
         bus: u32,
         chip: u32,
         ptr_new_block: *mut flash_block,
     );
-    #[no_mangle]
     fn get_curr_active_block(
         ptr_fb_context: *mut fb_context_t,
         bus: u32,
         chip: u32,
     ) -> *mut flash_block;
-    #[no_mangle]
     fn get_mapped_ppa(ftl: *mut page_mapping_context_t, lpa: u32) -> u32;
-    #[no_mangle]
     fn set_mapped_ppa(ftl: *mut page_mapping_context_t, lpa: u32, ppa: u32);
-    #[no_mangle]
     fn get_curr_gc_block(
         ptr_fb_context: *mut fb_context_t,
         bus: u32,
         chip: u32,
     ) -> *mut flash_block;
-    #[no_mangle]
     fn set_curr_gc_block(
         ptr_fb_context: *mut fb_context_t,
         bus: u32,
         chip: u32,
         ptr_new_block: *mut flash_block,
     );
-    #[no_mangle]
     fn get_abm(ftl: *mut page_mapping_context_t) -> *mut fb_act_blk_mngr_t;
-    #[no_mangle]
     fn get_ssd_inf(fb: *mut fb_context_t) -> *mut ssd_info;
-    #[no_mangle]
     fn get_ftl(fb: *mut fb_context_t) -> *mut c_void;
-    #[no_mangle]
     fn set_mapped_lpa(pgi: *mut flash_page, ofs: u8, lpa: u32);
-    #[no_mangle]
     fn set_pg_status(pgi: *mut flash_page, ofs: u8, status: fb_pg_status_t);
-    #[no_mangle]
     fn inc_nr_invalid_lps(pgi: *mut flash_page) -> u32;
-    #[no_mangle]
     fn get_nr_free_pgs(blki: *mut flash_block) -> u32;
-    #[no_mangle]
     fn inc_nr_valid_pgs(blki: *mut flash_block) -> u32;
-    #[no_mangle]
     fn inc_nr_invalid_pgs(blki: *mut flash_block) -> u32;
-    #[no_mangle]
     fn dec_nr_valid_pgs(blki: *mut flash_block) -> u32;
-    #[no_mangle]
     fn dec_nr_free_pgs(blki: *mut flash_block) -> u32;
-    #[no_mangle]
     fn inc_nr_valid_lps_in_blk(blk: *mut flash_block) -> u32;
-    #[no_mangle]
     fn inc_nr_invalid_lps_in_blk(blk: *mut flash_block) -> u32;
-    #[no_mangle]
     fn dec_nr_valid_lps_in_blk(blk: *mut flash_block) -> u32;
-    #[no_mangle]
     fn set_act_blk_flag(blki: *mut flash_block, flag: i32);
-    #[no_mangle]
     fn reset_free_blk(ssdi: *mut ssd_info, bi: *mut flash_block);
-    #[no_mangle]
     fn get_free_block(ssdi: *mut ssd_info, bus: u32, chip: u32) -> *mut flash_block;
-    #[no_mangle]
     fn set_used_blk(ssdi: *mut ssd_info, bi: *mut flash_block);
-    #[no_mangle]
     fn reset_used_blk(ssdi: *mut ssd_info, bi: *mut flash_block);
-    #[no_mangle]
     fn set_dirt_blk(ssdi: *mut ssd_info, bi: *mut flash_block);
-    #[no_mangle]
     fn get_block_info(
         ptr_ssd_info: *mut ssd_info,
         bus: u32,
         chip: u32,
         block: u32,
     ) -> *mut flash_block;
-    #[no_mangle]
     fn get_page_info(
         ptr_ssd_info: *mut ssd_info,
         bus: u32,
@@ -88,9 +59,7 @@ extern {
         block: u32,
         page: u32,
     ) -> *mut flash_page;
-    #[no_mangle]
     fn convert_to_physical_address(bus: u32, chip: u32, block: u32, page: u32) -> u32;
-    #[no_mangle]
     fn convert_to_ssd_layout(
         logical_page_address: u32,
         ptr_bus: *mut u32,

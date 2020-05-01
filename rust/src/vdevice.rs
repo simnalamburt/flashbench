@@ -4,14 +4,11 @@ use crate::structs::*;
 use crate::linux::*;
 
 extern {
-    #[no_mangle]
     fn fb_bus_controller_init(
         ptr_vdevice: *mut vdevice_t,
         num_max_entries_per_chip: u32,
     ) -> i32;
-    #[no_mangle]
     fn fb_bus_controller_destroy(ptr_bus_controller: *mut *mut fb_bus_controller_t);
-    #[no_mangle]
     fn fb_issue_operation(
         ptr_bus_controller: *mut fb_bus_controller_t,
         chip: u32,

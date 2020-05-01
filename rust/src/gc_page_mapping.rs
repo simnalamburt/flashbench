@@ -4,51 +4,39 @@ use crate::structs::*;
 use crate::linux::*;
 
 extern {
-    #[no_mangle]
     fn get_gcm(ftl: *mut page_mapping_context_t) -> *mut fb_gc_mngr_t;
-    #[no_mangle]
     fn print_blk_mgmt(fb: *mut fb_context_t);
-    #[no_mangle]
     fn get_ssd_inf(fb: *mut fb_context_t) -> *mut ssd_info;
-    #[no_mangle]
     fn get_vdev(fb: *mut fb_context_t) -> *mut vdevice_t;
-    #[no_mangle]
     fn get_ftl(fb: *mut fb_context_t) -> *mut c_void;
-    #[no_mangle]
     fn set_prev_bus_chip(ptr_fb_context: *mut fb_context_t, bus: u8, chip: u8);
-    #[no_mangle]
     fn get_next_bus_chip(
         ptr_fb_context: *mut fb_context_t,
         ptr_bus: *mut u8,
         ptr_chip: *mut u8,
     );
-    #[no_mangle]
     fn get_curr_gc_block(
         ptr_fb_context: *mut fb_context_t,
         bus: u32,
         chip: u32,
     ) -> *mut flash_block;
-    #[no_mangle]
     fn set_curr_gc_block(
         ptr_fb_context: *mut fb_context_t,
         bus: u32,
         chip: u32,
         ptr_new_block: *mut flash_block,
     );
-    #[no_mangle]
     fn get_curr_active_block(
         ptr_fb_context: *mut fb_context_t,
         bus: u32,
         chip: u32,
     ) -> *mut flash_block;
-    #[no_mangle]
     fn set_curr_active_block(
         ptr_fb_context: *mut fb_context_t,
         bus: u32,
         chip: u32,
         ptr_new_block: *mut flash_block,
     );
-    #[no_mangle]
     fn alloc_new_page(
         ptr_fb_context: *mut fb_context_t,
         bus: u8,
@@ -56,7 +44,6 @@ extern {
         ptr_block: *mut u32,
         ptr_page: *mut u32,
     ) -> i32;
-    #[no_mangle]
     fn map_logical_to_physical(
         ptr_fb_context: *mut fb_context_t,
         logical_page_address: *mut u32,
@@ -65,56 +52,32 @@ extern {
         block: u32,
         page: u32,
     ) -> i32;
-    #[no_mangle]
     fn update_act_blk(fb: *mut fb_context_t, bus: u8, chip: u8);
     // page info interface
-    #[no_mangle]
     fn get_mapped_lpa(pgi: *mut flash_page, ofs: u8) -> u32;
-    #[no_mangle]
     fn get_pg_status(pgi: *mut flash_page, ofs: u8) -> fb_pg_status_t;
-    #[no_mangle]
     fn get_nr_invalid_lps(pgi: *mut flash_page) -> u32;
     // block info interface
-    #[no_mangle]
     fn init_blk_inf(blki: *mut flash_block);
-    #[no_mangle]
     fn get_blk_idx(blki: *mut flash_block) -> u32;
-    #[no_mangle]
     fn get_pgi_from_blki(blki: *mut flash_block, pg: u32) -> *mut flash_page;
-    #[no_mangle]
     fn get_nr_valid_lps_in_blk(blki: *mut flash_block) -> u32;
-    #[no_mangle]
     fn get_nr_invalid_lps_in_blk(blki: *mut flash_block) -> u32;
-    #[no_mangle]
     fn inc_bers_cnt(blki: *mut flash_block) -> u32;
-    #[no_mangle]
     fn set_rsv_blk_flag(blki: *mut flash_block, flag: i32);
     // chip info interface
-    #[no_mangle]
     fn set_free_blk(ssdi: *mut ssd_info, bi: *mut flash_block);
-    #[no_mangle]
     fn reset_free_blk(ssdi: *mut ssd_info, bi: *mut flash_block);
-    #[no_mangle]
     fn get_free_block(ssdi: *mut ssd_info, bus: u32, chip: u32) -> *mut flash_block;
-    #[no_mangle]
     fn get_nr_free_blks_in_chip(ci: *mut flash_chip) -> u32;
-    #[no_mangle]
     fn get_used_block(ssdi: *mut ssd_info, bus: u32, chip: u32) -> *mut flash_block;
-    #[no_mangle]
     fn reset_dirt_blk(ssdi: *mut ssd_info, bi: *mut flash_block);
-    #[no_mangle]
     fn get_dirt_block(ssdi: *mut ssd_info, bus: u32, chip: u32) -> *mut flash_block;
-    #[no_mangle]
     fn get_nr_dirt_blks_in_chip(ci: *mut flash_chip) -> u32;
-    #[no_mangle]
     fn get_chip_info(ptr_ssd_info: *mut ssd_info, bus: u32, chip: u32) -> *mut flash_chip;
-    #[no_mangle]
     fn perf_inc_nr_wordline_prog_bg();
-    #[no_mangle]
     fn perf_inc_nr_page_reads();
-    #[no_mangle]
     fn perf_inc_nr_blk_erasures();
-    #[no_mangle]
     fn vdevice_read(
         ptr_vdevice: *mut vdevice_t,
         bus: u8,
@@ -125,7 +88,6 @@ extern {
         ptr_dest: *mut u8,
         ptr_fb_bio: *mut fb_bio_t,
     );
-    #[no_mangle]
     fn vdevice_write(
         ptr_vdevice: *mut vdevice_t,
         bus: u8,
@@ -135,7 +97,6 @@ extern {
         ptr_src: *const u8,
         ptr_fb_bio: *mut fb_bio_t,
     );
-    #[no_mangle]
     fn vdevice_erase(
         ptr_vdevice: *mut vdevice_t,
         bus: u8,
