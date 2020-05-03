@@ -1,9 +1,11 @@
 #![no_std]
 #![feature(core_intrinsics, extern_types)]
 
+mod linux;
 mod constants;
 mod structs;
-mod linux;
+mod header;
+
 mod gc_page_mapping;
 mod page_mapping_function;
 mod vdevice;

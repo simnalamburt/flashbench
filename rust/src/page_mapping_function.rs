@@ -1,34 +1,11 @@
 use crate::constants::*;
 use crate::structs::*;
+use crate::header::*;
 
 extern {
-    fn set_curr_active_block(
-        ptr_fb_context: *mut fb_context_t,
-        bus: u32,
-        chip: u32,
-        ptr_new_block: *mut flash_block,
-    );
-    fn get_curr_active_block(
-        ptr_fb_context: *mut fb_context_t,
-        bus: u32,
-        chip: u32,
-    ) -> *mut flash_block;
     fn get_mapped_ppa(ftl: *mut page_mapping_context_t, lpa: u32) -> u32;
     fn set_mapped_ppa(ftl: *mut page_mapping_context_t, lpa: u32, ppa: u32);
-    fn get_curr_gc_block(
-        ptr_fb_context: *mut fb_context_t,
-        bus: u32,
-        chip: u32,
-    ) -> *mut flash_block;
-    fn set_curr_gc_block(
-        ptr_fb_context: *mut fb_context_t,
-        bus: u32,
-        chip: u32,
-        ptr_new_block: *mut flash_block,
-    );
     fn get_abm(ftl: *mut page_mapping_context_t) -> *mut fb_act_blk_mngr_t;
-    fn get_ssd_inf(fb: *mut fb_context_t) -> *mut ssd_info;
-    fn get_ftl(fb: *mut fb_context_t) -> *mut c_void;
     fn set_mapped_lpa(pgi: *mut flash_page, ofs: u8, lpa: u32);
     fn set_pg_status(pgi: *mut flash_page, ofs: u8, status: fb_pg_status_t);
     fn inc_nr_invalid_lps(pgi: *mut flash_page) -> u32;
@@ -41,8 +18,6 @@ extern {
     fn inc_nr_invalid_lps_in_blk(blk: *mut flash_block) -> u32;
     fn dec_nr_valid_lps_in_blk(blk: *mut flash_block) -> u32;
     fn set_act_blk_flag(blki: *mut flash_block, flag: i32);
-    fn reset_free_blk(ssdi: *mut ssd_info, bi: *mut flash_block);
-    fn get_free_block(ssdi: *mut ssd_info, bus: u32, chip: u32) -> *mut flash_block;
     fn set_used_blk(ssdi: *mut ssd_info, bi: *mut flash_block);
     fn reset_used_blk(ssdi: *mut ssd_info, bi: *mut flash_block);
     fn set_dirt_blk(ssdi: *mut ssd_info, bi: *mut flash_block);

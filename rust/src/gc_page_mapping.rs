@@ -1,41 +1,18 @@
 use core::ffi::c_void;
+use crate::linux::*;
 use crate::constants::*;
 use crate::structs::*;
-use crate::linux::*;
+use crate::header::*;
 
 extern {
     fn get_gcm(ftl: *mut page_mapping_context_t) -> *mut fb_gc_mngr_t;
     fn print_blk_mgmt(fb: *mut fb_context_t);
-    fn get_ssd_inf(fb: *mut fb_context_t) -> *mut ssd_info;
     fn get_vdev(fb: *mut fb_context_t) -> *mut vdevice_t;
-    fn get_ftl(fb: *mut fb_context_t) -> *mut c_void;
     fn set_prev_bus_chip(ptr_fb_context: *mut fb_context_t, bus: u8, chip: u8);
     fn get_next_bus_chip(
         ptr_fb_context: *mut fb_context_t,
         ptr_bus: *mut u8,
         ptr_chip: *mut u8,
-    );
-    fn get_curr_gc_block(
-        ptr_fb_context: *mut fb_context_t,
-        bus: u32,
-        chip: u32,
-    ) -> *mut flash_block;
-    fn set_curr_gc_block(
-        ptr_fb_context: *mut fb_context_t,
-        bus: u32,
-        chip: u32,
-        ptr_new_block: *mut flash_block,
-    );
-    fn get_curr_active_block(
-        ptr_fb_context: *mut fb_context_t,
-        bus: u32,
-        chip: u32,
-    ) -> *mut flash_block;
-    fn set_curr_active_block(
-        ptr_fb_context: *mut fb_context_t,
-        bus: u32,
-        chip: u32,
-        ptr_new_block: *mut flash_block,
     );
     fn alloc_new_page(
         ptr_fb_context: *mut fb_context_t,
@@ -67,8 +44,6 @@ extern {
     fn set_rsv_blk_flag(blki: *mut flash_block, flag: i32);
     // chip info interface
     fn set_free_blk(ssdi: *mut ssd_info, bi: *mut flash_block);
-    fn reset_free_blk(ssdi: *mut ssd_info, bi: *mut flash_block);
-    fn get_free_block(ssdi: *mut ssd_info, bus: u32, chip: u32) -> *mut flash_block;
     fn get_nr_free_blks_in_chip(ci: *mut flash_chip) -> u32;
     fn get_used_block(ssdi: *mut ssd_info, bus: u32, chip: u32) -> *mut flash_block;
     fn reset_dirt_blk(ssdi: *mut ssd_info, bi: *mut flash_block);
