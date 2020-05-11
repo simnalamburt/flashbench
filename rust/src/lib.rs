@@ -1,10 +1,10 @@
 #![no_std]
 #![feature(core_intrinsics, extern_types)]
 
-mod linux;
 mod constants;
-mod structs;
 mod header;
+mod linux;
+mod structs;
 
 mod gc_page_mapping;
 mod page_mapping_function;
@@ -21,6 +21,6 @@ pub use vdevice::*;
 /// [`BUG()`]: https://github.com/torvalds/linux/blob/69973b830859bc6529a7a0468ba0d80ee5117826/arch/x86/include/asm/bug.h#L30
 #[panic_handler]
 #[no_mangle]
-extern fn panic(_info: &core::panic::PanicInfo) -> ! {
+extern "C" fn panic(_info: &core::panic::PanicInfo) -> ! {
     unsafe { core::intrinsics::abort() }
 }

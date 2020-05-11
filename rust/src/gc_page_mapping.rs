@@ -1,19 +1,15 @@
-use core::ffi::c_void;
-use crate::linux::*;
 use crate::constants::*;
-use crate::structs::*;
 use crate::header::*;
+use crate::linux::*;
+use crate::structs::*;
+use core::ffi::c_void;
 
-extern {
+extern "C" {
     fn get_gcm(ftl: *mut page_mapping_context_t) -> *mut fb_gc_mngr_t;
     fn print_blk_mgmt(fb: *mut fb_context_t);
     fn get_vdev(fb: *mut fb_context_t) -> *mut vdevice_t;
     fn set_prev_bus_chip(ptr_fb_context: *mut fb_context_t, bus: u8, chip: u8);
-    fn get_next_bus_chip(
-        ptr_fb_context: *mut fb_context_t,
-        ptr_bus: *mut u8,
-        ptr_chip: *mut u8,
-    );
+    fn get_next_bus_chip(ptr_fb_context: *mut fb_context_t, ptr_bus: *mut u8, ptr_chip: *mut u8);
     fn alloc_new_page(
         ptr_fb_context: *mut fb_context_t,
         bus: u8,
@@ -81,20 +77,16 @@ extern {
     );
 }
 #[no_mangle]
-pub unsafe extern fn init_gcm(mut gcm: *mut fb_gc_mngr_t) {
+pub unsafe extern "C" fn init_gcm(mut gcm: *mut fb_gc_mngr_t) {
     (*gcm).nr_pgs_to_copy = 0 as i32 as u32;
 }
-unsafe extern fn get_vic_blk(
-    gcm: *mut fb_gc_mngr_t,
-    bus: u32,
-    chip: u32,
-) -> *mut flash_block {
+unsafe extern "C" fn get_vic_blk(gcm: *mut fb_gc_mngr_t, bus: u32, chip: u32) -> *mut flash_block {
     return *(*gcm).vic_blks.offset(
         bus.wrapping_mul(NUM_CHIPS_PER_BUS as i32 as u32)
             .wrapping_add(chip) as isize,
     );
 }
-unsafe extern fn set_vic_blk(
+unsafe extern "C" fn set_vic_blk(
     gcm: *mut fb_gc_mngr_t,
     bus: u32,
     chip: u32,
@@ -106,7 +98,7 @@ unsafe extern fn set_vic_blk(
     );
     *fresh0 = blki;
 }
-unsafe extern fn find_first_valid_pg(blki: *mut flash_block, start_pg: u32) -> u32 {
+unsafe extern "C" fn find_first_valid_pg(blki: *mut flash_block, start_pg: u32) -> u32 {
     let mut pgi: *mut flash_page;
     let mut pg: u32;
     pg = start_pg;
@@ -119,28 +111,19 @@ unsafe extern fn find_first_valid_pg(blki: *mut flash_block, start_pg: u32) -> u
     }
     return pg;
 }
-unsafe extern fn set_first_valid_pg(
-    gcm: *mut fb_gc_mngr_t,
-    bus: u32,
-    chip: u32,
-    pg: u32,
-) {
+unsafe extern "C" fn set_first_valid_pg(gcm: *mut fb_gc_mngr_t, bus: u32, chip: u32, pg: u32) {
     *(*gcm).first_valid_pg.offset(
         bus.wrapping_mul(NUM_CHIPS_PER_BUS as i32 as u32)
             .wrapping_add(chip) as isize,
     ) = pg;
 }
-unsafe extern fn get_first_valid_pg(
-    gcm: *mut fb_gc_mngr_t,
-    bus: u32,
-    chip: u32,
-) -> u32 {
+unsafe extern "C" fn get_first_valid_pg(gcm: *mut fb_gc_mngr_t, bus: u32, chip: u32) -> u32 {
     return *(*gcm).first_valid_pg.offset(
         bus.wrapping_mul(NUM_CHIPS_PER_BUS as i32 as u32)
             .wrapping_add(chip) as isize,
     );
 }
-unsafe extern fn select_vic_blk_from_used(
+unsafe extern "C" fn select_vic_blk_from_used(
     ssdi: *mut ssd_info,
     bus: u32,
     chip: u32,
@@ -160,7 +143,7 @@ unsafe extern fn select_vic_blk_from_used(
     }
     return vic_blki;
 }
-unsafe extern fn select_vic_blk_greedy(
+unsafe extern "C" fn select_vic_blk_greedy(
     ssdi: *mut ssd_info,
     bus: u32,
     chip: u32,
@@ -184,7 +167,7 @@ unsafe extern fn select_vic_blk_greedy(
     }
     return vic_blki;
 }
-unsafe extern fn set_vic_blks(fb: *mut fb_context_t) -> i32 {
+unsafe extern "C" fn set_vic_blks(fb: *mut fb_context_t) -> i32 {
     let ftl: *mut page_mapping_context_t = get_ftl(fb) as *mut page_mapping_context_t;
     let mut gcm: *mut fb_gc_mngr_t = get_gcm(ftl);
     let ssdi: *mut ssd_info = get_ssd_inf(fb);
@@ -212,12 +195,7 @@ unsafe extern fn set_vic_blks(fb: *mut fb_context_t) -> i32 {
                     (*gcm).nr_pgs_to_copy = ((*gcm).nr_pgs_to_copy as u32)
                         .wrapping_add(get_nr_valid_lps_in_blk(blki))
                         as u32 as u32;
-                    set_first_valid_pg(
-                        gcm,
-                        bus,
-                        chip,
-                        find_first_valid_pg(blki, 0 as i32 as u32),
-                    );
+                    set_first_valid_pg(gcm, bus, chip, find_first_valid_pg(blki, 0 as i32 as u32));
                 }
             }
             set_vic_blk(gcm, bus, chip, blki);
@@ -227,7 +205,7 @@ unsafe extern fn set_vic_blks(fb: *mut fb_context_t) -> i32 {
     }
     return 0 as i32;
 }
-unsafe extern fn get_valid_pgs_in_vic_blks(fb: *mut fb_context_t) {
+unsafe extern "C" fn get_valid_pgs_in_vic_blks(fb: *mut fb_context_t) {
     let ftl: *mut page_mapping_context_t = get_ftl(fb) as *mut page_mapping_context_t;
     let gcm: *mut fb_gc_mngr_t = get_gcm(ftl);
     let vdev: *mut vdevice_t = get_vdev(fb);
@@ -252,8 +230,8 @@ unsafe extern fn get_valid_pgs_in_vic_blks(fb: *mut fb_context_t) {
                     blki = get_vic_blk(gcm, bus as u32, chip as u32);
                     if !blki.is_null() {
                         pgi = get_pgi_from_blki(blki, pg);
-                        nr_pgs_to_read = (NR_LP_IN_PP as i32 as u32)
-                            .wrapping_sub(get_nr_invalid_lps(pgi));
+                        nr_pgs_to_read =
+                            (NR_LP_IN_PP as i32 as u32).wrapping_sub(get_nr_invalid_lps(pgi));
                         if nr_pgs_to_read > 0 as i32 as u32 {
                             lp = 0 as i32 as u32;
                             while lp < NR_LP_IN_PP as i32 as u32 {
@@ -280,12 +258,11 @@ unsafe extern fn get_valid_pgs_in_vic_blks(fb: *mut fb_context_t) {
                                 0 as *mut fb_bio_t,
                             );
                             ptr_data = ptr_data.offset(
-                                nr_pgs_to_read
-                                    .wrapping_mul(LOGICAL_PAGE_SIZE as i32 as u32)
+                                nr_pgs_to_read.wrapping_mul(LOGICAL_PAGE_SIZE as i32 as u32)
                                     as isize,
                             );
-                            nr_read_pgs = (nr_read_pgs as u32).wrapping_add(nr_pgs_to_read)
-                                as u32 as u32
+                            nr_read_pgs =
+                                (nr_read_pgs as u32).wrapping_add(nr_pgs_to_read) as u32 as u32
                         }
                     }
                     bus = bus.wrapping_add(1)
@@ -297,7 +274,7 @@ unsafe extern fn get_valid_pgs_in_vic_blks(fb: *mut fb_context_t) {
     }
 }
 #[no_mangle]
-pub unsafe extern fn prog_valid_pgs_to_gc_blks(fb: *mut fb_context_t) -> i32 {
+pub unsafe extern "C" fn prog_valid_pgs_to_gc_blks(fb: *mut fb_context_t) -> i32 {
     let ftl: *mut page_mapping_context_t = get_ftl(fb) as *mut page_mapping_context_t;
     let gcm: *mut fb_gc_mngr_t = get_gcm(ftl);
     let vdev: *mut vdevice_t = get_vdev(fb);
@@ -312,10 +289,7 @@ pub unsafe extern fn prog_valid_pgs_to_gc_blks(fb: *mut fb_context_t) -> i32 {
     while nr_pgs_to_prog > 0 as i32 {
         get_next_bus_chip(fb, &mut bus, &mut chip);
         if alloc_new_page(fb, bus, chip, &mut blk, &mut pg) == -(1 as i32) {
-            printk(
-                b"\x013flashbench: Wrong active block handling\n\x00" as *const u8
-                    as *const i8,
-            );
+            printk(b"\x013flashbench: Wrong active block handling\n\x00" as *const u8 as *const i8);
             print_blk_mgmt(fb);
             return -(1 as i32);
         }
@@ -328,13 +302,8 @@ pub unsafe extern fn prog_valid_pgs_to_gc_blks(fb: *mut fb_context_t) -> i32 {
         }
         perf_inc_nr_wordline_prog_bg();
         vdevice_write(vdev, bus, chip, blk, pg, ptr_data, 0 as *mut fb_bio_t);
-        if map_logical_to_physical(fb, ptr_lpa, bus as u32, chip as u32, blk, pg)
-            == -(1 as i32)
-        {
-            printk(
-                b"\x013flashbench: Mapping L2P in GC failed.\n\x00" as *const u8
-                    as *const i8,
-            );
+        if map_logical_to_physical(fb, ptr_lpa, bus as u32, chip as u32, blk, pg) == -(1 as i32) {
+            printk(b"\x013flashbench: Mapping L2P in GC failed.\n\x00" as *const u8 as *const i8);
             return -(1 as i32);
         }
         ptr_lpa = ptr_lpa.offset(NR_LP_IN_PP as i32 as isize);
@@ -345,7 +314,7 @@ pub unsafe extern fn prog_valid_pgs_to_gc_blks(fb: *mut fb_context_t) -> i32 {
     }
     return 0 as i32;
 }
-unsafe extern fn prepare_act_blks(fb: *mut fb_context_t) -> i32 {
+unsafe extern "C" fn prepare_act_blks(fb: *mut fb_context_t) -> i32 {
     let vdev: *mut vdevice_t = get_vdev(fb);
     let mut blki: *mut flash_block;
     let mut bus: u8;
@@ -358,8 +327,7 @@ unsafe extern fn prepare_act_blks(fb: *mut fb_context_t) -> i32 {
                 blki = get_curr_gc_block(fb, bus as u32, chip as u32);
                 if blki.is_null() {
                     printk(
-                        b"\x013flashbench: Wrong GC block handling\n\x00" as *const u8
-                            as *const i8,
+                        b"\x013flashbench: Wrong GC block handling\n\x00" as *const u8 as *const i8,
                     );
                     print_blk_mgmt(fb);
                     return -(1 as i32);
@@ -378,7 +346,7 @@ unsafe extern fn prepare_act_blks(fb: *mut fb_context_t) -> i32 {
     return 0 as i32;
 }
 #[no_mangle]
-pub unsafe extern fn update_gc_blks(fb: *mut fb_context_t) -> i32 {
+pub unsafe extern "C" fn update_gc_blks(fb: *mut fb_context_t) -> i32 {
     let mut gc_blki: *mut flash_block;
     let mut bus: u32;
     let mut chip: u32;
@@ -409,7 +377,7 @@ pub unsafe extern fn update_gc_blks(fb: *mut fb_context_t) -> i32 {
     return 0 as i32;
 }
 #[no_mangle]
-pub unsafe extern fn create_gc_mngr(fb: *mut fb_context_t) -> *mut fb_gc_mngr_t {
+pub unsafe extern "C" fn create_gc_mngr(fb: *mut fb_context_t) -> *mut fb_gc_mngr_t {
     let current_block: u64;
     let ssdi: *mut ssd_info = get_ssd_inf(fb);
     let mut gcm: *mut fb_gc_mngr_t;
@@ -418,10 +386,7 @@ pub unsafe extern fn create_gc_mngr(fb: *mut fb_context_t) -> *mut fb_gc_mngr_t 
     let mut chip: u32;
     gcm = vmalloc(::core::mem::size_of::<fb_gc_mngr_t>() as u64) as *mut fb_gc_mngr_t;
     if gcm.is_null() {
-        printk(
-            b"\x013flashbench: Allocating GC manager failed.\n\x00" as *const u8
-                as *const i8,
-        );
+        printk(b"\x013flashbench: Allocating GC manager failed.\n\x00" as *const u8 as *const i8);
     } else {
         (*gcm).gc_blks = vmalloc(
             (::core::mem::size_of::<*mut flash_block>() as u64)
@@ -475,8 +440,7 @@ pub unsafe extern fn create_gc_mngr(fb: *mut fb_context_t) -> *mut fb_gc_mngr_t 
                         if (*gcm).first_valid_pg.is_null() {
                             printk(
                                 b"\x013flashbench: Allocating page_offset failed.\n\x00"
-                                    as *const u8
-                                    as *const i8,
+                                    as *const u8 as *const i8,
                             );
                         } else {
                             init_gcm(gcm);
@@ -501,10 +465,8 @@ pub unsafe extern fn create_gc_mngr(fb: *mut fb_context_t) -> *mut fb_gc_mngr_t 
                                         reset_free_blk(ssdi, blki);
                                         set_rsv_blk_flag(blki, true as i32);
                                         let ref mut fresh1 = *(*gcm).gc_blks.offset(
-                                            bus.wrapping_mul(
-                                                NUM_CHIPS_PER_BUS as i32 as u32,
-                                            )
-                                            .wrapping_add(chip)
+                                            bus.wrapping_mul(NUM_CHIPS_PER_BUS as i32 as u32)
+                                                .wrapping_add(chip)
                                                 as isize,
                                         );
                                         *fresh1 = blki;
@@ -527,7 +489,7 @@ pub unsafe extern fn create_gc_mngr(fb: *mut fb_context_t) -> *mut fb_gc_mngr_t 
     return 0 as *mut fb_gc_mngr_t;
 }
 #[no_mangle]
-pub unsafe extern fn destroy_gc_mngr(gcm: *mut fb_gc_mngr_t) {
+pub unsafe extern "C" fn destroy_gc_mngr(gcm: *mut fb_gc_mngr_t) {
     if !gcm.is_null() {
         if !(*gcm).gc_blks.is_null() {
             vfree((*gcm).gc_blks as *const c_void);
@@ -545,25 +507,19 @@ pub unsafe extern fn destroy_gc_mngr(gcm: *mut fb_gc_mngr_t) {
     };
 }
 #[no_mangle]
-pub unsafe extern fn trigger_gc_page_mapping(fb: *mut fb_context_t) -> i32 {
+pub unsafe extern "C" fn trigger_gc_page_mapping(fb: *mut fb_context_t) -> i32 {
     let ftl: *mut page_mapping_context_t = get_ftl(fb) as *mut page_mapping_context_t;
     let gcm: *mut fb_gc_mngr_t = get_gcm(ftl);
     // initialize GC context
     init_gcm(gcm);
     // 1. erase GC blocks and set them as active blocks
     if prepare_act_blks(fb) != 0 as i32 {
-        printk(
-            b"\x013flashbench: Preparing GC blocks failed.\n\x00" as *const u8
-                as *const i8,
-        );
+        printk(b"\x013flashbench: Preparing GC blocks failed.\n\x00" as *const u8 as *const i8);
         return -(1 as i32);
     }
     // 2. select a victim block for every parallel unit
     if set_vic_blks(fb) != 0 as i32 {
-        printk(
-            b"\x013flashbench: Setting victim blocks failed.\n\x00" as *const u8
-                as *const i8,
-        );
+        printk(b"\x013flashbench: Setting victim blocks failed.\n\x00" as *const u8 as *const i8);
         return -(1 as i32);
     }
     // 3. read valid pages from victim blocks
@@ -571,24 +527,18 @@ pub unsafe extern fn trigger_gc_page_mapping(fb: *mut fb_context_t) -> i32 {
     get_valid_pgs_in_vic_blks(fb);
     // 4. write read data to other pages
     if prog_valid_pgs_to_gc_blks(fb) != 0 as i32 {
-        printk(
-            b"\x013flashbench: Writing valid data failed.\n\x00" as *const u8
-                as *const i8,
-        );
+        printk(b"\x013flashbench: Writing valid data failed.\n\x00" as *const u8 as *const i8);
         return -(1 as i32);
     }
     // 5. set GC blocks with dirt blocks
     if update_gc_blks(fb) != 0 as i32 {
-        printk(
-            b"\x013flashbench: Updating GC blocks failed.\n\x00" as *const u8
-                as *const i8,
-        );
+        printk(b"\x013flashbench: Updating GC blocks failed.\n\x00" as *const u8 as *const i8);
         return -(1 as i32);
     }
     return 0 as i32;
 }
 #[no_mangle]
-pub unsafe extern fn fb_bgc_prepare_act_blks(fb: *mut fb_context_t) -> i32 {
+pub unsafe extern "C" fn fb_bgc_prepare_act_blks(fb: *mut fb_context_t) -> i32 {
     let ssdi: *mut ssd_info = get_ssd_inf(fb);
     let mut blki: *mut flash_block;
     let mut bus: u8 = 0;
@@ -599,10 +549,7 @@ pub unsafe extern fn fb_bgc_prepare_act_blks(fb: *mut fb_context_t) -> i32 {
         get_next_bus_chip(fb, &mut bus, &mut chip);
         blki = get_curr_gc_block(fb, bus as u32, chip as u32);
         if blki.is_null() {
-            printk(
-                b"\x013flashbench: Wrong BGC block handling\n\x00" as *const u8
-                    as *const i8,
-            );
+            printk(b"\x013flashbench: Wrong BGC block handling\n\x00" as *const u8 as *const i8);
             print_blk_mgmt(fb);
             return -(1 as i32);
         }
@@ -632,7 +579,7 @@ pub unsafe extern fn fb_bgc_prepare_act_blks(fb: *mut fb_context_t) -> i32 {
     return 0 as i32;
 }
 #[no_mangle]
-pub unsafe extern fn fb_bgc_set_vic_blks(fb: *mut fb_context_t) -> i32 {
+pub unsafe extern "C" fn fb_bgc_set_vic_blks(fb: *mut fb_context_t) -> i32 {
     let ftl: *mut page_mapping_context_t = get_ftl(fb) as *mut page_mapping_context_t;
     let ssdi: *mut ssd_info = get_ssd_inf(fb);
     let gcm: *mut fb_gc_mngr_t = get_gcm(ftl);
@@ -657,10 +604,7 @@ pub unsafe extern fn fb_bgc_set_vic_blks(fb: *mut fb_context_t) -> i32 {
                         gcm,
                         bus as u32,
                         chip as u32,
-                        find_first_valid_pg(
-                            blki,
-                            get_first_valid_pg(gcm, bus as u32, chip as u32),
-                        ),
+                        find_first_valid_pg(blki, get_first_valid_pg(gcm, bus as u32, chip as u32)),
                     );
                     if get_first_valid_pg(gcm, bus as u32, chip as u32)
                         == NUM_PAGES_PER_BLOCK as i32 as u32
@@ -706,7 +650,7 @@ pub unsafe extern fn fb_bgc_set_vic_blks(fb: *mut fb_context_t) -> i32 {
     return 0 as i32;
 }
 #[no_mangle]
-pub unsafe extern fn fb_bgc_read_valid_pgs(fb: *mut fb_context_t) -> i32 {
+pub unsafe extern "C" fn fb_bgc_read_valid_pgs(fb: *mut fb_context_t) -> i32 {
     let ftl: *mut page_mapping_context_t = get_ftl(fb) as *mut page_mapping_context_t;
     let mut gcm: *mut fb_gc_mngr_t = get_gcm(ftl);
     let mut vic_blki: *mut flash_block;
@@ -729,8 +673,7 @@ pub unsafe extern fn fb_bgc_read_valid_pgs(fb: *mut fb_context_t) -> i32 {
         } else {
             pg = get_first_valid_pg(gcm, bus as u32, chip as u32);
             pgi = get_pgi_from_blki(vic_blki, pg);
-            nr_pgs_to_read =
-                (NR_LP_IN_PP as i32 as u32).wrapping_sub(get_nr_invalid_lps(pgi));
+            nr_pgs_to_read = (NR_LP_IN_PP as i32 as u32).wrapping_sub(get_nr_invalid_lps(pgi));
             if nr_pgs_to_read == 0 as i32 as u32 {
                 printk(
                     b"\x013flashbench: Wrong page offset in victim block\n\x00" as *const u8
@@ -738,13 +681,11 @@ pub unsafe extern fn fb_bgc_read_valid_pgs(fb: *mut fb_context_t) -> i32 {
                 );
                 return -(1 as i32);
             }
-            (*gcm).nr_pgs_to_copy = ((*gcm).nr_pgs_to_copy as u32)
-                .wrapping_add(nr_pgs_to_read) as u32 as u32;
+            (*gcm).nr_pgs_to_copy =
+                ((*gcm).nr_pgs_to_copy as u32).wrapping_add(nr_pgs_to_read) as u32 as u32;
             lp = 0 as i32 as u8;
             while (lp as i32) < NR_LP_IN_PP as i32 {
-                if get_pg_status(pgi, lp) as u32
-                    == PAGE_STATUS_VALID as i32 as u32
-                {
+                if get_pg_status(pgi, lp) as u32 == PAGE_STATUS_VALID as i32 as u32 {
                     *ptr_lpas = get_mapped_lpa(pgi, lp);
                     lp_bitmap[lp as usize] = 1 as i32 as u8;
                     ptr_lpas = ptr_lpas.offset(1)
@@ -764,10 +705,8 @@ pub unsafe extern fn fb_bgc_read_valid_pgs(fb: *mut fb_context_t) -> i32 {
                 ptr_data,
                 0 as *mut fb_bio_t,
             );
-            ptr_data = ptr_data.offset(
-                nr_pgs_to_read.wrapping_mul(LOGICAL_PAGE_SIZE as i32 as u32)
-                    as isize,
-            );
+            ptr_data = ptr_data
+                .offset(nr_pgs_to_read.wrapping_mul(LOGICAL_PAGE_SIZE as i32 as u32) as isize);
             set_prev_bus_chip(fb, bus, chip);
         }
         i = i.wrapping_add(1)

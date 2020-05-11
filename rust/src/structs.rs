@@ -1,4 +1,4 @@
-extern {
+extern "C" {
     pub type flash_page;
     pub type fb_context_t;
     pub type fb_bio_t;

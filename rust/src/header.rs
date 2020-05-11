@@ -1,7 +1,7 @@
-use core::ffi::c_void;
 use crate::structs::*;
+use core::ffi::c_void;
 
-extern {
+extern "C" {
     pub fn get_curr_active_block(
         ptr_fb_context: *mut fb_context_t,
         bus: u32,

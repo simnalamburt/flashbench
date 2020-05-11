@@ -1,8 +1,8 @@
 use crate::constants::*;
-use crate::structs::*;
 use crate::header::*;
+use crate::structs::*;
 
-extern {
+extern "C" {
     fn get_mapped_ppa(ftl: *mut page_mapping_context_t, lpa: u32) -> u32;
     fn set_mapped_ppa(ftl: *mut page_mapping_context_t, lpa: u32, ppa: u32);
     fn get_abm(ftl: *mut page_mapping_context_t) -> *mut fb_act_blk_mngr_t;
@@ -44,18 +44,14 @@ extern {
     );
 }
 #[no_mangle]
-pub unsafe extern fn get_prev_bus_chip(
-    fb: *mut fb_context_t,
-    bus: *mut u8,
-    chip: *mut u8,
-) {
+pub unsafe extern "C" fn get_prev_bus_chip(fb: *mut fb_context_t, bus: *mut u8, chip: *mut u8) {
     let ftl: *mut page_mapping_context_t = get_ftl(fb) as *mut page_mapping_context_t;
     let abm: *mut fb_act_blk_mngr_t = get_abm(ftl);
     *bus = (*abm).mru_bus as u8;
     *chip = (*abm).mru_chip as u8;
 }
 #[no_mangle]
-pub unsafe extern fn alloc_new_page(
+pub unsafe extern "C" fn alloc_new_page(
     fb: *mut fb_context_t,
     bus: u8,
     chip: u8,
@@ -81,7 +77,7 @@ pub unsafe extern fn alloc_new_page(
     return 0 as i32;
 }
 #[no_mangle]
-pub unsafe extern fn map_logical_to_physical(
+pub unsafe extern "C" fn map_logical_to_physical(
     ptr_fb_context: *mut fb_context_t,
     logical_page_address: *mut u32,
     bus: u32,
@@ -110,7 +106,7 @@ pub unsafe extern fn map_logical_to_physical(
     return ret;
 }
 #[no_mangle]
-pub unsafe extern fn update_act_blk(fb: *mut fb_context_t, bus: u8, chip: u8) {
+pub unsafe extern "C" fn update_act_blk(fb: *mut fb_context_t, bus: u8, chip: u8) {
     let mut blki: *mut flash_block = get_curr_active_block(fb, bus as u32, chip as u32);
     if get_nr_free_pgs(blki) == 0 as i32 as u32 {
         let ssdi: *mut ssd_info = get_ssd_inf(fb);
@@ -124,7 +120,7 @@ pub unsafe extern fn update_act_blk(fb: *mut fb_context_t, bus: u8, chip: u8) {
     };
 }
 #[no_mangle]
-pub unsafe extern fn invalidate_lpg(fb: *mut fb_context_t, lpa: u32) -> u32 {
+pub unsafe extern "C" fn invalidate_lpg(fb: *mut fb_context_t, lpa: u32) -> u32 {
     let ftl: *mut page_mapping_context_t = get_ftl(fb) as *mut page_mapping_context_t;
     let ssdi: *mut ssd_info = get_ssd_inf(fb);
     let ppa: u32 = get_mapped_ppa(ftl, lpa);
@@ -160,7 +156,7 @@ pub unsafe extern fn invalidate_lpg(fb: *mut fb_context_t, lpa: u32) -> u32 {
     }
     return ppa;
 }
-unsafe extern fn __map_logical_to_physical(
+unsafe extern "C" fn __map_logical_to_physical(
     fb: *mut fb_context_t,
     lpa: u32,
     bus: u32,
@@ -180,12 +176,7 @@ unsafe extern fn __map_logical_to_physical(
         set_mapped_ppa(
             ftl,
             lpa,
-            convert_to_physical_address(
-                bus,
-                chip,
-                blk,
-                pg << LP_PAGE_SHIFT as i32 | lp_ofs as u32,
-            ),
+            convert_to_physical_address(bus, chip, blk, pg << LP_PAGE_SHIFT as i32 | lp_ofs as u32),
         );
     } else {
         inc_nr_invalid_lps_in_blk(blki);

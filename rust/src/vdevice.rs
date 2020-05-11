@@ -1,13 +1,10 @@
-use core::ffi::c_void;
 use crate::constants::*;
-use crate::structs::*;
 use crate::linux::*;
+use crate::structs::*;
+use core::ffi::c_void;
 
-extern {
-    fn fb_bus_controller_init(
-        ptr_vdevice: *mut vdevice_t,
-        num_max_entries_per_chip: u32,
-    ) -> i32;
+extern "C" {
+    fn fb_bus_controller_init(ptr_vdevice: *mut vdevice_t, num_max_entries_per_chip: u32) -> i32;
     fn fb_bus_controller_destroy(ptr_bus_controller: *mut *mut fb_bus_controller_t);
     fn fb_issue_operation(
         ptr_bus_controller: *mut fb_bus_controller_t,
@@ -17,7 +14,7 @@ extern {
     ) -> i32;
 }
 #[no_mangle]
-pub unsafe extern fn create_vdevice() -> *mut vdevice_t {
+pub unsafe extern "C" fn create_vdevice() -> *mut vdevice_t {
     let current_block: u64;
     let mut ptr_vdevice: *mut vdevice_t;
     let mut bus_loop: u64;
@@ -33,17 +30,13 @@ pub unsafe extern fn create_vdevice() -> *mut vdevice_t {
         );
     } else {
         bus_capacity = NUM_CHIPS_PER_BUS as i32 as u64;
-        bus_capacity = (bus_capacity as u64)
-            .wrapping_mul(NUM_BLOCKS_PER_CHIP as i32 as u64)
-            as u64 as u64;
-        bus_capacity = (bus_capacity as u64)
-            .wrapping_mul(NUM_PAGES_PER_BLOCK as i32 as u64)
-            as u64 as u64;
-        bus_capacity = (bus_capacity as u64)
-            .wrapping_mul(PHYSICAL_PAGE_SIZE as i32 as u64)
-            as u64 as u64;
-        (*ptr_vdevice).device_capacity =
-            (NUM_BUSES as i32 as u64).wrapping_mul(bus_capacity);
+        bus_capacity =
+            (bus_capacity as u64).wrapping_mul(NUM_BLOCKS_PER_CHIP as i32 as u64) as u64 as u64;
+        bus_capacity =
+            (bus_capacity as u64).wrapping_mul(NUM_PAGES_PER_BLOCK as i32 as u64) as u64 as u64;
+        bus_capacity =
+            (bus_capacity as u64).wrapping_mul(PHYSICAL_PAGE_SIZE as i32 as u64) as u64 as u64;
+        (*ptr_vdevice).device_capacity = (NUM_BUSES as i32 as u64).wrapping_mul(bus_capacity);
         bus_loop = 0 as i32 as u64;
         loop {
             if !(bus_loop < NUM_BUSES as i32 as u64) {
@@ -51,8 +44,7 @@ pub unsafe extern fn create_vdevice() -> *mut vdevice_t {
                 break;
             }
             (*ptr_vdevice).ptr_vdisk[bus_loop as usize] = vmalloc(
-                (::core::mem::size_of::<u8>() as u64 as u64)
-                    .wrapping_mul(bus_capacity) as u64,
+                (::core::mem::size_of::<u8>() as u64 as u64).wrapping_mul(bus_capacity) as u64,
             ) as *mut u8;
             if (*ptr_vdevice).ptr_vdisk[bus_loop as usize].is_null() {
                 printk(
@@ -68,17 +60,14 @@ pub unsafe extern fn create_vdevice() -> *mut vdevice_t {
         match current_block {
             10599921512955367680 => {
                 bus_capacity = NUM_CHIPS_PER_BUS as i32 as u64;
-                bus_capacity = (bus_capacity as u64)
-                    .wrapping_mul(NUM_BLOCKS_PER_CHIP as i32 as u64)
+                bus_capacity = (bus_capacity as u64).wrapping_mul(NUM_BLOCKS_PER_CHIP as i32 as u64)
                     as u64 as u64;
-                bus_capacity = (bus_capacity as u64)
-                    .wrapping_mul(NUM_PAGES_PER_BLOCK as i32 as u64)
+                bus_capacity = (bus_capacity as u64).wrapping_mul(NUM_PAGES_PER_BLOCK as i32 as u64)
                     as u64 as u64;
                 bus_capacity = bus_capacity
                     .wrapping_mul(CFACTOR_PERCENT as i32 as u64)
                     .wrapping_div(100 as i32 as u64);
-                bus_capacity = (bus_capacity as u64)
-                    .wrapping_mul(PHYSICAL_PAGE_SIZE as i32 as u64)
+                bus_capacity = (bus_capacity as u64).wrapping_mul(PHYSICAL_PAGE_SIZE as i32 as u64)
                     as u64 as u64;
                 (*ptr_vdevice).logical_capacity =
                     (NUM_BUSES as i32 as u64).wrapping_mul(bus_capacity);
@@ -89,27 +78,21 @@ pub unsafe extern fn create_vdevice() -> *mut vdevice_t {
                         block_loop = 0 as i32 as u64;
                         while block_loop < NUM_BLOCKS_PER_CHIP as i32 as u64 {
                             page_loop = 0 as i32 as u64;
-                            while page_loop
-                                < NUM_PAGES_PER_BLOCK as i32 as u64
-                            {
+                            while page_loop < NUM_PAGES_PER_BLOCK as i32 as u64 {
                                 (*ptr_vdevice).buses[bus_loop as usize].chips[chip_loop as usize]
                                     .blocks[block_loop as usize]
                                     .pages[page_loop as usize]
                                     .ptr_data = (*ptr_vdevice).ptr_vdisk[bus_loop as usize].offset(
                                     chip_loop
-                                        .wrapping_mul(
-                                            NUM_BLOCKS_PER_CHIP as i32 as u64,
+                                        .wrapping_mul(NUM_BLOCKS_PER_CHIP as i32 as u64)
+                                        .wrapping_mul(NUM_PAGES_PER_BLOCK as i32 as u64)
+                                        .wrapping_add(
+                                            block_loop
+                                                .wrapping_mul(NUM_PAGES_PER_BLOCK as i32 as u64),
                                         )
-                                        .wrapping_mul(
-                                            NUM_PAGES_PER_BLOCK as i32 as u64,
-                                        )
-                                        .wrapping_add(block_loop.wrapping_mul(
-                                            NUM_PAGES_PER_BLOCK as i32 as u64,
-                                        ))
                                         .wrapping_add(page_loop)
-                                        .wrapping_mul(
-                                            PHYSICAL_PAGE_SIZE as i32 as u64,
-                                        ) as isize,
+                                        .wrapping_mul(PHYSICAL_PAGE_SIZE as i32 as u64)
+                                        as isize,
                                 );
                                 page_loop = page_loop.wrapping_add(1)
                             }
@@ -119,10 +102,8 @@ pub unsafe extern fn create_vdevice() -> *mut vdevice_t {
                     }
                     bus_loop = bus_loop.wrapping_add(1)
                 }
-                if !(fb_bus_controller_init(
-                    ptr_vdevice,
-                    NUM_MAX_ENTRIES_OPR_QUEUE as i32 as u32,
-                ) == -(1 as i32))
+                if !(fb_bus_controller_init(ptr_vdevice, NUM_MAX_ENTRIES_OPR_QUEUE as i32 as u32)
+                    == -(1 as i32))
                 {
                     return ptr_vdevice;
                 }
@@ -136,7 +117,7 @@ pub unsafe extern fn create_vdevice() -> *mut vdevice_t {
     return 0 as *mut vdevice_t;
 }
 #[no_mangle]
-pub unsafe extern fn destroy_vdevice(ptr_vdevice: *mut vdevice_t) {
+pub unsafe extern "C" fn destroy_vdevice(ptr_vdevice: *mut vdevice_t) {
     let mut loop_bus: u32;
     if !ptr_vdevice.is_null() {
         fb_bus_controller_destroy((*ptr_vdevice).ptr_bus_controller);
@@ -151,7 +132,7 @@ pub unsafe extern fn destroy_vdevice(ptr_vdevice: *mut vdevice_t) {
     };
 }
 #[no_mangle]
-pub unsafe extern fn vdevice_read(
+pub unsafe extern "C" fn vdevice_read(
     ptr_vdevice: *mut vdevice_t,
     bus: u8,
     chip: u8,
@@ -188,7 +169,7 @@ pub unsafe extern fn vdevice_read(
     );
 }
 #[no_mangle]
-pub unsafe extern fn vdevice_write(
+pub unsafe extern "C" fn vdevice_write(
     ptr_vdevice: *mut vdevice_t,
     bus: u8,
     chip: u8,
@@ -214,7 +195,7 @@ pub unsafe extern fn vdevice_write(
     );
 }
 #[no_mangle]
-pub unsafe extern fn vdevice_erase(
+pub unsafe extern "C" fn vdevice_erase(
     ptr_vdevice: *mut vdevice_t,
     bus: u8,
     chip: u8,
@@ -238,11 +219,11 @@ pub unsafe extern fn vdevice_erase(
     );
 }
 #[no_mangle]
-pub unsafe extern fn is_valid_address_range(logical_page_address: u32) -> i32 {
+pub unsafe extern "C" fn is_valid_address_range(logical_page_address: u32) -> i32 {
     return (logical_page_address < NUM_LOG_PAGES as i32 as u32) as i32;
 }
 #[no_mangle]
-pub unsafe extern fn convert_to_physical_address(
+pub unsafe extern "C" fn convert_to_physical_address(
     bus: u32,
     chip: u32,
     block: u32,
@@ -253,13 +234,10 @@ pub unsafe extern fn convert_to_physical_address(
     // Max chips: 16 - 4
     // Max blocks: 4096 - 12
     // Max pages: 4096 - 12
-    return bus << 28 as i32
-        | chip << 24 as i32
-        | block << 12 as i32
-        | page;
+    return bus << 28 as i32 | chip << 24 as i32 | block << 12 as i32 | page;
 }
 #[no_mangle]
-pub unsafe extern fn convert_to_ssd_layout(
+pub unsafe extern "C" fn convert_to_ssd_layout(
     logical_page_address: u32,
     ptr_bus: *mut u32,
     ptr_chip: *mut u32,
@@ -272,7 +250,7 @@ pub unsafe extern fn convert_to_ssd_layout(
     *ptr_page = 0xfff as i32 as u32 & logical_page_address;
 }
 #[no_mangle]
-pub unsafe extern fn operation_time(op: fb_dev_op_t) -> u32 {
+pub unsafe extern "C" fn operation_time(op: fb_dev_op_t) -> u32 {
     match op as u32 {
         0 => return TREAD as i32 as u32,
         1 => return TPROG as i32 as u32,
