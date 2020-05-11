@@ -147,7 +147,7 @@ pub unsafe extern "C" fn vdevice_read(
         .pages[page as usize]
         .ptr_data;
     let mut lp_loop: u8;
-    let mut ptr_curr: *mut u8 = ptr_dest;
+    let mut ptr_curr = ptr_dest;
     lp_loop = 0 as i32 as u8;
     while (lp_loop as i32) < NR_LP_IN_PP as i32 {
         if *page_bitmap.offset(lp_loop as isize) as i32 == 1 as i32 {

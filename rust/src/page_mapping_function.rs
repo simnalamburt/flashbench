@@ -45,8 +45,8 @@ extern "C" {
 }
 #[no_mangle]
 pub unsafe extern "C" fn get_prev_bus_chip(fb: *mut fb_context_t, bus: *mut u8, chip: *mut u8) {
-    let ftl: *mut page_mapping_context_t = get_ftl(fb) as *mut page_mapping_context_t;
-    let abm: *mut fb_act_blk_mngr_t = get_abm(ftl);
+    let ftl = get_ftl(fb) as *mut page_mapping_context_t;
+    let abm = get_abm(ftl);
     *bus = (*abm).mru_bus as u8;
     *chip = (*abm).mru_chip as u8;
 }
@@ -58,7 +58,7 @@ pub unsafe extern "C" fn alloc_new_page(
     blk: *mut u32,
     pg: *mut u32,
 ) -> i32 {
-    let ssdi: *mut ssd_info = get_ssd_inf(fb);
+    let ssdi = get_ssd_inf(fb);
     let mut blki: *mut flash_block;
     blki = get_curr_active_block(fb, bus as u32, chip as u32);
     if blki.is_null() {
@@ -86,7 +86,7 @@ pub unsafe extern "C" fn map_logical_to_physical(
     page: u32,
 ) -> i32 {
     let mut lp_loop: u8;
-    let mut ret: i32 = -(1 as i32);
+    let mut ret = -(1 as i32);
     lp_loop = 0 as i32 as u8;
     while (lp_loop as i32) < NR_LP_IN_PP as i32 {
         ret = __map_logical_to_physical(
@@ -107,9 +107,9 @@ pub unsafe extern "C" fn map_logical_to_physical(
 }
 #[no_mangle]
 pub unsafe extern "C" fn update_act_blk(fb: *mut fb_context_t, bus: u8, chip: u8) {
-    let mut blki: *mut flash_block = get_curr_active_block(fb, bus as u32, chip as u32);
+    let mut blki = get_curr_active_block(fb, bus as u32, chip as u32);
     if get_nr_free_pgs(blki) == 0 as i32 as u32 {
-        let ssdi: *mut ssd_info = get_ssd_inf(fb);
+        let ssdi = get_ssd_inf(fb);
         set_act_blk_flag(blki, false as i32);
         set_used_blk(ssdi, blki);
         blki = get_free_block(ssdi, bus as u32, chip as u32);
@@ -121,14 +121,14 @@ pub unsafe extern "C" fn update_act_blk(fb: *mut fb_context_t, bus: u8, chip: u8
 }
 #[no_mangle]
 pub unsafe extern "C" fn invalidate_lpg(fb: *mut fb_context_t, lpa: u32) -> u32 {
-    let ftl: *mut page_mapping_context_t = get_ftl(fb) as *mut page_mapping_context_t;
-    let ssdi: *mut ssd_info = get_ssd_inf(fb);
-    let ppa: u32 = get_mapped_ppa(ftl, lpa);
+    let ftl = get_ftl(fb) as *mut page_mapping_context_t;
+    let ssdi = get_ssd_inf(fb);
+    let ppa = get_mapped_ppa(ftl, lpa);
     if ppa != PAGE_UNMAPPED as i32 as u32 {
-        let mut bus: u32 = 0;
-        let mut chip: u32 = 0;
-        let mut blk: u32 = 0;
-        let mut pg: u32 = 0;
+        let mut bus = 0u32;
+        let mut chip = 0u32;
+        let mut blk = 0u32;
+        let mut pg = 0u32;
         let blki: *mut flash_block;
         let pgi: *mut flash_page;
         convert_to_ssd_layout(ppa, &mut bus, &mut chip, &mut blk, &mut pg);
@@ -165,10 +165,10 @@ unsafe extern "C" fn __map_logical_to_physical(
     pg: u32,
     lp_ofs: u8,
 ) -> i32 {
-    let ftl: *mut page_mapping_context_t = get_ftl(fb) as *mut page_mapping_context_t;
-    let ssdi: *mut ssd_info = get_ssd_inf(fb);
-    let blki: *mut flash_block = get_block_info(ssdi, bus, chip, blk);
-    let pgi: *mut flash_page = get_page_info(ssdi, bus, chip, blk, pg);
+    let ftl = get_ftl(fb) as *mut page_mapping_context_t;
+    let ssdi = get_ssd_inf(fb);
+    let blki = get_block_info(ssdi, bus, chip, blk);
+    let pgi = get_page_info(ssdi, bus, chip, blk, pg);
     if lpa != PAGE_UNMAPPED as i32 as u32 {
         invalidate_lpg(fb, lpa);
         inc_nr_valid_lps_in_blk(blki);
