@@ -11,7 +11,8 @@ cargo xbuild
 
 ### TODOs
 - [ ] Handle `CONFIG_*` macros properly. Consider adopting bindgen
-- [ ] Refactor into safe Rust codes
+- [ ] Refactor into safe Rust codes, remove redundant `unsafe` blocks
+- [ ] Remove redundant `as`
 
 ###### References
 - https://doc.rust-lang.org/nightly/cargo/reference/unstable.html#build-std
