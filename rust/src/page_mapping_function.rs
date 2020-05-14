@@ -71,9 +71,9 @@ pub unsafe extern "C" fn alloc_new_page(
         }
     }
     *blk = (*blki).no_block;
-    *pg = (NUM_PAGES_PER_BLOCK as i32 as u32).wrapping_sub(get_nr_free_pgs(blki));
+    *pg = (NUM_PAGES_PER_BLOCK as u32).wrapping_sub(get_nr_free_pgs(blki));
     *blk = (*blki).no_block;
-    *pg = (NUM_PAGES_PER_BLOCK as i32 as u32).wrapping_sub(get_nr_free_pgs(blki));
+    *pg = (NUM_PAGES_PER_BLOCK as u32).wrapping_sub(get_nr_free_pgs(blki));
     return 0 as i32;
 }
 #[no_mangle]
@@ -87,7 +87,7 @@ pub unsafe extern "C" fn map_logical_to_physical(
 ) -> i32 {
     let mut lp_loop: u8;
     let mut ret = -(1 as i32);
-    lp_loop = 0 as i32 as u8;
+    lp_loop = 0 as u8;
     while (lp_loop as i32) < NR_LP_IN_PP as i32 {
         ret = __map_logical_to_physical(
             ptr_fb_context,
@@ -108,7 +108,7 @@ pub unsafe extern "C" fn map_logical_to_physical(
 #[no_mangle]
 pub unsafe extern "C" fn update_act_blk(fb: *mut fb_context_t, bus: u8, chip: u8) {
     let mut blki = get_curr_active_block(fb, bus as u32, chip as u32);
-    if get_nr_free_pgs(blki) == 0 as i32 as u32 {
+    if get_nr_free_pgs(blki) == 0 as u32 {
         let ssdi = get_ssd_inf(fb);
         set_act_blk_flag(blki, false as i32);
         set_used_blk(ssdi, blki);
@@ -124,7 +124,7 @@ pub unsafe extern "C" fn invalidate_lpg(fb: *mut fb_context_t, lpa: u32) -> u32 
     let ftl = get_ftl(fb) as *mut page_mapping_context_t;
     let ssdi = get_ssd_inf(fb);
     let ppa = get_mapped_ppa(ftl, lpa);
-    if ppa != PAGE_UNMAPPED as i32 as u32 {
+    if ppa != PAGE_UNMAPPED as u32 {
         let mut bus = 0u32;
         let mut chip = 0u32;
         let mut blk = 0u32;
@@ -136,14 +136,14 @@ pub unsafe extern "C" fn invalidate_lpg(fb: *mut fb_context_t, lpa: u32) -> u32 
         pgi = get_page_info(ssdi, bus, chip, blk, pg >> LP_PAGE_SHIFT as i32);
         set_pg_status(
             pgi,
-            (pg & LP_PAGE_MASK as i32 as u32) as u8,
+            (pg & LP_PAGE_MASK as u32) as u8,
             PAGE_STATUS_INVALID,
         );
         inc_nr_invalid_lps_in_blk(blki);
         dec_nr_valid_lps_in_blk(blki);
-        if inc_nr_invalid_lps(pgi) == NR_LP_IN_PP as i32 as u32 {
+        if inc_nr_invalid_lps(pgi) == NR_LP_IN_PP as u32 {
             dec_nr_valid_pgs(blki);
-            if inc_nr_invalid_pgs(blki) == NUM_PAGES_PER_BLOCK as i32 as u32 {
+            if inc_nr_invalid_pgs(blki) == NUM_PAGES_PER_BLOCK as u32 {
                 reset_used_blk(ssdi, blki);
                 if get_curr_gc_block(fb, bus, chip).is_null() {
                     set_curr_gc_block(fb, bus, chip, blki);
@@ -152,7 +152,7 @@ pub unsafe extern "C" fn invalidate_lpg(fb: *mut fb_context_t, lpa: u32) -> u32 
                 }
             }
         }
-        set_mapped_ppa(ftl, lpa, PAGE_UNMAPPED as i32 as u32);
+        set_mapped_ppa(ftl, lpa, PAGE_UNMAPPED as u32);
     }
     return ppa;
 }
@@ -169,7 +169,7 @@ unsafe extern "C" fn __map_logical_to_physical(
     let ssdi = get_ssd_inf(fb);
     let blki = get_block_info(ssdi, bus, chip, blk);
     let pgi = get_page_info(ssdi, bus, chip, blk, pg);
-    if lpa != PAGE_UNMAPPED as i32 as u32 {
+    if lpa != PAGE_UNMAPPED as u32 {
         invalidate_lpg(fb, lpa);
         inc_nr_valid_lps_in_blk(blki);
         set_pg_status(pgi, lp_ofs, PAGE_STATUS_VALID);

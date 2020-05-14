@@ -78,11 +78,11 @@ extern "C" {
 }
 #[no_mangle]
 pub unsafe extern "C" fn init_gcm(mut gcm: *mut fb_gc_mngr_t) {
-    (*gcm).nr_pgs_to_copy = 0 as i32 as u32;
+    (*gcm).nr_pgs_to_copy = 0 as u32;
 }
 unsafe extern "C" fn get_vic_blk(gcm: *mut fb_gc_mngr_t, bus: u32, chip: u32) -> *mut flash_block {
     return *(*gcm).vic_blks.offset(
-        bus.wrapping_mul(NUM_CHIPS_PER_BUS as i32 as u32)
+        bus.wrapping_mul(NUM_CHIPS_PER_BUS as u32)
             .wrapping_add(chip) as isize,
     );
 }
@@ -93,7 +93,7 @@ unsafe extern "C" fn set_vic_blk(
     blki: *mut flash_block,
 ) {
     let ref mut fresh0 = *(*gcm).vic_blks.offset(
-        bus.wrapping_mul(NUM_CHIPS_PER_BUS as i32 as u32)
+        bus.wrapping_mul(NUM_CHIPS_PER_BUS as u32)
             .wrapping_add(chip) as isize,
     );
     *fresh0 = blki;
@@ -102,9 +102,9 @@ unsafe extern "C" fn find_first_valid_pg(blki: *mut flash_block, start_pg: u32) 
     let mut pgi: *mut flash_page;
     let mut pg: u32;
     pg = start_pg;
-    while pg < NUM_PAGES_PER_BLOCK as i32 as u32 {
+    while pg < NUM_PAGES_PER_BLOCK as u32 {
         pgi = get_pgi_from_blki(blki, pg);
-        if get_nr_invalid_lps(pgi) < NR_LP_IN_PP as i32 as u32 {
+        if get_nr_invalid_lps(pgi) < NR_LP_IN_PP as u32 {
             break;
         }
         pg = pg.wrapping_add(1)
@@ -113,13 +113,13 @@ unsafe extern "C" fn find_first_valid_pg(blki: *mut flash_block, start_pg: u32) 
 }
 unsafe extern "C" fn set_first_valid_pg(gcm: *mut fb_gc_mngr_t, bus: u32, chip: u32, pg: u32) {
     *(*gcm).first_valid_pg.offset(
-        bus.wrapping_mul(NUM_CHIPS_PER_BUS as i32 as u32)
+        bus.wrapping_mul(NUM_CHIPS_PER_BUS as u32)
             .wrapping_add(chip) as isize,
     ) = pg;
 }
 unsafe extern "C" fn get_first_valid_pg(gcm: *mut fb_gc_mngr_t, bus: u32, chip: u32) -> u32 {
     return *(*gcm).first_valid_pg.offset(
-        bus.wrapping_mul(NUM_CHIPS_PER_BUS as i32 as u32)
+        bus.wrapping_mul(NUM_CHIPS_PER_BUS as u32)
             .wrapping_add(chip) as isize,
     );
 }
@@ -174,10 +174,10 @@ unsafe extern "C" fn set_vic_blks(fb: *mut fb_context_t) -> i32 {
     let mut blki: *mut flash_block;
     let mut bus: u32;
     let mut chip: u32;
-    bus = 0 as i32 as u32;
-    while bus < NUM_BUSES as i32 as u32 {
-        chip = 0 as i32 as u32;
-        while chip < NUM_CHIPS_PER_BUS as i32 as u32 {
+    bus = 0 as u32;
+    while bus < NUM_BUSES as u32 {
+        chip = 0 as u32;
+        while chip < NUM_CHIPS_PER_BUS as u32 {
             if !get_curr_gc_block(fb, bus, chip).is_null()
                 && !get_curr_active_block(fb, bus, chip).is_null()
             {
@@ -189,13 +189,13 @@ unsafe extern "C" fn set_vic_blks(fb: *mut fb_context_t) -> i32 {
                                as *const u8 as *const i8);
                     return -(1 as i32);
                 }
-                if get_nr_valid_lps_in_blk(blki) == 0 as i32 as u32 {
+                if get_nr_valid_lps_in_blk(blki) == 0 as u32 {
                     blki = 0 as *mut flash_block
                 } else {
                     (*gcm).nr_pgs_to_copy = ((*gcm).nr_pgs_to_copy as u32)
                         .wrapping_add(get_nr_valid_lps_in_blk(blki))
-                        as u32 as u32;
-                    set_first_valid_pg(gcm, bus, chip, find_first_valid_pg(blki, 0 as i32 as u32));
+                        as u32;
+                    set_first_valid_pg(gcm, bus, chip, find_first_valid_pg(blki, 0 as u32));
                 }
             }
             set_vic_blk(gcm, bus, chip, blki);
@@ -221,28 +221,28 @@ unsafe extern "C" fn get_valid_pgs_in_vic_blks(fb: *mut fb_context_t) {
     let mut lp: u32;
     let mut nr_pgs_to_read;
     while (*gcm).nr_pgs_to_copy > nr_read_pgs {
-        pg = 0 as i32 as u32;
-        while pg < NUM_PAGES_PER_BLOCK as i32 as u32 {
-            chip = 0 as i32 as u8;
+        pg = 0 as u32;
+        while pg < NUM_PAGES_PER_BLOCK as u32 {
+            chip = 0 as u8;
             while (chip as i32) < NUM_CHIPS_PER_BUS as i32 {
-                bus = 0 as i32 as u8;
+                bus = 0 as u8;
                 while (bus as i32) < NUM_BUSES as i32 {
                     blki = get_vic_blk(gcm, bus as u32, chip as u32);
                     if !blki.is_null() {
                         pgi = get_pgi_from_blki(blki, pg);
                         nr_pgs_to_read =
-                            (NR_LP_IN_PP as i32 as u32).wrapping_sub(get_nr_invalid_lps(pgi));
-                        if nr_pgs_to_read > 0 as i32 as u32 {
-                            lp = 0 as i32 as u32;
-                            while lp < NR_LP_IN_PP as i32 as u32 {
+                            (NR_LP_IN_PP as u32).wrapping_sub(get_nr_invalid_lps(pgi));
+                        if nr_pgs_to_read > 0 as u32 {
+                            lp = 0 as u32;
+                            while lp < NR_LP_IN_PP as u32 {
                                 if get_pg_status(pgi, lp as u8) as u32
-                                    == PAGE_STATUS_VALID as i32 as u32
+                                    == PAGE_STATUS_VALID as u32
                                 {
                                     *ptr_lpa = get_mapped_lpa(pgi, lp as u8);
-                                    lp_bitmap[lp as usize] = 1 as i32 as u8;
+                                    lp_bitmap[lp as usize] = 1 as u8;
                                     ptr_lpa = ptr_lpa.offset(1)
                                 } else {
-                                    lp_bitmap[lp as usize] = 0 as i32 as u8
+                                    lp_bitmap[lp as usize] = 0 as u8
                                 }
                                 lp = lp.wrapping_add(1)
                             }
@@ -258,11 +258,11 @@ unsafe extern "C" fn get_valid_pgs_in_vic_blks(fb: *mut fb_context_t) {
                                 0 as *mut fb_bio_t,
                             );
                             ptr_data = ptr_data.offset(
-                                nr_pgs_to_read.wrapping_mul(LOGICAL_PAGE_SIZE as i32 as u32)
+                                nr_pgs_to_read.wrapping_mul(LOGICAL_PAGE_SIZE as u32)
                                     as isize,
                             );
                             nr_read_pgs =
-                                (nr_read_pgs as u32).wrapping_add(nr_pgs_to_read) as u32 as u32
+                                (nr_read_pgs as u32).wrapping_add(nr_pgs_to_read) as u32
                         }
                     }
                     bus = bus.wrapping_add(1)
@@ -295,8 +295,8 @@ pub unsafe extern "C" fn prog_valid_pgs_to_gc_blks(fb: *mut fb_context_t) -> i32
         }
         if nr_pgs_to_prog < NR_LP_IN_PP as i32 {
             lp = nr_pgs_to_prog as u32;
-            while lp < NR_LP_IN_PP as i32 as u32 {
-                *ptr_lpa.offset(lp as isize) = PAGE_UNMAPPED as i32 as u32;
+            while lp < NR_LP_IN_PP as u32 {
+                *ptr_lpa.offset(lp as isize) = PAGE_UNMAPPED as u32;
                 lp = lp.wrapping_add(1)
             }
         }
@@ -306,8 +306,8 @@ pub unsafe extern "C" fn prog_valid_pgs_to_gc_blks(fb: *mut fb_context_t) -> i32
             printk(b"\x013flashbench: Mapping L2P in GC failed.\n\x00" as *const u8 as *const i8);
             return -(1 as i32);
         }
-        ptr_lpa = ptr_lpa.offset(NR_LP_IN_PP as i32 as isize);
-        ptr_data = ptr_data.offset(PHYSICAL_PAGE_SIZE as i32 as isize);
+        ptr_lpa = ptr_lpa.offset(NR_LP_IN_PP as isize);
+        ptr_data = ptr_data.offset(PHYSICAL_PAGE_SIZE as isize);
         nr_pgs_to_prog -= NR_LP_IN_PP as i32;
         set_prev_bus_chip(fb, bus, chip);
         update_act_blk(fb, bus, chip);
@@ -319,9 +319,9 @@ unsafe extern "C" fn prepare_act_blks(fb: *mut fb_context_t) -> i32 {
     let mut blki: *mut flash_block;
     let mut bus: u8;
     let mut chip: u8;
-    chip = 0 as i32 as u8;
+    chip = 0 as u8;
     while (chip as i32) < NUM_CHIPS_PER_BUS as i32 {
-        bus = 0 as i32 as u8;
+        bus = 0 as u8;
         while (bus as i32) < NUM_BUSES as i32 {
             if get_curr_active_block(fb, bus as u32, chip as u32).is_null() {
                 blki = get_curr_gc_block(fb, bus as u32, chip as u32);
@@ -350,10 +350,10 @@ pub unsafe extern "C" fn update_gc_blks(fb: *mut fb_context_t) -> i32 {
     let mut gc_blki: *mut flash_block;
     let mut bus: u32;
     let mut chip: u32;
-    bus = 0 as i32 as u32;
-    while bus < NUM_BUSES as i32 as u32 {
-        chip = 0 as i32 as u32;
-        while chip < NUM_CHIPS_PER_BUS as i32 as u32 {
+    bus = 0 as u32;
+    while bus < NUM_BUSES as u32 {
+        chip = 0 as u32;
+        while chip < NUM_CHIPS_PER_BUS as u32 {
             if get_curr_gc_block(fb, bus, chip).is_null() {
                 gc_blki = get_dirt_block(get_ssd_inf(fb), bus, chip);
                 if gc_blki.is_null() {
@@ -390,7 +390,7 @@ pub unsafe extern "C" fn create_gc_mngr(fb: *mut fb_context_t) -> *mut fb_gc_mng
     } else {
         (*gcm).gc_blks = vmalloc(
             (::core::mem::size_of::<*mut flash_block>() as u64)
-                .wrapping_mul(NUM_CHIPS as i32 as u64),
+                .wrapping_mul(NUM_CHIPS as u64),
         ) as *mut *mut flash_block;
         if (*gcm).gc_blks.is_null() {
             printk(
@@ -400,7 +400,7 @@ pub unsafe extern "C" fn create_gc_mngr(fb: *mut fb_context_t) -> *mut fb_gc_mng
         } else {
             (*gcm).vic_blks = vmalloc(
                 (::core::mem::size_of::<*mut flash_block>() as u64)
-                    .wrapping_mul(NUM_CHIPS as i32 as u64),
+                    .wrapping_mul(NUM_CHIPS as u64),
             ) as *mut *mut flash_block;
             if (*gcm).vic_blks.is_null() {
                 printk(
@@ -410,9 +410,9 @@ pub unsafe extern "C" fn create_gc_mngr(fb: *mut fb_context_t) -> *mut fb_gc_mng
             } else {
                 (*gcm).lpas_to_copy = vmalloc(
                     (::core::mem::size_of::<u32>() as u64)
-                        .wrapping_mul(NUM_CHIPS as i32 as u64)
-                        .wrapping_mul(NUM_PAGES_PER_BLOCK as i32 as u64)
-                        .wrapping_mul(NR_LP_IN_PP as i32 as u64),
+                        .wrapping_mul(NUM_CHIPS as u64)
+                        .wrapping_mul(NUM_PAGES_PER_BLOCK as u64)
+                        .wrapping_mul(NR_LP_IN_PP as u64),
                 ) as *mut u32;
                 if (*gcm).lpas_to_copy.is_null() {
                     printk(
@@ -422,10 +422,10 @@ pub unsafe extern "C" fn create_gc_mngr(fb: *mut fb_context_t) -> *mut fb_gc_mng
                 } else {
                     (*gcm).data_to_copy = vmalloc(
                         (::core::mem::size_of::<u32>() as u64)
-                            .wrapping_mul(NUM_CHIPS as i32 as u64)
-                            .wrapping_mul(NUM_PAGES_PER_BLOCK as i32 as u64)
-                            .wrapping_mul(NR_LP_IN_PP as i32 as u64)
-                            .wrapping_mul(LOGICAL_PAGE_SIZE as i32 as u64),
+                            .wrapping_mul(NUM_CHIPS as u64)
+                            .wrapping_mul(NUM_PAGES_PER_BLOCK as u64)
+                            .wrapping_mul(NR_LP_IN_PP as u64)
+                            .wrapping_mul(LOGICAL_PAGE_SIZE as u64),
                     ) as *mut u8;
                     if (*gcm).data_to_copy.is_null() {
                         printk(
@@ -435,7 +435,7 @@ pub unsafe extern "C" fn create_gc_mngr(fb: *mut fb_context_t) -> *mut fb_gc_mng
                     } else {
                         (*gcm).first_valid_pg = vmalloc(
                             (::core::mem::size_of::<u32>() as u64)
-                                .wrapping_mul(NUM_CHIPS as i32 as u64),
+                                .wrapping_mul(NUM_CHIPS as u64),
                         ) as *mut u32;
                         if (*gcm).first_valid_pg.is_null() {
                             printk(
@@ -444,14 +444,14 @@ pub unsafe extern "C" fn create_gc_mngr(fb: *mut fb_context_t) -> *mut fb_gc_mng
                             );
                         } else {
                             init_gcm(gcm);
-                            bus = 0 as i32 as u32;
+                            bus = 0 as u32;
                             's_97: loop {
-                                if !(bus < NUM_BUSES as i32 as u32) {
+                                if !(bus < NUM_BUSES as u32) {
                                     current_block = 4775909272756257391;
                                     break;
                                 }
-                                chip = 0 as i32 as u32;
-                                while chip < NUM_CHIPS_PER_BUS as i32 as u32 {
+                                chip = 0 as u32;
+                                while chip < NUM_CHIPS_PER_BUS as u32 {
                                     blki = get_free_block(ssdi, bus, chip);
                                     if blki.is_null() {
                                         printk(
@@ -465,7 +465,7 @@ pub unsafe extern "C" fn create_gc_mngr(fb: *mut fb_context_t) -> *mut fb_gc_mng
                                         reset_free_blk(ssdi, blki);
                                         set_rsv_blk_flag(blki, true as i32);
                                         let ref mut fresh1 = *(*gcm).gc_blks.offset(
-                                            bus.wrapping_mul(NUM_CHIPS_PER_BUS as i32 as u32)
+                                            bus.wrapping_mul(NUM_CHIPS_PER_BUS as u32)
                                                 .wrapping_add(chip)
                                                 as isize,
                                         );
@@ -544,8 +544,8 @@ pub unsafe extern "C" fn fb_bgc_prepare_act_blks(fb: *mut fb_context_t) -> i32 {
     let mut bus = 0u8;
     let mut chip = 0u8;
     let mut i: u32;
-    i = 0 as i32 as u32;
-    while i < NUM_CHIPS as i32 as u32 {
+    i = 0 as u32;
+    while i < NUM_CHIPS as u32 {
         get_next_bus_chip(fb, &mut bus, &mut chip);
         blki = get_curr_gc_block(fb, bus as u32, chip as u32);
         if blki.is_null() {
@@ -588,14 +588,14 @@ pub unsafe extern "C" fn fb_bgc_set_vic_blks(fb: *mut fb_context_t) -> i32 {
     let mut bus: u8;
     let mut chip: u8;
     // if necesary, find a new victim block for each chip
-    bus = 0 as i32 as u8;
+    bus = 0 as u8;
     while (bus as i32) < NUM_BUSES as i32 {
         let mut current_block_15: u64;
-        chip = 0 as i32 as u8;
+        chip = 0 as u8;
         while (chip as i32) < NUM_CHIPS_PER_BUS as i32 {
             chipi = get_chip_info(ssdi, bus as u32, chip as u32);
             if get_nr_dirt_blks_in_chip(chipi).wrapping_add(get_nr_free_blks_in_chip(chipi))
-                < BGC_TH_NR_BLKS as i32 as u32
+                < BGC_TH_NR_BLKS as u32
             {
                 // victim block exists
                 blki = get_vic_blk(gcm, bus as u32, chip as u32);
@@ -607,7 +607,7 @@ pub unsafe extern "C" fn fb_bgc_set_vic_blks(fb: *mut fb_context_t) -> i32 {
                         find_first_valid_pg(blki, get_first_valid_pg(gcm, bus as u32, chip as u32)),
                     );
                     if get_first_valid_pg(gcm, bus as u32, chip as u32)
-                        == NUM_PAGES_PER_BLOCK as i32 as u32
+                        == NUM_PAGES_PER_BLOCK as u32
                     {
                         set_vic_blk(gcm, bus as u32, chip as u32, 0 as *mut flash_block);
                         current_block_15 = 7976072742316086414;
@@ -635,13 +635,13 @@ pub unsafe extern "C" fn fb_bgc_set_vic_blks(fb: *mut fb_context_t) -> i32 {
                             gcm,
                             bus as u32,
                             chip as u32,
-                            find_first_valid_pg(blki, 0 as i32 as u32),
+                            find_first_valid_pg(blki, 0 as u32),
                         );
                     }
                 }
             } else {
                 set_vic_blk(gcm, bus as u32, chip as u32, 0 as *mut flash_block);
-                set_first_valid_pg(gcm, bus as u32, chip as u32, 0 as i32 as u32);
+                set_first_valid_pg(gcm, bus as u32, chip as u32, 0 as u32);
             }
             chip = chip.wrapping_add(1)
         }
@@ -664,8 +664,8 @@ pub unsafe extern "C" fn fb_bgc_read_valid_pgs(fb: *mut fb_context_t) -> i32 {
     let mut ptr_lpas = (*gcm).lpas_to_copy;
     let mut ptr_data = (*gcm).data_to_copy;
     let mut i: u32;
-    i = 0 as i32 as u32;
-    while i < NUM_CHIPS as i32 as u32 {
+    i = 0 as u32;
+    while i < NUM_CHIPS as u32 {
         get_next_bus_chip(fb, &mut bus, &mut chip);
         vic_blki = get_vic_blk(gcm, bus as u32, chip as u32);
         if vic_blki.is_null() {
@@ -673,8 +673,8 @@ pub unsafe extern "C" fn fb_bgc_read_valid_pgs(fb: *mut fb_context_t) -> i32 {
         } else {
             pg = get_first_valid_pg(gcm, bus as u32, chip as u32);
             pgi = get_pgi_from_blki(vic_blki, pg);
-            nr_pgs_to_read = (NR_LP_IN_PP as i32 as u32).wrapping_sub(get_nr_invalid_lps(pgi));
-            if nr_pgs_to_read == 0 as i32 as u32 {
+            nr_pgs_to_read = (NR_LP_IN_PP as u32).wrapping_sub(get_nr_invalid_lps(pgi));
+            if nr_pgs_to_read == 0 as u32 {
                 printk(
                     b"\x013flashbench: Wrong page offset in victim block\n\x00" as *const u8
                         as *const i8,
@@ -682,15 +682,15 @@ pub unsafe extern "C" fn fb_bgc_read_valid_pgs(fb: *mut fb_context_t) -> i32 {
                 return -(1 as i32);
             }
             (*gcm).nr_pgs_to_copy =
-                ((*gcm).nr_pgs_to_copy as u32).wrapping_add(nr_pgs_to_read) as u32 as u32;
-            lp = 0 as i32 as u8;
+                ((*gcm).nr_pgs_to_copy as u32).wrapping_add(nr_pgs_to_read) as u32;
+            lp = 0 as u8;
             while (lp as i32) < NR_LP_IN_PP as i32 {
-                if get_pg_status(pgi, lp) as u32 == PAGE_STATUS_VALID as i32 as u32 {
+                if get_pg_status(pgi, lp) as u32 == PAGE_STATUS_VALID as u32 {
                     *ptr_lpas = get_mapped_lpa(pgi, lp);
-                    lp_bitmap[lp as usize] = 1 as i32 as u8;
+                    lp_bitmap[lp as usize] = 1 as u8;
                     ptr_lpas = ptr_lpas.offset(1)
                 } else {
-                    lp_bitmap[lp as usize] = 0 as i32 as u8
+                    lp_bitmap[lp as usize] = 0 as u8
                 }
                 lp = lp.wrapping_add(1)
             }
@@ -706,7 +706,7 @@ pub unsafe extern "C" fn fb_bgc_read_valid_pgs(fb: *mut fb_context_t) -> i32 {
                 0 as *mut fb_bio_t,
             );
             ptr_data = ptr_data
-                .offset(nr_pgs_to_read.wrapping_mul(LOGICAL_PAGE_SIZE as i32 as u32) as isize);
+                .offset(nr_pgs_to_read.wrapping_mul(LOGICAL_PAGE_SIZE as u32) as isize);
             set_prev_bus_chip(fb, bus, chip);
         }
         i = i.wrapping_add(1)
