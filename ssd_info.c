@@ -5,7 +5,9 @@
 #include "option.h"
 #include "ssd_info.h"
 
-#define IDLE 0
+enum {
+  IDLE = 0
+};
 
 static void set_nr_invalid_lps(struct flash_page *pgi, u32 value);
 static void set_del_flag_pg(struct flash_page *pgi, int flag);

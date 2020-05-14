@@ -12,13 +12,23 @@
 #include "util.h"
 #include "write_buffer.h"
 
-struct fb_btod_t {  // block to del
+// Parameter for DEL manager
+enum {
+  NR_MAX_LPAS_DISCARD = 2048,
+  NUM_WTODS = NR_MAX_LPAS_DISCARD,
+  NUM_BTODS = NR_MAX_LPAS_DISCARD,
+  NR_MAX_LPGS_COPY = NR_MAX_LPAS_DISCARD * 3,
+};
+
+// block to del
+struct fb_btod_t {
   struct flash_block *blki;
 
   UT_hash_handle hh;
 };
 
-struct fb_wtod_t {  // wordline to del
+// wordline to del
+struct fb_wtod_t {
   u32 wl_idx;
   u32 bus;
   u32 chip;
