@@ -251,12 +251,18 @@ pub unsafe extern "C" fn convert_to_ssd_layout(
 }
 #[no_mangle]
 pub unsafe extern "C" fn operation_time(op: fb_dev_op_t) -> u32 {
+    let tread = 80u32;
+    let tprog = 800u32;
+    let tbers = 5000u32;
+    let tplock = 100u32;
+    let tblock = 100u32;
+
     match op as u32 {
-        0 => return TREAD as i32 as u32,
-        1 => return TPROG as i32 as u32,
-        2 => return TPLOCK as i32 as u32,
-        3 => return TBLOCK as i32 as u32,
-        4 => return TBERS as i32 as u32,
-        _ => return 0 as i32 as u32,
+        0 => return tread,
+        1 => return tprog,
+        2 => return tplock,
+        3 => return tblock,
+        4 => return tbers,
+        _ => return 0u32,
     };
 }

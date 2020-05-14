@@ -40,12 +40,6 @@ pub const NUM_LOG_PAGES: u32 = NUM_PAGES * NR_LP_IN_PP * CFACTOR_PERCENT / 100;
 pub const LOGICAL_PAGE_SIZE: u32 = 4096;
 pub const PHYSICAL_PAGE_SIZE: u32 = LOGICAL_PAGE_SIZE * NR_LP_IN_PP;
 
-pub const TREAD: u32 = 80;
-pub const TPROG: u32 = 800;
-pub const TBERS: u32 = 5000;
-pub const TPLOCK: u32 = 100;
-pub const TBLOCK: u32 = 100;
-
 pub const NUM_MAX_ENTRIES_OPR_QUEUE: u32 = 4;
 
 pub const BGC_TH_NR_BLKS: u32 = 14;
