@@ -2,6 +2,7 @@ use core::ffi::c_void;
 
 extern "C" {
     // linux/printk.h
+    // TODO: Change into *const u8
     pub fn printk(fmt: *const i8, _: ...) -> i32;
 
     // linux/vmalloc.h
