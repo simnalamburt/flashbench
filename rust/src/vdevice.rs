@@ -2,6 +2,7 @@ use crate::constants::*;
 use crate::linux::*;
 use crate::structs::*;
 use core::ffi::c_void;
+use core::mem::size_of;
 
 extern "C" {
     fn fb_bus_controller_init(ptr_vdevice: *mut vdevice_t, num_max_entries_per_chip: u32) -> i32;
@@ -21,31 +22,24 @@ pub unsafe extern "C" fn create_vdevice() -> *mut vdevice_t {
     let mut chip_loop: u64;
     let mut block_loop: u64;
     let mut page_loop: u64;
-    let mut bus_capacity: u64;
-    ptr_vdevice = vmalloc(::core::mem::size_of::<vdevice_t>() as u64) as *mut vdevice_t;
+    ptr_vdevice = vmalloc(size_of::<vdevice_t>()) as *mut vdevice_t;
     if ptr_vdevice.is_null() {
         printk(
             b"\x013flashbench: Allocating virtual device structure failed.\n\x00" as *const u8
                 as *const i8,
         );
     } else {
-        bus_capacity = NUM_CHIPS_PER_BUS as u64;
-        bus_capacity =
-            (bus_capacity as u64).wrapping_mul(NUM_BLOCKS_PER_CHIP as u64) as u64;
-        bus_capacity =
-            (bus_capacity as u64).wrapping_mul(NUM_PAGES_PER_BLOCK as u64) as u64;
-        bus_capacity =
-            (bus_capacity as u64).wrapping_mul(PHYSICAL_PAGE_SIZE as u64) as u64;
-        (*ptr_vdevice).device_capacity = (NUM_BUSES as u64).wrapping_mul(bus_capacity);
+        let capaticy_per_bus: usize =
+            NUM_CHIPS_PER_BUS * NUM_BLOCKS_PER_CHIP * NUM_PAGES_PER_BLOCK * PHYSICAL_PAGE_SIZE;
+        (*ptr_vdevice).device_capacity = (NUM_BUSES * capaticy_per_bus) as u64;
         bus_loop = 0 as u64;
         loop {
             if !(bus_loop < NUM_BUSES as u64) {
                 current_block = 10599921512955367680;
                 break;
             }
-            (*ptr_vdevice).ptr_vdisk[bus_loop as usize] = vmalloc(
-                (::core::mem::size_of::<u8>() as u64).wrapping_mul(bus_capacity) as u64,
-            ) as *mut u8;
+            (*ptr_vdevice).ptr_vdisk[bus_loop as usize] =
+                vmalloc(size_of::<u8>() * capaticy_per_bus) as *mut u8;
             if (*ptr_vdevice).ptr_vdisk[bus_loop as usize].is_null() {
                 printk(
                     b"\x013flashbench: Allocating virtual disk failed.\n\x00" as *const u8
@@ -59,18 +53,11 @@ pub unsafe extern "C" fn create_vdevice() -> *mut vdevice_t {
         }
         match current_block {
             10599921512955367680 => {
-                bus_capacity = NUM_CHIPS_PER_BUS as u64;
-                bus_capacity = (bus_capacity as u64).wrapping_mul(NUM_BLOCKS_PER_CHIP as u64)
-                    as u64;
-                bus_capacity = (bus_capacity as u64).wrapping_mul(NUM_PAGES_PER_BLOCK as u64)
-                    as u64;
-                bus_capacity = bus_capacity
-                    .wrapping_mul(CFACTOR_PERCENT as u64)
-                    .wrapping_div(100 as u64);
-                bus_capacity = (bus_capacity as u64).wrapping_mul(PHYSICAL_PAGE_SIZE as u64)
-                    as u64;
-                (*ptr_vdevice).logical_capacity =
-                    (NUM_BUSES as u64).wrapping_mul(bus_capacity);
+                let bus_capacity: usize =
+                    NUM_CHIPS_PER_BUS * NUM_BLOCKS_PER_CHIP * NUM_PAGES_PER_BLOCK * CFACTOR_PERCENT
+                        / 100
+                        * PHYSICAL_PAGE_SIZE;
+                (*ptr_vdevice).logical_capacity = (NUM_BUSES * bus_capacity) as u64;
                 bus_loop = 0 as u64;
                 while bus_loop < NUM_BUSES as u64 {
                     chip_loop = 0 as u64;
@@ -87,8 +74,7 @@ pub unsafe extern "C" fn create_vdevice() -> *mut vdevice_t {
                                         .wrapping_mul(NUM_BLOCKS_PER_CHIP as u64)
                                         .wrapping_mul(NUM_PAGES_PER_BLOCK as u64)
                                         .wrapping_add(
-                                            block_loop
-                                                .wrapping_mul(NUM_PAGES_PER_BLOCK as u64),
+                                            block_loop.wrapping_mul(NUM_PAGES_PER_BLOCK as u64),
                                         )
                                         .wrapping_add(page_loop)
                                         .wrapping_mul(PHYSICAL_PAGE_SIZE as u64)
@@ -154,7 +140,7 @@ pub unsafe extern "C" fn vdevice_read(
             memcpy(
                 ptr_curr as *mut c_void,
                 ptr_src as *const c_void,
-                LOGICAL_PAGE_SIZE as u64,
+                LOGICAL_PAGE_SIZE,
             );
             ptr_curr = ptr_curr.offset(LOGICAL_PAGE_SIZE as isize)
         }
@@ -185,7 +171,7 @@ pub unsafe extern "C" fn vdevice_write(
     memcpy(
         ptr_dest as *mut c_void,
         ptr_src as *const c_void,
-        PHYSICAL_PAGE_SIZE as u64,
+        PHYSICAL_PAGE_SIZE,
     );
     fb_issue_operation(
         *(*ptr_vdevice).ptr_bus_controller.offset(bus as isize),
@@ -209,7 +195,7 @@ pub unsafe extern "C" fn vdevice_erase(
     memset(
         ptr_dest as *mut c_void,
         0xff as i32,
-        (NUM_PAGES_PER_BLOCK as i32 * PHYSICAL_PAGE_SIZE as i32) as u64,
+        NUM_PAGES_PER_BLOCK * PHYSICAL_PAGE_SIZE,
     );
     fb_issue_operation(
         *(*ptr_vdevice).ptr_bus_controller.offset(bus as isize),

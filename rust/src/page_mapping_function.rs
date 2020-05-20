@@ -134,11 +134,7 @@ pub unsafe extern "C" fn invalidate_lpg(fb: *mut fb_context_t, lpa: u32) -> u32 
         convert_to_ssd_layout(ppa, &mut bus, &mut chip, &mut blk, &mut pg);
         blki = get_block_info(ssdi, bus, chip, blk);
         pgi = get_page_info(ssdi, bus, chip, blk, pg >> LP_PAGE_SHIFT as i32);
-        set_pg_status(
-            pgi,
-            (pg & LP_PAGE_MASK as u32) as u8,
-            PAGE_STATUS_INVALID,
-        );
+        set_pg_status(pgi, (pg & LP_PAGE_MASK as u32) as u8, PAGE_STATUS_INVALID);
         inc_nr_invalid_lps_in_blk(blki);
         dec_nr_valid_lps_in_blk(blki);
         if inc_nr_invalid_lps(pgi) == NR_LP_IN_PP as u32 {

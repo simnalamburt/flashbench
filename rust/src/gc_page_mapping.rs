@@ -3,6 +3,7 @@ use crate::header::*;
 use crate::linux::*;
 use crate::structs::*;
 use core::ffi::c_void;
+use core::mem::size_of;
 
 extern "C" {
     fn get_gcm(ftl: *mut page_mapping_context_t) -> *mut fb_gc_mngr_t;
@@ -230,14 +231,11 @@ unsafe extern "C" fn get_valid_pgs_in_vic_blks(fb: *mut fb_context_t) {
                     blki = get_vic_blk(gcm, bus as u32, chip as u32);
                     if !blki.is_null() {
                         pgi = get_pgi_from_blki(blki, pg);
-                        nr_pgs_to_read =
-                            (NR_LP_IN_PP as u32).wrapping_sub(get_nr_invalid_lps(pgi));
+                        nr_pgs_to_read = (NR_LP_IN_PP as u32).wrapping_sub(get_nr_invalid_lps(pgi));
                         if nr_pgs_to_read > 0 as u32 {
                             lp = 0 as u32;
                             while lp < NR_LP_IN_PP as u32 {
-                                if get_pg_status(pgi, lp as u8) as u32
-                                    == PAGE_STATUS_VALID as u32
-                                {
+                                if get_pg_status(pgi, lp as u8) as u32 == PAGE_STATUS_VALID as u32 {
                                     *ptr_lpa = get_mapped_lpa(pgi, lp as u8);
                                     lp_bitmap[lp as usize] = 1 as u8;
                                     ptr_lpa = ptr_lpa.offset(1)
@@ -257,12 +255,11 @@ unsafe extern "C" fn get_valid_pgs_in_vic_blks(fb: *mut fb_context_t) {
                                 ptr_data,
                                 0 as *mut fb_bio_t,
                             );
-                            ptr_data = ptr_data.offset(
-                                nr_pgs_to_read.wrapping_mul(LOGICAL_PAGE_SIZE as u32)
-                                    as isize,
-                            );
-                            nr_read_pgs =
-                                (nr_read_pgs as u32).wrapping_add(nr_pgs_to_read) as u32
+                            ptr_data =
+                                ptr_data
+                                    .offset(nr_pgs_to_read.wrapping_mul(LOGICAL_PAGE_SIZE as u32)
+                                        as isize);
+                            nr_read_pgs = (nr_read_pgs as u32).wrapping_add(nr_pgs_to_read) as u32
                         }
                     }
                     bus = bus.wrapping_add(1)
@@ -384,36 +381,29 @@ pub unsafe extern "C" fn create_gc_mngr(fb: *mut fb_context_t) -> *mut fb_gc_mng
     let mut blki: *mut flash_block;
     let mut bus: u32;
     let mut chip: u32;
-    gcm = vmalloc(::core::mem::size_of::<fb_gc_mngr_t>() as u64) as *mut fb_gc_mngr_t;
+    gcm = vmalloc(size_of::<fb_gc_mngr_t>()) as *mut fb_gc_mngr_t;
     if gcm.is_null() {
         printk(b"\x013flashbench: Allocating GC manager failed.\n\x00" as *const u8 as *const i8);
     } else {
-        (*gcm).gc_blks = vmalloc(
-            (::core::mem::size_of::<*mut flash_block>() as u64)
-                .wrapping_mul(NUM_CHIPS as u64),
-        ) as *mut *mut flash_block;
+        (*gcm).gc_blks =
+            vmalloc(size_of::<*mut flash_block>() * NUM_CHIPS) as *mut *mut flash_block;
         if (*gcm).gc_blks.is_null() {
             printk(
                 b"\x013flashbench: Allocating GC block list failed.\n\x00" as *const u8
                     as *const i8,
             );
         } else {
-            (*gcm).vic_blks = vmalloc(
-                (::core::mem::size_of::<*mut flash_block>() as u64)
-                    .wrapping_mul(NUM_CHIPS as u64),
-            ) as *mut *mut flash_block;
+            (*gcm).vic_blks =
+                vmalloc(size_of::<*mut flash_block>() * NUM_CHIPS) as *mut *mut flash_block;
             if (*gcm).vic_blks.is_null() {
                 printk(
                     b"\x013flashbench: Allocating victim block list failed.\n\x00" as *const u8
                         as *const i8,
                 );
             } else {
-                (*gcm).lpas_to_copy = vmalloc(
-                    (::core::mem::size_of::<u32>() as u64)
-                        .wrapping_mul(NUM_CHIPS as u64)
-                        .wrapping_mul(NUM_PAGES_PER_BLOCK as u64)
-                        .wrapping_mul(NR_LP_IN_PP as u64),
-                ) as *mut u32;
+                (*gcm).lpas_to_copy =
+                    vmalloc(size_of::<u32>() * NUM_CHIPS * NUM_PAGES_PER_BLOCK * NR_LP_IN_PP)
+                        as *mut u32;
                 if (*gcm).lpas_to_copy.is_null() {
                     printk(
                         b"\x013flashbench: Allocating LPA list failed.\n\x00" as *const u8
@@ -421,11 +411,11 @@ pub unsafe extern "C" fn create_gc_mngr(fb: *mut fb_context_t) -> *mut fb_gc_mng
                     );
                 } else {
                     (*gcm).data_to_copy = vmalloc(
-                        (::core::mem::size_of::<u32>() as u64)
-                            .wrapping_mul(NUM_CHIPS as u64)
-                            .wrapping_mul(NUM_PAGES_PER_BLOCK as u64)
-                            .wrapping_mul(NR_LP_IN_PP as u64)
-                            .wrapping_mul(LOGICAL_PAGE_SIZE as u64),
+                        size_of::<u32>()
+                            * NUM_CHIPS
+                            * NUM_PAGES_PER_BLOCK
+                            * NR_LP_IN_PP
+                            * LOGICAL_PAGE_SIZE,
                     ) as *mut u8;
                     if (*gcm).data_to_copy.is_null() {
                         printk(
@@ -433,10 +423,7 @@ pub unsafe extern "C" fn create_gc_mngr(fb: *mut fb_context_t) -> *mut fb_gc_mng
                                 as *const u8 as *const i8,
                         );
                     } else {
-                        (*gcm).first_valid_pg = vmalloc(
-                            (::core::mem::size_of::<u32>() as u64)
-                                .wrapping_mul(NUM_CHIPS as u64),
-                        ) as *mut u32;
+                        (*gcm).first_valid_pg = vmalloc(size_of::<u32>() * NUM_CHIPS) as *mut u32;
                         if (*gcm).first_valid_pg.is_null() {
                             printk(
                                 b"\x013flashbench: Allocating page_offset failed.\n\x00"
@@ -705,8 +692,8 @@ pub unsafe extern "C" fn fb_bgc_read_valid_pgs(fb: *mut fb_context_t) -> i32 {
                 ptr_data,
                 0 as *mut fb_bio_t,
             );
-            ptr_data = ptr_data
-                .offset(nr_pgs_to_read.wrapping_mul(LOGICAL_PAGE_SIZE as u32) as isize);
+            ptr_data =
+                ptr_data.offset(nr_pgs_to_read.wrapping_mul(LOGICAL_PAGE_SIZE as u32) as isize);
             set_prev_bus_chip(fb, bus, chip);
         }
         i = i.wrapping_add(1)
