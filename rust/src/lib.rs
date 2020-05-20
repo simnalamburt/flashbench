@@ -22,5 +22,5 @@ pub use vdevice::*;
 #[panic_handler]
 #[no_mangle]
 extern "C" fn panic(_info: &core::panic::PanicInfo) -> ! {
-    unsafe { core::intrinsics::abort() }
+    core::intrinsics::abort()
 }
