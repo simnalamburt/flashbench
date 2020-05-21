@@ -9,6 +9,7 @@ extern "C" {
     pub fn vmalloc(size: usize) -> *mut c_void;
     pub fn vfree(addr: *const c_void);
 
+    // linux/string.h
     pub fn memset(_: *mut c_void, _: i32, _: usize) -> *mut c_void;
     pub fn memcpy(_: *mut c_void, _: *const c_void, _: usize) -> *mut c_void;
 }
