@@ -11,7 +11,7 @@ extern "C" {
     fn fb_issue_operation(
         ptr_bus_controller: *mut fb_bus_controller_t,
         chip: u32,
-        operation: u32,
+        operation: fb_dev_op_t,
         ptr_bio: *mut fb_bio_t,
     ) -> i32;
 }
@@ -138,7 +138,7 @@ pub unsafe extern "C" fn vdevice_read(
     fb_issue_operation(
         *(*ptr_vdevice).ptr_bus_controller.offset(bus as isize),
         chip as u32,
-        OP_READ as u32,
+        OP_READ,
         ptr_fb_bio,
     );
 }
@@ -165,7 +165,7 @@ pub unsafe extern "C" fn vdevice_write(
     fb_issue_operation(
         *(*ptr_vdevice).ptr_bus_controller.offset(bus as isize),
         chip as u32,
-        OP_PROG as u32,
+        OP_PROG,
         ptr_fb_bio,
     );
 }
@@ -190,7 +190,7 @@ pub unsafe extern "C" fn vdevice_erase(
     fb_issue_operation(
         *(*ptr_vdevice).ptr_bus_controller.offset(bus as isize),
         chip as u32,
-        OP_BERS as u32,
+        OP_BERS,
         ptr_fb_bio,
     );
 }

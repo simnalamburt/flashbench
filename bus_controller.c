@@ -9,7 +9,7 @@
 #include "util.h"
 
 struct fb_operation_t {
-  u32 operation;
+  enum fb_dev_op_t operation;
   struct fb_bio_t *ptr_fb_bio;
 };
 
@@ -77,12 +77,12 @@ static int opr_queue_empty(struct fb_opr_queue_t *ptr_opr_queue);
 
 // Put an entry into the target operation queue(success: 0, error: -1)
 static int opr_queue_put_entry(struct fb_opr_queue_t *ptr_opr_queue,
-                               u32 operation, struct fb_bio_t *ptr_fb_bio);
+                               enum fb_dev_op_t operation, struct fb_bio_t *ptr_fb_bio);
 
 // Get informations of the first entry in the target operation queue(success: 0,
 // error: -1)
 static int opr_queue_get_first(struct fb_opr_queue_t *ptr_opr_queue,
-                               u32 *ptr_operation,
+                               enum fb_dev_op_t *ptr_operation,
                                struct fb_bio_t **ptr_fb_bio);
 
 // Remove informations of the first entry in the target operation queue(success:
@@ -93,7 +93,7 @@ static void release_busy_lock(struct fb_bus_controller_t *ptr_bus_controller,
                               u32 chip);
 
 static void acquire_busy_lock(struct fb_bus_controller_t *ptr_bus_controller,
-                              u32 chip, u32 operation,
+                              u32 chip, enum fb_dev_op_t operation,
                               struct fb_bio_t *ptr_fb_bio);
 
 static int chip_status_busy(struct fb_bus_controller_t *ptr_bus_controller,
@@ -191,7 +191,7 @@ void fb_bus_controller_destroy(
 
 // Issue an operation for the target chip of the target bus
 int fb_issue_operation(struct fb_bus_controller_t *ptr_bus_controller, u32 chip,
-                       u32 operation, struct fb_bio_t *ptr_bio) {
+                       enum fb_dev_op_t operation, struct fb_bio_t *ptr_bio) {
   while (opr_queue_put_entry(ptr_bus_controller->ptr_opr_queue[chip], operation,
                              ptr_bio) == -1)
     ;
@@ -313,7 +313,7 @@ static int fb_bus_ctrl_thread(void *arg) {
       (struct fb_bus_controller_t *)arg;
   u32 loop_chip;
   u32 wakeup_time_in_us, current_time_in_us;
-  u32 operation;
+  enum fb_dev_op_t operation;
   struct fb_bio_t *ptr_fb_bio = NULL;
 
   u32 signr;
@@ -526,7 +526,7 @@ static int opr_queue_empty(struct fb_opr_queue_t *ptr_opr_queue) {
 
 // Put an entry into the target operation queue(success: 0, error: -1)
 static int opr_queue_put_entry(struct fb_opr_queue_t *ptr_opr_queue,
-                               u32 operation, struct fb_bio_t *ptr_fb_bio) {
+                               enum fb_dev_op_t operation, struct fb_bio_t *ptr_fb_bio) {
   int ret = 0;
   struct fb_operation_t *ptr_opr_entry;
 
@@ -567,7 +567,7 @@ FINISH:
 // error: -1)
 // (The first entry means that it is the oldes entry(first come).)
 static int opr_queue_get_first(struct fb_opr_queue_t *ptr_opr_queue,
-                               u32 *ptr_operation,
+                               enum fb_dev_op_t *ptr_operation,
                                struct fb_bio_t **ptr_fb_bio) {
   int ret = 0;
   struct fb_operation_t *ptr_opr_entry;
@@ -649,7 +649,7 @@ static void release_busy_lock(struct fb_bus_controller_t *ptr_bus_controller,
 }
 
 static void acquire_busy_lock(struct fb_bus_controller_t *ptr_bus_controller,
-                              u32 chip, u32 operation,
+                              u32 chip, enum fb_dev_op_t operation,
                               struct fb_bio_t *ptr_fb_bio) {
   // Set time values
   ptr_bus_controller->chip_busies[chip].issue_time_in_us =
