@@ -1,6 +1,8 @@
 #![no_std]
 #![feature(core_intrinsics, extern_types)]
 
+mod alloc;
+
 mod constants;
 mod header;
 mod linux;
