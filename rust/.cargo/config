@@ -1,5 +1,5 @@
-[alias]
-xbuild = "build -Z build-std=core"
-
 [build]
 target = "x86_64-linux-kernel"
+
+[unstable]
+build-std = ["core"]

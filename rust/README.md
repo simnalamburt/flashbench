@@ -2,11 +2,11 @@ Rust part of flashbench
 ========
 
 ```bash
-# Use nightly as default toolchain in this directory
-rustup override set nightly
+cargo +nightly build
 
-# xbuild is alias of `build -Z build-std=core`
-cargo xbuild
+# You can set nightly as default rust toolchain in this project using rustup
+rustup override set nightly
+cargo build
 ```
 
 ### TODOs
