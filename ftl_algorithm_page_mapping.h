@@ -55,4 +55,4 @@ void destroy_pg_ftl(struct page_mapping_context_t *ftl);
 struct fb_gc_mngr_t *get_gcm(struct page_mapping_context_t *ftl);
 struct fb_act_blk_mngr_t *get_abm(struct page_mapping_context_t *ftl);
 void print_blk_mgmt(struct fb_context_t *fb);
-int fb_del_invalid_data(struct fb_context_t *fb, struct fb_bio_t *fb_bio);
+void fb_del_invalid_data(struct fb_context_t *fb, struct fb_bio_t *fb_bio);

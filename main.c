@@ -103,10 +103,7 @@ static blk_qc_t make_request(
 
     case WRITE:
 
-      if (fb_del_invalid_data(_fb, fbio) == -1) {
-        printk(KERN_ERR "flashbench: Invalidation failed.\n");
-        goto FAIL;
-      }
+      fb_del_invalid_data(_fb, fbio);
 
       for (loop = 0; loop < req_count; loop++) {
         if (fb_put_pg(get_write_buffer(_fb), fbio->lpas[loop],
