@@ -6,8 +6,7 @@
 #include "util.h"
 
 int trigger_bg_gc(struct fb_context_t *fb) {
-  struct page_mapping_context_t *ftl =
-      (struct page_mapping_context_t *)get_ftl(fb);
+  struct page_mapping_context_t *ftl = get_ftl(fb);
   struct fb_gc_mngr_t *gcm = ftl->gcm;
 
   u8 bus, chip;
