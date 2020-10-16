@@ -64,17 +64,6 @@ static struct fb_opr_queue_t *create_opr_queue(u32 num_max_entries);
 // Destroying the operation queue
 static void destroy_opr_queue(struct fb_opr_queue_t *ptr_opr_queue);
 
-// Get the current number of entries in the target operation queue
-static u32 opr_queue_num_entries(struct fb_opr_queue_t *ptr_opr_queue);
-
-// Check whether the operation queue is full or not(full: TRUE, otherwise:
-// FASLE)
-static int opr_queue_full(struct fb_opr_queue_t *ptr_opr_queue);
-
-// Check whether the operation queue is empty or not(empty: TRUE, otherwise:
-// FALSE)
-static int opr_queue_empty(struct fb_opr_queue_t *ptr_opr_queue);
-
 // Put an entry into the target operation queue(success: 0, error: -1)
 static int opr_queue_put_entry(struct fb_opr_queue_t *ptr_opr_queue,
                                enum fb_dev_op_t operation, struct fb_bio_t *ptr_fb_bio);
@@ -96,24 +85,17 @@ static void acquire_busy_lock(struct fb_bus_controller_t *ptr_bus_controller,
                               u32 chip, enum fb_dev_op_t operation,
                               struct fb_bio_t *ptr_fb_bio);
 
-static int chip_status_busy(struct fb_bus_controller_t *ptr_bus_controller,
-                            u32 chip);
-
-static u32 get_chip_wakeup_time(struct fb_bus_controller_t *ptr_bus_controller,
-                                u32 chip);
+static bool is_acquired(const struct fb_chip_busy_t *busy) {
+  return busy->wakeup_time_in_us != 0 || busy->issue_time_in_us != 0;
+}
 
 // ----------------- Public functions ----------------------------------------
 // Creating and initialize bus controllers in the virtual device structure
 int fb_bus_controller_init(struct vdevice_t *ptr_vdevice,
                            u32 num_max_entries_per_chip) {
-  u32 loop_bus;
-
-  struct fb_bus_controller_t **ptr_bus_controller = NULL;
-
   // Allocating a pointer of the bus controller list
-  if ((ptr_bus_controller = (struct fb_bus_controller_t **)kmalloc(
-           sizeof(struct fb_bus_controller_t *) * NUM_BUSES, GFP_ATOMIC)) ==
-      NULL) {
+  struct fb_bus_controller_t **ptr_bus_controller = kmalloc(sizeof(struct fb_bus_controller_t *) * NUM_BUSES, GFP_ATOMIC);
+  if (ptr_bus_controller == NULL) {
     printk(KERN_ERR
            "flashbench: bus controller: Allocating the pointer of bus "
            "controllers failed.\n");
@@ -121,9 +103,9 @@ int fb_bus_controller_init(struct vdevice_t *ptr_vdevice,
   }
 
   // Creating bus controllers(for the number of buses)
-  for (loop_bus = 0; loop_bus < NUM_BUSES; loop_bus++) {
-    if ((ptr_bus_controller[loop_bus] =
-             create_bus_controller(num_max_entries_per_chip)) == NULL) {
+  for (u32 loop_bus = 0; loop_bus < NUM_BUSES; loop_bus++) {
+    ptr_bus_controller[loop_bus] = create_bus_controller(num_max_entries_per_chip);
+    if (ptr_bus_controller[loop_bus] == NULL) {
       printk(KERN_ERR
              "flashbench: bus controller: Creating bus controllers failed.\n");
       goto CREATE_BUS_CTRL_FAIL;
@@ -131,7 +113,7 @@ int fb_bus_controller_init(struct vdevice_t *ptr_vdevice,
   }
 
   // Initilaize bus control threads(for the number of buses)
-  for (loop_bus = 0; loop_bus < NUM_BUSES; loop_bus++) {
+  for (u32 loop_bus = 0; loop_bus < NUM_BUSES; loop_bus++) {
     ptr_bus_controller[loop_bus]->flag_enable_thread = 1;
     ptr_bus_controller[loop_bus]->num_bus = loop_bus;
 
@@ -145,19 +127,16 @@ int fb_bus_controller_init(struct vdevice_t *ptr_vdevice,
   return 0;
 
 INIT_BUS_CTRL_THREAD_FAIL:
-  for (loop_bus = 0; loop_bus < NUM_BUSES; loop_bus++) {
+  for (u32 loop_bus = 0; loop_bus < NUM_BUSES; loop_bus++) {
     ptr_bus_controller[loop_bus]->flag_enable_thread = 0;
     fb_stop_bus_ctrl_thread(ptr_bus_controller[loop_bus]);
   }
 
 CREATE_BUS_CTRL_FAIL:
   if (ptr_bus_controller != NULL) {
-    for (loop_bus = 0; loop_bus < NUM_BUSES; loop_bus++) {
-      if (ptr_bus_controller[loop_bus] != NULL) {
-        destroy_bus_controller(ptr_bus_controller[loop_bus]);
-      } else {
-        break;
-      }
+    for (u32 loop_bus = 0; loop_bus < NUM_BUSES; loop_bus++) {
+      if (ptr_bus_controller[loop_bus] == NULL) { break; }
+      destroy_bus_controller(ptr_bus_controller[loop_bus]);
     }
 
     kfree(ptr_bus_controller);
@@ -169,17 +148,15 @@ ALLOC_PTR_BUS_CTRL_FAIL:
 // Destory bus controllers
 void fb_bus_controller_destroy(
     struct fb_bus_controller_t **ptr_bus_controller) {
-  u32 loop_bus;
-
   if (ptr_bus_controller != NULL) {
-    for (loop_bus = 0; loop_bus < NUM_BUSES; loop_bus++) {
+    for (u32 loop_bus = 0; loop_bus < NUM_BUSES; loop_bus++) {
       if (ptr_bus_controller[loop_bus] != NULL) {
         ptr_bus_controller[loop_bus]->flag_enable_thread = 0;
         fb_stop_bus_ctrl_thread(ptr_bus_controller[loop_bus]);
       }
     }
 
-    for (loop_bus = 0; loop_bus < NUM_BUSES; loop_bus++) {
+    for (u32 loop_bus = 0; loop_bus < NUM_BUSES; loop_bus++) {
       if (ptr_bus_controller[loop_bus] != NULL) {
         destroy_bus_controller(ptr_bus_controller[loop_bus]);
       }
@@ -190,13 +167,10 @@ void fb_bus_controller_destroy(
 }
 
 // Issue an operation for the target chip of the target bus
-int fb_issue_operation(struct fb_bus_controller_t *ptr_bus_controller, u32 chip,
+void fb_issue_operation(struct fb_bus_controller_t *ptr_bus_controller, u32 chip,
                        enum fb_dev_op_t operation, struct fb_bio_t *ptr_bio) {
   while (opr_queue_put_entry(ptr_bus_controller->ptr_opr_queue[chip], operation,
-                             ptr_bio) == -1)
-    ;
-
-  return 0;
+                             ptr_bio) == -1);
 }
 
 // ---------------- Static functions: Bus contorller
@@ -364,8 +338,8 @@ static int fb_bus_ctrl_thread(void *arg) {
     // Release bus locks whose conditions are satisfied
     for (loop_chip = 0; loop_chip < NUM_CHIPS_PER_BUS; loop_chip++) {
       // Get wakeup time, and check it is valid value.
-      if ((wakeup_time_in_us =
-               get_chip_wakeup_time(ptr_bus_controller, loop_chip)) > 0) {
+      wakeup_time_in_us = ptr_bus_controller->chip_busies[loop_chip].wakeup_time_in_us;
+      if (wakeup_time_in_us > 0) {
         // Check the condition
         if (wakeup_time_in_us <= current_time_in_us) {
           // Release lock
@@ -381,24 +355,25 @@ static int fb_bus_ctrl_thread(void *arg) {
     for (loop_chip = 0; loop_chip < NUM_CHIPS_PER_BUS; loop_chip++) {
       // Check whether the operation queue for the chip is empty or not,
       // and the chip is available or not.
-      if (opr_queue_empty(ptr_bus_controller->ptr_opr_queue[loop_chip]) ==
-              false &&
-          chip_status_busy(ptr_bus_controller, loop_chip) == false) {
-        // Get informations of the first request for the chip
-        if (opr_queue_get_first(ptr_bus_controller->ptr_opr_queue[loop_chip],
-                                &operation, &ptr_fb_bio) == -1) {
-          printk(KERN_ERR
-                 "flashbench: bus controller: Operation queue should not be "
-                 "empty.\n");
-          goto FINISH;
-        }
-
-        // Issue the request
-        acquire_busy_lock(ptr_bus_controller, loop_chip, operation, ptr_fb_bio);
-
-        // Remove the entry
-        opr_queue_remove_first(ptr_bus_controller->ptr_opr_queue[loop_chip]);
+      if (ptr_bus_controller->ptr_opr_queue[loop_chip]->num_entries == 0 ||
+          is_acquired(&ptr_bus_controller->chip_busies[loop_chip])) {
+        continue;
       }
+
+      // Get informations of the first request for the chip
+      if (opr_queue_get_first(ptr_bus_controller->ptr_opr_queue[loop_chip],
+                              &operation, &ptr_fb_bio) == -1) {
+        printk(KERN_ERR
+               "flashbench: bus controller: Operation queue should not be "
+               "empty.\n");
+        goto FINISH;
+      }
+
+      // Issue the request
+      acquire_busy_lock(ptr_bus_controller, loop_chip, operation, ptr_fb_bio);
+
+      // Remove the entry
+      opr_queue_remove_first(ptr_bus_controller->ptr_opr_queue[loop_chip]);
     }
 
     if (ptr_bus_controller->flag_enable_thread == 0) {
@@ -420,7 +395,6 @@ FINISH:
 static int fb_init_bus_ctrl_thread(
     struct fb_bus_controller_t *ptr_bus_controller, u32 bus) {
   int rc;
-  int ret = 0;
 
   char thread_name[16];
   sprintf(thread_name, "fb_bus_%d", bus);
@@ -433,42 +407,37 @@ static int fb_init_bus_ctrl_thread(
     printk(KERN_ERR
            "flashbench: bus controller: Creating bus %d control task failed.\n",
            bus);
-    ret = -1;
+    return -1;
   } else {
     printk(KERN_INFO
            "flashbench: bus controller: Bus %d controller is successfully "
            "created.\n",
            bus);
+    return 0;
   }
-
-  return ret;
 }
 
 static void fb_stop_bus_ctrl_thread(
     struct fb_bus_controller_t *ptr_bus_controller) {
-  if (ptr_bus_controller->ptr_task != NULL) {
-    kthread_stop(ptr_bus_controller->ptr_task);
-  }
+  if (ptr_bus_controller->ptr_task == NULL) { return; }
+  kthread_stop(ptr_bus_controller->ptr_task);
 }
 
 // ---------------- Static functions: Operation queue
 // ----------------------------
 // Creating an operation queue for a chip
 static struct fb_opr_queue_t *create_opr_queue(u32 num_max_entries) {
-  struct fb_opr_queue_t *ptr_opr_queue;
-
   // Allocating an operation queue
-  if ((ptr_opr_queue = (struct fb_opr_queue_t *)kmalloc(
-           sizeof(struct fb_opr_queue_t), GFP_ATOMIC)) == NULL) {
+  struct fb_opr_queue_t *ptr_opr_queue = kmalloc(sizeof(struct fb_opr_queue_t), GFP_ATOMIC);
+  if (ptr_opr_queue == NULL) {
     printk(KERN_ERR
            "flashbench: bus controller: Allocating operation queue failed.\n");
     goto ALLOC_OPR_QUEUE_FAIL;
   }
 
   // Allocating an operation list where data are actually stored
-  if ((ptr_opr_queue->opr_list = (struct fb_operation_t *)kmalloc(
-           sizeof(struct fb_operation_t) * num_max_entries, GFP_ATOMIC)) ==
-      NULL) {
+  ptr_opr_queue->opr_list = kmalloc(sizeof(struct fb_operation_t) * num_max_entries, GFP_ATOMIC);
+  if (ptr_opr_queue->opr_list == NULL) {
     printk(KERN_ERR
            "flashbench: bus controller: Allocating operation list failed.\n");
     goto ALLOC_OPR_LIST_FAIL;
@@ -477,7 +446,8 @@ static struct fb_opr_queue_t *create_opr_queue(u32 num_max_entries) {
   // Initialize values: operation queues are based on circular queue.
   ptr_opr_queue->num_max_entries = num_max_entries;
   ptr_opr_queue->num_entries = 0;
-  ptr_opr_queue->queue_head = ptr_opr_queue->queue_tail = 0;
+  ptr_opr_queue->queue_head = 0;
+  ptr_opr_queue->queue_tail = 0;
 
   // Initialize a lock for the queue
   init_completion(&ptr_opr_queue->queue_lock);
@@ -496,32 +466,9 @@ ALLOC_OPR_QUEUE_FAIL:
 
 // Destroying the operation queue
 static void destroy_opr_queue(struct fb_opr_queue_t *ptr_opr_queue) {
-  if (ptr_opr_queue != NULL) {
-    if (ptr_opr_queue->opr_list != NULL) {
-      kfree(ptr_opr_queue->opr_list);
-    }
-    kfree(ptr_opr_queue);
-  }
-}
-
-// Get the current number of entries in the target operation queue
-static u32 opr_queue_num_entries(struct fb_opr_queue_t *ptr_opr_queue) {
-  return ptr_opr_queue->num_entries;
-}
-
-// Check whether the operation queue is full or not(full: TRUE, otherwise:
-// FASLE)
-static int opr_queue_full(struct fb_opr_queue_t *ptr_opr_queue) {
-  return (ptr_opr_queue->num_max_entries ==
-          opr_queue_num_entries(ptr_opr_queue))
-             ? true
-             : false;
-}
-
-// Check whether the operation queue is empty or not(empty: TRUE, otherwise:
-// FALSE)
-static int opr_queue_empty(struct fb_opr_queue_t *ptr_opr_queue) {
-  return (opr_queue_num_entries(ptr_opr_queue) == 0) ? true : false;
+  if (ptr_opr_queue == NULL) { return; }
+  if (ptr_opr_queue->opr_list != NULL) { kfree(ptr_opr_queue->opr_list); }
+  kfree(ptr_opr_queue);
 }
 
 // Put an entry into the target operation queue(success: 0, error: -1)
@@ -536,7 +483,7 @@ static int opr_queue_put_entry(struct fb_opr_queue_t *ptr_opr_queue,
 
   // Check whether the queue is full or not
   // If it is full, return error for putting the request into it.
-  if (opr_queue_full(ptr_opr_queue) == true) {
+  if (ptr_opr_queue->num_entries == ptr_opr_queue->num_max_entries) {
     ret = -1;
     goto FINISH;
   }
@@ -577,7 +524,7 @@ static int opr_queue_get_first(struct fb_opr_queue_t *ptr_opr_queue,
   reinit_completion(&ptr_opr_queue->queue_lock);
 
   // Error if the queue is emptry
-  if (opr_queue_empty(ptr_opr_queue) == true) {
+  if (ptr_opr_queue->num_entries == 0) {
     ret = -1;
     goto FINISH;
   }
@@ -606,7 +553,7 @@ static int opr_queue_remove_first(struct fb_opr_queue_t *ptr_opr_queue) {
   reinit_completion(&ptr_opr_queue->queue_lock);
 
   // Error if the queue is emptry
-  if (opr_queue_empty(ptr_opr_queue) == true) {
+  if (ptr_opr_queue->num_entries == 0) {
     ret = -1;
     goto FINISH;
   }
@@ -629,47 +576,33 @@ FINISH:
 
 static void release_busy_lock(struct fb_bus_controller_t *ptr_bus_controller,
                               u32 chip) {
+  struct fb_chip_busy_t *busy = &ptr_bus_controller->chip_busies[chip];
+
   // Reset time values
-  ptr_bus_controller->chip_busies[chip].wakeup_time_in_us = 0;
-  ptr_bus_controller->chip_busies[chip].issue_time_in_us = 0;
+  busy->wakeup_time_in_us = 0;
+  busy->issue_time_in_us = 0;
 
   // Read block I/O management
-  if (ptr_bus_controller->chip_busies[chip].ptr_fb_bio != NULL) {
-    // Reduce the request count
-    const u32 count =
-        dec_bio_req_count(ptr_bus_controller->chip_busies[chip].ptr_fb_bio);
+  if (busy->ptr_fb_bio == NULL) { return; }
 
-    // If request count is zero, it means that the block I/O completes
-    if (count == 0) {
-      bio_endio(ptr_bus_controller->chip_busies[chip].ptr_fb_bio->bio);
-      vfree(ptr_bus_controller->chip_busies[chip].ptr_fb_bio);
-    }
-    ptr_bus_controller->chip_busies[chip].ptr_fb_bio = NULL;
+  // Reduce the request count. If request count is zero, it means that the
+  // block I/O completes
+  if (dec_bio_req_count(busy->ptr_fb_bio) == 0) {
+    bio_endio(busy->ptr_fb_bio->bio);
+    vfree(busy->ptr_fb_bio);
   }
+  busy->ptr_fb_bio = NULL;
 }
 
 static void acquire_busy_lock(struct fb_bus_controller_t *ptr_bus_controller,
                               u32 chip, enum fb_dev_op_t operation,
                               struct fb_bio_t *ptr_fb_bio) {
+  struct fb_chip_busy_t *busy = &ptr_bus_controller->chip_busies[chip];
+
   // Set time values
-  ptr_bus_controller->chip_busies[chip].issue_time_in_us =
-      timer_get_timestamp_in_us();
-  ptr_bus_controller->chip_busies[chip].wakeup_time_in_us =
-      ptr_bus_controller->chip_busies[chip].issue_time_in_us +
-      operation_time(operation);
+  const u32 time = timer_get_timestamp_in_us();
 
-  ptr_bus_controller->chip_busies[chip].ptr_fb_bio = ptr_fb_bio;
-}
-
-static int chip_status_busy(struct fb_bus_controller_t *ptr_bus_controller,
-                            u32 chip) {
-  return (ptr_bus_controller->chip_busies[chip].wakeup_time_in_us == 0 &&
-          ptr_bus_controller->chip_busies[chip].issue_time_in_us == 0)
-             ? false
-             : true;
-}
-
-static u32 get_chip_wakeup_time(struct fb_bus_controller_t *ptr_bus_controller,
-                                u32 chip) {
-  return ptr_bus_controller->chip_busies[chip].wakeup_time_in_us;
+  busy->issue_time_in_us = time;
+  busy->wakeup_time_in_us = time + operation_time(operation);
+  busy->ptr_fb_bio = ptr_fb_bio;
 }

@@ -13,7 +13,7 @@ extern "C" {
         chip: u32,
         operation: fb_dev_op_t,
         ptr_bio: *mut fb_bio_t,
-    ) -> i32;
+    );
 }
 
 #[no_mangle]
