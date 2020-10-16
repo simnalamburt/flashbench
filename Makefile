@@ -14,7 +14,7 @@ flashbench-objs := \
 	write_buffer.o \
 	bus_controller.o
 
-ccflags-y := -std=gnu11 -Wextra -Wpedantic
+ccflags-y := -std=gnu11 -Wall -Wextra -Wpedantic
 
 # To disable warnings in header files
 LINUXINCLUDE := $(subst -I, -isystem, $(LINUXINCLUDE))
