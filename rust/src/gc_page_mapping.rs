@@ -33,7 +33,6 @@ extern "C" {
     fn get_nr_invalid_lps(pgi: *mut flash_page) -> u32;
     // block info interface
     fn init_blk_inf(blki: *mut flash_block);
-    fn get_blk_idx(blki: *mut flash_block) -> u32;
     fn get_pgi_from_blki(blki: *mut flash_block, pg: u32) -> *mut flash_page;
     fn get_nr_valid_lps_in_blk(blki: *mut flash_block) -> u32;
     fn get_nr_invalid_lps_in_blk(blki: *mut flash_block) -> u32;
@@ -249,7 +248,7 @@ unsafe extern "C" fn get_valid_pgs_in_vic_blks(fb: *mut fb_context_t) {
                                 vdev,
                                 bus,
                                 chip,
-                                get_blk_idx(blki),
+                                (*blki).no_block,
                                 pg,
                                 lp_bitmap.as_mut_ptr(),
                                 ptr_data,
@@ -329,7 +328,7 @@ unsafe extern "C" fn prepare_act_blks(fb: *mut fb_context_t) -> i32 {
                     print_blk_mgmt(fb);
                     return -(1 as i32);
                 }
-                vdevice_erase(vdev, bus, chip, get_blk_idx(blki), 0 as *mut fb_bio_t);
+                vdevice_erase(vdev, bus, chip, (*blki).no_block, 0 as *mut fb_bio_t);
                 perf_inc_nr_blk_erasures();
                 init_blk_inf(blki);
                 inc_bers_cnt(blki);
@@ -544,7 +543,7 @@ pub unsafe extern "C" fn fb_bgc_prepare_act_blks(fb: *mut fb_context_t) -> i32 {
             get_vdev(fb),
             bus,
             chip,
-            get_blk_idx(blki),
+            (*blki).no_block,
             0 as *mut fb_bio_t,
         );
         perf_inc_nr_blk_erasures();
@@ -686,7 +685,7 @@ pub unsafe extern "C" fn fb_bgc_read_valid_pgs(fb: *mut fb_context_t) -> i32 {
                 get_vdev(fb),
                 bus,
                 chip,
-                get_blk_idx(vic_blki),
+                (*vic_blki).no_block,
                 pg,
                 lp_bitmap.as_mut_ptr(),
                 ptr_data,

@@ -60,7 +60,6 @@ u32 inc_nr_invalid_lps(struct flash_page *pgi);
 
 // block info interface
 void init_blk_inf(struct flash_block *blki);
-u32 get_blk_idx(struct flash_block *blki);
 struct flash_page *get_pgi_from_blki(struct flash_block *blki, u32 pg);
 
 u32 get_nr_free_pgs(struct flash_block *blki);

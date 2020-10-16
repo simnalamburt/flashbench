@@ -9,20 +9,6 @@ enum {
   IDLE = 0
 };
 
-static void set_nr_invalid_lps(struct flash_page *pgi, u32 value);
-static void set_del_flag_pg(struct flash_page *pgi, int flag);
-static u32 get_bus_idx(struct flash_block *blki);
-static u32 get_chip_idx(struct flash_block *blki);
-
-static void set_nr_valid_pgs(struct flash_block *blki, u32 value);
-static void set_nr_invalid_pgs(struct flash_block *blki, u32 value);
-static void set_nr_free_pgs(struct flash_block *blki, u32 value);
-
-static void set_nr_valid_lps_in_blk(struct flash_block *blki, u32 value);
-static void set_nr_invalid_lps_in_blk(struct flash_block *blki, u32 value);
-
-static void set_del_flag_blk(struct flash_block *blki, int flag);
-
 struct flash_page {
   enum fb_pg_status_t page_status[NR_LP_IN_PP];
   u32 no_logical_page_addr[NR_LP_IN_PP];
@@ -69,7 +55,7 @@ struct ssd_info {
 
 void set_free_blk(struct ssd_info *ssdi, struct flash_block *bi) {
   struct flash_chip *ci =
-      get_chip_info(ssdi, get_bus_idx(bi), get_chip_idx(bi));
+      get_chip_info(ssdi, bi->no_bus, bi->no_chip);
 
   DL_APPEND(ci->free_blks, bi);
   ci->nr_free_blocks++;
@@ -77,7 +63,7 @@ void set_free_blk(struct ssd_info *ssdi, struct flash_block *bi) {
 
 void reset_free_blk(struct ssd_info *ssdi, struct flash_block *bi) {
   struct flash_chip *ci =
-      get_chip_info(ssdi, get_bus_idx(bi), get_chip_idx(bi));
+      get_chip_info(ssdi, bi->no_bus, bi->no_chip);
 
   DL_DELETE(ci->free_blks, bi);
   ci->nr_free_blocks--;
@@ -95,7 +81,7 @@ u32 get_nr_free_blks_in_chip(struct flash_chip *ci) {
 
 void set_used_blk(struct ssd_info *ssdi, struct flash_block *bi) {
   struct flash_chip *ci =
-      get_chip_info(ssdi, get_bus_idx(bi), get_chip_idx(bi));
+      get_chip_info(ssdi, bi->no_bus, bi->no_chip);
 
   DL_APPEND(ci->used_blks, bi);
   ci->nr_used_blks++;
@@ -103,7 +89,7 @@ void set_used_blk(struct ssd_info *ssdi, struct flash_block *bi) {
 
 void reset_used_blk(struct ssd_info *ssdi, struct flash_block *bi) {
   struct flash_chip *ci =
-      get_chip_info(ssdi, get_bus_idx(bi), get_chip_idx(bi));
+      get_chip_info(ssdi, bi->no_bus, bi->no_chip);
 
   DL_DELETE(ci->used_blks, bi);
   ci->nr_used_blks--;
@@ -119,7 +105,7 @@ u32 get_nr_used_blks_in_chip(struct flash_chip *ci) { return ci->nr_used_blks; }
 
 void set_dirt_blk(struct ssd_info *ssdi, struct flash_block *bi) {
   struct flash_chip *ci =
-      get_chip_info(ssdi, get_bus_idx(bi), get_chip_idx(bi));
+      get_chip_info(ssdi, bi->no_bus, bi->no_chip);
 
   DL_APPEND(ci->dirt_blks, bi);
   ci->nr_dirt_blks++;
@@ -127,7 +113,7 @@ void set_dirt_blk(struct ssd_info *ssdi, struct flash_block *bi) {
 
 void reset_dirt_blk(struct ssd_info *ssdi, struct flash_block *bi) {
   struct flash_chip *ci =
-      get_chip_info(ssdi, get_bus_idx(bi), get_chip_idx(bi));
+      get_chip_info(ssdi, bi->no_bus, bi->no_chip);
 
   DL_DELETE(ci->dirt_blks, bi);
   ci->nr_dirt_blks--;
@@ -228,7 +214,7 @@ struct ssd_info *create_ssd_info(void) {
         ptr_block->is_active_block = false;
         ptr_block->last_modified_time = 0;
 
-        set_del_flag_blk(ptr_block, false);
+        ptr_block->del_flag = false;
         // timestamp is set to 0 if the block is not used after initialization
 
         if ((ptr_block->list_pages = (struct flash_page *)kmalloc(
@@ -251,7 +237,7 @@ struct ssd_info *create_ssd_info(void) {
             ptr_page->page_status[lp_loop] =
                 PAGE_STATUS_FREE;  // free page (by default)
           }
-          set_del_flag_pg(ptr_page, false);
+          ptr_page->del_flag = false;
         }
 
         set_free_blk(ptr_ssd_info, ptr_block);
@@ -367,16 +353,8 @@ u32 get_nr_invalid_lps(struct flash_page *pgi) {
   return pgi->nr_invalid_log_pages;
 }
 
-static void set_nr_invalid_lps(struct flash_page *pgi, u32 value) {
-  pgi->nr_invalid_log_pages = value;
-}
-
 u32 inc_nr_invalid_lps(struct flash_page *pgi) {
   return ++(pgi->nr_invalid_log_pages);
-}
-
-static void set_del_flag_pg(struct flash_page *pgi, int flag) {
-  pgi->del_flag = flag;
 }
 
 void init_blk_inf(struct flash_block *blki) {
@@ -387,20 +365,20 @@ void init_blk_inf(struct flash_block *blki) {
   set_act_blk_flag(blki, false);
   set_rsv_blk_flag(blki, false);
 
-  set_nr_free_pgs(blki, NUM_PAGES_PER_BLOCK);
-  set_nr_valid_pgs(blki, 0);
-  set_nr_invalid_pgs(blki, 0);
-  set_nr_valid_lps_in_blk(blki, 0);
-  set_nr_invalid_lps_in_blk(blki, 0);
+  blki->nr_free_pages = NUM_PAGES_PER_BLOCK;
+  blki->nr_valid_pages = 0;
+  blki->nr_invalid_pages = 0;
+  blki->nr_valid_log_pages = 0;
+  blki->nr_invalid_log_pages = 0;
 
-  set_del_flag_blk(blki, false);
+  blki->del_flag = false;
 
   for (pg = 0; pg < NUM_PAGES_PER_BLOCK; pg++) {
     pgi = get_pgi_from_blki(blki, pg);
 
-    set_nr_invalid_lps(pgi, 0);
+    pgi->nr_invalid_log_pages = 0;
 
-    set_del_flag_pg(pgi, false);
+    pgi->del_flag = false;
 
     for (lp = 0; lp < NR_LP_IN_PP; lp++) {
       set_mapped_lpa(pgi, lp, PAGE_UNMAPPED);
@@ -409,29 +387,11 @@ void init_blk_inf(struct flash_block *blki) {
   }
 }
 
-static u32 get_bus_idx(struct flash_block *blki) { return blki->no_bus; }
-
-static u32 get_chip_idx(struct flash_block *blki) { return blki->no_chip; }
-
-u32 get_blk_idx(struct flash_block *blki) { return blki->no_block; }
-
 struct flash_page *get_pgi_from_blki(struct flash_block *blki, u32 pg) {
   return (blki->list_pages + pg);
 }
 
 u32 get_nr_free_pgs(struct flash_block *blki) { return blki->nr_free_pages; }
-
-static void set_nr_valid_pgs(struct flash_block *blki, u32 value) {
-  blki->nr_valid_pages = value;
-}
-
-static void set_nr_invalid_pgs(struct flash_block *blki, u32 value) {
-  blki->nr_invalid_pages = value;
-}
-
-static void set_nr_free_pgs(struct flash_block *blki, u32 value) {
-  blki->nr_free_pages = value;
-}
 
 u32 inc_nr_valid_pgs(struct flash_block *blki) {
   return ++(blki->nr_valid_pages);
@@ -457,14 +417,6 @@ u32 get_nr_invalid_lps_in_blk(struct flash_block *blki) {
   return blki->nr_invalid_log_pages;
 }
 
-static void set_nr_valid_lps_in_blk(struct flash_block *blki, u32 value) {
-  blki->nr_valid_log_pages = value;
-}
-
-static void set_nr_invalid_lps_in_blk(struct flash_block *blki, u32 value) {
-  blki->nr_invalid_log_pages = value;
-}
-
 u32 inc_nr_valid_lps_in_blk(struct flash_block *blki) {
   return ++(blki->nr_valid_log_pages);
 }
@@ -485,8 +437,4 @@ void set_rsv_blk_flag(struct flash_block *blki, int flag) {
 
 void set_act_blk_flag(struct flash_block *blki, int flag) {
   blki->is_active_block = flag;
-}
-
-static void set_del_flag_blk(struct flash_block *blki, int flag) {
-  blki->del_flag = flag;
 }
