@@ -148,22 +148,20 @@ ALLOC_PTR_BUS_CTRL_FAIL:
 // Destory bus controllers
 void fb_bus_controller_destroy(
     struct fb_bus_controller_t **ptr_bus_controller) {
-  if (ptr_bus_controller != NULL) {
-    for (u32 loop_bus = 0; loop_bus < NUM_BUSES; loop_bus++) {
-      if (ptr_bus_controller[loop_bus] != NULL) {
-        ptr_bus_controller[loop_bus]->flag_enable_thread = 0;
-        fb_stop_bus_ctrl_thread(ptr_bus_controller[loop_bus]);
-      }
-    }
+  if (ptr_bus_controller == NULL) { return; }
 
-    for (u32 loop_bus = 0; loop_bus < NUM_BUSES; loop_bus++) {
-      if (ptr_bus_controller[loop_bus] != NULL) {
-        destroy_bus_controller(ptr_bus_controller[loop_bus]);
-      }
-    }
-
-    kfree(ptr_bus_controller);
+  for (u32 loop_bus = 0; loop_bus < NUM_BUSES; loop_bus++) {
+    if (ptr_bus_controller[loop_bus] == NULL) { continue; }
+    ptr_bus_controller[loop_bus]->flag_enable_thread = 0;
+    fb_stop_bus_ctrl_thread(ptr_bus_controller[loop_bus]);
   }
+
+  for (u32 loop_bus = 0; loop_bus < NUM_BUSES; loop_bus++) {
+    if (ptr_bus_controller[loop_bus] == NULL) { continue; }
+    destroy_bus_controller(ptr_bus_controller[loop_bus]);
+  }
+
+  kfree(ptr_bus_controller);
 }
 
 // Issue an operation for the target chip of the target bus
@@ -178,21 +176,17 @@ void fb_issue_operation(struct fb_bus_controller_t *ptr_bus_controller, u32 chip
 // Creating an bus controller for a bus
 static struct fb_bus_controller_t *create_bus_controller(
     u32 num_max_entries_per_chip) {
-  struct fb_bus_controller_t *ptr_bus_controller;
-  u32 loop_chip;
-
   // Allocating a pointer of bus contorller structure
-  if ((ptr_bus_controller = (struct fb_bus_controller_t *)kmalloc(
-           sizeof(struct fb_bus_controller_t), GFP_ATOMIC)) == NULL) {
+  struct fb_bus_controller_t *ptr_bus_controller = kmalloc(sizeof(struct fb_bus_controller_t), GFP_ATOMIC);
+  if (ptr_bus_controller == NULL) {
     printk(KERN_ERR
            "flashbench: bus controller: Allocating bus controller failed.\n");
     goto ALLOC_BUS_CTRL_FAIL;
   }
 
   // Allocating a pointer of operation queue list(for number of chips)
-  if ((ptr_bus_controller->ptr_opr_queue = (struct fb_opr_queue_t **)kmalloc(
-           sizeof(struct fb_opr_queue_t *) * NUM_CHIPS_PER_BUS, GFP_ATOMIC)) ==
-      NULL) {
+  ptr_bus_controller->ptr_opr_queue = kmalloc(sizeof(struct fb_opr_queue_t *) * NUM_CHIPS_PER_BUS, GFP_ATOMIC);
+  if (ptr_bus_controller->ptr_opr_queue == NULL) {
     printk(KERN_ERR
            "flashbench: bus controller: Allocating pointer of operation "
            "queues failed.\n");
@@ -200,9 +194,9 @@ static struct fb_bus_controller_t *create_bus_controller(
   }
 
   // Creating operation queues
-  for (loop_chip = 0; loop_chip < NUM_CHIPS_PER_BUS; loop_chip++) {
-    if ((ptr_bus_controller->ptr_opr_queue[loop_chip] =
-             create_opr_queue(num_max_entries_per_chip)) == NULL) {
+  for (u32 loop_chip = 0; loop_chip < NUM_CHIPS_PER_BUS; loop_chip++) {
+    ptr_bus_controller->ptr_opr_queue[loop_chip] = create_opr_queue(num_max_entries_per_chip);
+    if (ptr_bus_controller->ptr_opr_queue[loop_chip] == NULL) {
       printk(KERN_ERR
              "flashbench: bus controller: Creating operation queues failed.\n");
       goto CREATE_OPR_QUEUE_FAIL;
@@ -210,16 +204,15 @@ static struct fb_bus_controller_t *create_bus_controller(
   }
 
   // Creating chip busy structures
-  if ((ptr_bus_controller->chip_busies = (struct fb_chip_busy_t *)kmalloc(
-           sizeof(struct fb_chip_busy_t) * NUM_CHIPS_PER_BUS, GFP_ATOMIC)) ==
-      NULL) {
+  ptr_bus_controller->chip_busies = kmalloc(sizeof(struct fb_chip_busy_t) * NUM_CHIPS_PER_BUS, GFP_ATOMIC);
+  if (ptr_bus_controller->chip_busies == NULL) {
     printk(KERN_ERR
            "flashbench: bus controller: Allocating chip busy array failed.\n");
     goto CREATE_OPR_QUEUE_FAIL;
   }
 
   // Initialize chip busy structrues
-  for (loop_chip = 0; loop_chip < NUM_CHIPS_PER_BUS; loop_chip++) {
+  for (u32 loop_chip = 0; loop_chip < NUM_CHIPS_PER_BUS; loop_chip++) {
     init_completion(&ptr_bus_controller->chip_busies[loop_chip].chip_busy);
     complete(&ptr_bus_controller->chip_busies[loop_chip].chip_busy);
 
@@ -233,12 +226,9 @@ static struct fb_bus_controller_t *create_bus_controller(
 
 CREATE_OPR_QUEUE_FAIL:
   if (ptr_bus_controller->ptr_opr_queue != NULL) {
-    for (loop_chip = 0; loop_chip < NUM_CHIPS_PER_BUS; loop_chip++) {
-      if (ptr_bus_controller->ptr_opr_queue[loop_chip] != NULL) {
-        destroy_opr_queue(ptr_bus_controller->ptr_opr_queue[loop_chip]);
-      } else {
-        break;
-      }
+    for (u32 loop_chip = 0; loop_chip < NUM_CHIPS_PER_BUS; loop_chip++) {
+      if (ptr_bus_controller->ptr_opr_queue[loop_chip] == NULL) { break; }
+      destroy_opr_queue(ptr_bus_controller->ptr_opr_queue[loop_chip]);
     }
 
     kfree(ptr_bus_controller->ptr_opr_queue);
@@ -256,20 +246,15 @@ ALLOC_BUS_CTRL_FAIL:
 // Destroying the bus controller
 static void destroy_bus_controller(
     struct fb_bus_controller_t *ptr_bus_controller) {
-  u32 loop_chip;
-
   if (ptr_bus_controller != NULL) {
     if (ptr_bus_controller->chip_busies != NULL) {
       kfree(ptr_bus_controller->chip_busies);
     }
 
     if (ptr_bus_controller->ptr_opr_queue != NULL) {
-      for (loop_chip = 0; loop_chip < NUM_CHIPS_PER_BUS; loop_chip++) {
-        if (ptr_bus_controller->ptr_opr_queue[loop_chip] != NULL) {
-          destroy_opr_queue(ptr_bus_controller->ptr_opr_queue[loop_chip]);
-        } else {
-          break;
-        }
+      for (u32 loop_chip = 0; loop_chip < NUM_CHIPS_PER_BUS; loop_chip++) {
+        if (ptr_bus_controller->ptr_opr_queue[loop_chip] == NULL) { break; }
+        destroy_opr_queue(ptr_bus_controller->ptr_opr_queue[loop_chip]);
       }
 
       kfree(ptr_bus_controller->ptr_opr_queue);
@@ -283,15 +268,7 @@ static void destroy_bus_controller(
 // Phase 1: Release bus locks whose conditions are satisfied
 // Phase 2: Acquire bus locks for requests waiting for avaliable chips
 static int fb_bus_ctrl_thread(void *arg) {
-  struct fb_bus_controller_t *ptr_bus_controller =
-      (struct fb_bus_controller_t *)arg;
-  u32 loop_chip;
-  u32 wakeup_time_in_us, current_time_in_us;
-  enum fb_dev_op_t operation;
-  struct fb_bio_t *ptr_fb_bio = NULL;
-
-  u32 signr;
-  int ret = 0;
+  struct fb_bus_controller_t *ptr_bus_controller = (struct fb_bus_controller_t *)arg;
 
   allow_signal(SIGKILL);
   allow_signal(SIGSTOP);
@@ -303,8 +280,7 @@ static int fb_bus_ctrl_thread(void *arg) {
   set_freezable();
 
   while ((ptr_bus_controller->flag_enable_thread) && !kthread_should_stop()) {
-    signr = 0;
-    ret = 0;
+    u32 signr = 0;
 
     allow_signal(SIGHUP);
 
@@ -333,12 +309,12 @@ static int fb_bus_ctrl_thread(void *arg) {
     // Phase 1: Release bus locks whose conditions are satisfied
 
     // Get current time
-    current_time_in_us = timer_get_timestamp_in_us();
+    u32 current_time_in_us = timer_get_timestamp_in_us();
 
     // Release bus locks whose conditions are satisfied
-    for (loop_chip = 0; loop_chip < NUM_CHIPS_PER_BUS; loop_chip++) {
+    for (u32 loop_chip = 0; loop_chip < NUM_CHIPS_PER_BUS; loop_chip++) {
       // Get wakeup time, and check it is valid value.
-      wakeup_time_in_us = ptr_bus_controller->chip_busies[loop_chip].wakeup_time_in_us;
+      u32 wakeup_time_in_us = ptr_bus_controller->chip_busies[loop_chip].wakeup_time_in_us;
       if (wakeup_time_in_us > 0) {
         // Check the condition
         if (wakeup_time_in_us <= current_time_in_us) {
@@ -352,7 +328,7 @@ static int fb_bus_ctrl_thread(void *arg) {
     }
 
     // Phase 2: Acquire bus locks for requests waiting for avaliable chips
-    for (loop_chip = 0; loop_chip < NUM_CHIPS_PER_BUS; loop_chip++) {
+    for (u32 loop_chip = 0; loop_chip < NUM_CHIPS_PER_BUS; loop_chip++) {
       // Check whether the operation queue for the chip is empty or not,
       // and the chip is available or not.
       if (ptr_bus_controller->ptr_opr_queue[loop_chip]->num_entries == 0 ||
@@ -361,6 +337,8 @@ static int fb_bus_ctrl_thread(void *arg) {
       }
 
       // Get informations of the first request for the chip
+      enum fb_dev_op_t operation;
+      struct fb_bio_t *ptr_fb_bio = NULL;
       if (opr_queue_get_first(ptr_bus_controller->ptr_opr_queue[loop_chip],
                               &operation, &ptr_fb_bio) == -1) {
         printk(KERN_ERR
@@ -394,14 +372,11 @@ FINISH:
 
 static int fb_init_bus_ctrl_thread(
     struct fb_bus_controller_t *ptr_bus_controller, u32 bus) {
-  int rc;
-
   char thread_name[16];
   sprintf(thread_name, "fb_bus_%d", bus);
 
-  ptr_bus_controller->ptr_task =
-      kthread_run(fb_bus_ctrl_thread, (void *)ptr_bus_controller, thread_name);
-  rc = IS_ERR(ptr_bus_controller->ptr_task);
+  ptr_bus_controller->ptr_task = kthread_run(fb_bus_ctrl_thread, ptr_bus_controller, thread_name);
+  int rc = IS_ERR(ptr_bus_controller->ptr_task);
 
   if (rc < 0) {
     printk(KERN_ERR
@@ -475,7 +450,6 @@ static void destroy_opr_queue(struct fb_opr_queue_t *ptr_opr_queue) {
 static int opr_queue_put_entry(struct fb_opr_queue_t *ptr_opr_queue,
                                enum fb_dev_op_t operation, struct fb_bio_t *ptr_fb_bio) {
   int ret = 0;
-  struct fb_operation_t *ptr_opr_entry;
 
   // Acquiring the lock
   wait_for_completion(&ptr_opr_queue->queue_lock);
@@ -489,11 +463,10 @@ static int opr_queue_put_entry(struct fb_opr_queue_t *ptr_opr_queue,
   }
 
   // Storing information in the first entry of the queue
-  ptr_opr_entry = &ptr_opr_queue->opr_list[ptr_opr_queue->queue_head];
+  struct fb_operation_t *ptr_opr_entry = &ptr_opr_queue->opr_list[ptr_opr_queue->queue_head];
 
   ptr_opr_entry->operation = operation;
   ptr_opr_entry->ptr_fb_bio = ptr_fb_bio;
-
   // Marching of head pointer
   ptr_opr_queue->queue_head++;
 
@@ -517,7 +490,6 @@ static int opr_queue_get_first(struct fb_opr_queue_t *ptr_opr_queue,
                                enum fb_dev_op_t *ptr_operation,
                                struct fb_bio_t **ptr_fb_bio) {
   int ret = 0;
-  struct fb_operation_t *ptr_opr_entry;
 
   // Acquiring the lock
   wait_for_completion(&ptr_opr_queue->queue_lock);
@@ -530,7 +502,7 @@ static int opr_queue_get_first(struct fb_opr_queue_t *ptr_opr_queue,
   }
 
   // Get information of the tail entry
-  ptr_opr_entry = &ptr_opr_queue->opr_list[ptr_opr_queue->queue_tail];
+  struct fb_operation_t *ptr_opr_entry = &ptr_opr_queue->opr_list[ptr_opr_queue->queue_tail];
 
   // Storing information
   *ptr_operation = ptr_opr_entry->operation;
