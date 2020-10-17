@@ -1,5 +1,4 @@
 use crate::structs::*;
-use core::ffi::c_void;
 
 extern "C" {
     pub fn get_curr_active_block(
@@ -16,7 +15,7 @@ extern "C" {
 
     pub fn get_free_block(ssdi: *mut ssd_info, bus: u32, chip: u32) -> *mut flash_block;
 
-    pub fn get_ftl(fb: *mut fb_context_t) -> *mut c_void;
+    pub fn get_ftl(fb: *mut fb_context_t) -> *mut page_mapping_context_t;
 
     pub fn get_ssd_inf(fb: *mut fb_context_t) -> *mut ssd_info;
 

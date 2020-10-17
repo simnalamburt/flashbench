@@ -432,7 +432,9 @@ struct vdevice_t *get_vdev(struct fb_context_t *fb) {
   return fb->ptr_vdevice;
 }
 
-void *get_ftl(struct fb_context_t *fb) { return fb->ptr_mapping_context; }
+struct page_mapping_context_t *get_ftl(struct fb_context_t *fb) {
+  return fb->ptr_mapping_context;
+}
 
 static void fb_init_bgc_ts(struct fb_context_t *fb) {
   fb->background_gc_time_stamp = 0;
@@ -453,8 +455,7 @@ static int fb_is_bgc_ts_expired(struct fb_context_t *fb, u64 threshold) {
 }
 
 static void destroy_mapping_context(struct fb_context_t *ptr_fb_context) {
-  struct page_mapping_context_t *ctxt =
-      (struct page_mapping_context_t *)get_ftl(ptr_fb_context);
+  struct page_mapping_context_t *ctxt = get_ftl(ptr_fb_context);
   destroy_pg_ftl(ctxt);
 }
 

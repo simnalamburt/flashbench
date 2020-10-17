@@ -64,16 +64,14 @@ void set_mapped_ppa(struct page_mapping_context_t *ftl, u32 lpa, u32 ppa) {
 
 struct flash_block *get_curr_gc_block(struct fb_context_t *fb, u32 bus,
                                       u32 chip) {
-  struct page_mapping_context_t *ftl =
-      (struct page_mapping_context_t *)get_ftl(fb);
+  struct page_mapping_context_t *ftl = get_ftl(fb);
 
   return ftl->gcm->gc_blks[bus * NUM_CHIPS_PER_BUS + chip];
 }
 
 void set_curr_gc_block(struct fb_context_t *fb, u32 bus, u32 chip,
                        struct flash_block *blki) {
-  struct page_mapping_context_t *ftl =
-      (struct page_mapping_context_t *)get_ftl(fb);
+  struct page_mapping_context_t *ftl = get_ftl(fb);
 
   *(ftl->gcm->gc_blks + (bus * NUM_CHIPS_PER_BUS + chip)) = blki;
 
@@ -82,16 +80,14 @@ void set_curr_gc_block(struct fb_context_t *fb, u32 bus, u32 chip,
 
 struct flash_block *get_curr_active_block(struct fb_context_t *fb, u32 bus,
                                           u32 chip) {
-  struct page_mapping_context_t *ftl =
-      (struct page_mapping_context_t *)get_ftl(fb);
+  struct page_mapping_context_t *ftl = get_ftl(fb);
 
   return ftl->abm->act_blks[bus * NUM_CHIPS_PER_BUS + chip];
 }
 
 void set_curr_active_block(struct fb_context_t *fb, u32 bus, u32 chip,
                            struct flash_block *blki) {
-  struct page_mapping_context_t *ftl =
-      (struct page_mapping_context_t *)get_ftl(fb);
+  struct page_mapping_context_t *ftl = get_ftl(fb);
 
   *(ftl->abm->act_blks + (bus * NUM_CHIPS_PER_BUS + chip)) = blki;
 

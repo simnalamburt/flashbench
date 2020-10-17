@@ -45,7 +45,7 @@ extern "C" {
 }
 #[no_mangle]
 pub unsafe extern "C" fn get_prev_bus_chip(fb: *mut fb_context_t, bus: *mut u8, chip: *mut u8) {
-    let ftl = get_ftl(fb) as *mut page_mapping_context_t;
+    let ftl = get_ftl(fb);
     let abm = get_abm(ftl);
     *bus = (*abm).mru_bus as u8;
     *chip = (*abm).mru_chip as u8;
@@ -121,7 +121,7 @@ pub unsafe extern "C" fn update_act_blk(fb: *mut fb_context_t, bus: u8, chip: u8
 }
 #[no_mangle]
 pub unsafe extern "C" fn invalidate_lpg(fb: *mut fb_context_t, lpa: u32) -> u32 {
-    let ftl = get_ftl(fb) as *mut page_mapping_context_t;
+    let ftl = get_ftl(fb);
     let ssdi = get_ssd_inf(fb);
     let ppa = get_mapped_ppa(ftl, lpa);
     if ppa != PAGE_UNMAPPED as u32 {
@@ -161,7 +161,7 @@ unsafe extern "C" fn __map_logical_to_physical(
     pg: u32,
     lp_ofs: u8,
 ) -> i32 {
-    let ftl = get_ftl(fb) as *mut page_mapping_context_t;
+    let ftl = get_ftl(fb);
     let ssdi = get_ssd_inf(fb);
     let blki = get_block_info(ssdi, bus, chip, blk);
     let pgi = get_page_info(ssdi, bus, chip, blk, pg);

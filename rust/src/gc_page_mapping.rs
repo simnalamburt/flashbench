@@ -168,7 +168,7 @@ unsafe extern "C" fn select_vic_blk_greedy(
     return vic_blki;
 }
 unsafe extern "C" fn set_vic_blks(fb: *mut fb_context_t) -> i32 {
-    let ftl = get_ftl(fb) as *mut page_mapping_context_t;
+    let ftl = get_ftl(fb);
     let mut gcm = get_gcm(ftl);
     let ssdi = get_ssd_inf(fb);
     let mut blki: *mut flash_block;
@@ -206,7 +206,7 @@ unsafe extern "C" fn set_vic_blks(fb: *mut fb_context_t) -> i32 {
     return 0 as i32;
 }
 unsafe extern "C" fn get_valid_pgs_in_vic_blks(fb: *mut fb_context_t) {
-    let ftl = get_ftl(fb) as *mut page_mapping_context_t;
+    let ftl = get_ftl(fb);
     let gcm = get_gcm(ftl);
     let vdev = get_vdev(fb);
     let mut blki: *mut flash_block;
@@ -271,7 +271,7 @@ unsafe extern "C" fn get_valid_pgs_in_vic_blks(fb: *mut fb_context_t) {
 }
 #[no_mangle]
 pub unsafe extern "C" fn prog_valid_pgs_to_gc_blks(fb: *mut fb_context_t) -> i32 {
-    let ftl = get_ftl(fb) as *mut page_mapping_context_t;
+    let ftl = get_ftl(fb);
     let gcm = get_gcm(ftl);
     let vdev = get_vdev(fb);
     let mut nr_pgs_to_prog = (*gcm).nr_pgs_to_copy as i32;
@@ -494,7 +494,7 @@ pub unsafe extern "C" fn destroy_gc_mngr(gcm: *mut fb_gc_mngr_t) {
 }
 #[no_mangle]
 pub unsafe extern "C" fn trigger_gc_page_mapping(fb: *mut fb_context_t) -> i32 {
-    let ftl = get_ftl(fb) as *mut page_mapping_context_t;
+    let ftl = get_ftl(fb);
     let gcm = get_gcm(ftl);
     // initialize GC context
     init_gcm(gcm);
@@ -566,7 +566,7 @@ pub unsafe extern "C" fn fb_bgc_prepare_act_blks(fb: *mut fb_context_t) -> i32 {
 }
 #[no_mangle]
 pub unsafe extern "C" fn fb_bgc_set_vic_blks(fb: *mut fb_context_t) -> i32 {
-    let ftl = get_ftl(fb) as *mut page_mapping_context_t;
+    let ftl = get_ftl(fb);
     let ssdi = get_ssd_inf(fb);
     let gcm = get_gcm(ftl);
     let mut chipi: *mut flash_chip;
@@ -637,7 +637,7 @@ pub unsafe extern "C" fn fb_bgc_set_vic_blks(fb: *mut fb_context_t) -> i32 {
 }
 #[no_mangle]
 pub unsafe extern "C" fn fb_bgc_read_valid_pgs(fb: *mut fb_context_t) -> i32 {
-    let ftl = get_ftl(fb) as *mut page_mapping_context_t;
+    let ftl = get_ftl(fb);
     let mut gcm = get_gcm(ftl);
     let mut vic_blki: *mut flash_block;
     let mut pgi: *mut flash_page;
