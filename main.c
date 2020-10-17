@@ -16,11 +16,8 @@
 // Prototypes
 //
 static int fb_init_write_buffer_thread(void);
-static void fb_stop_write_buffer_thread(void);
 static int fb_write_buffer_thread(void *arg);
-static void fb_init_bgc_ts(struct fb_context_t *fb);
 static u64 fb_get_time_in_us(void);
-static u64 fb_get_bgc_ts(struct fb_context_t *fb);
 static void fb_update_bgc_ts(struct fb_context_t *fb);
 static int fb_is_bgc_ts_expired(struct fb_context_t *fb, u64 threshold);
 static void destroy_mapping_context(struct fb_context_t *ptr_fb_context);
@@ -106,7 +103,7 @@ static blk_qc_t make_request(
       fb_del_invalid_data(_fb, fbio);
 
       for (loop = 0; loop < req_count; loop++) {
-        if (fb_put_pg(get_write_buffer(_fb), fbio->lpas[loop],
+        if (fb_put_pg(_fb->wb, fbio->lpas[loop],
                       fbio->kpages[loop]) == 0) {
           perf_inc_nr_incomming_write();
         } else {
@@ -192,7 +189,8 @@ fb_init(void)  // __init: 해당 함수 혹은 변수가 초기화 과정에서�
     goto FAIL_ALLOC_BDEV_QUEUE;
   }
 
-  fb_init_bgc_ts(_fb);
+  // Init background GC timestamp
+  _fb->background_gc_time_stamp = 0;
 
   init_completion(&_fb->dev_lock);
   complete(&_fb->dev_lock);
@@ -306,7 +304,10 @@ static void __exit fb_exit(void) {
 
   blk_cleanup_queue(_fb->ptr_req_queue);
   _fb->flag_enable_wb_thread = 0;
-  fb_stop_write_buffer_thread();
+  // Stop write buffer thread
+  if (_fb->ptr_wb_task != NULL) {
+    kthread_stop(_fb->ptr_wb_task);
+  }
 
   if (_fb->wb != NULL) {
     fb_destroy_write_buffer(_fb->wb);
@@ -348,12 +349,6 @@ static int fb_init_write_buffer_thread(void) {
   }
 
   return ret;
-}
-
-static void fb_stop_write_buffer_thread(void) {
-  if (_fb->ptr_wb_task != NULL) {
-    kthread_stop(_fb->ptr_wb_task);
-  }
 }
 
 static int fb_write_buffer_thread(__attribute__((unused)) void *arg) {
@@ -420,10 +415,6 @@ FINISH:
   return 0;
 }
 
-struct fb_wb *get_write_buffer(struct fb_context_t *fb) {
-  return fb->wb;
-}
-
 struct ssd_info *get_ssd_inf(struct fb_context_t *fb) {
   return fb->ptr_ssd_info;
 }
@@ -436,22 +427,14 @@ struct page_mapping_context_t *get_ftl(struct fb_context_t *fb) {
   return fb->ptr_mapping_context;
 }
 
-static void fb_init_bgc_ts(struct fb_context_t *fb) {
-  fb->background_gc_time_stamp = 0;
-}
-
 static u64 fb_get_time_in_us(void) { return ktime_to_us(ktime_get()); }
-
-static u64 fb_get_bgc_ts(struct fb_context_t *fb) {
-  return fb->background_gc_time_stamp;
-}
 
 static void fb_update_bgc_ts(struct fb_context_t *fb) {
   fb->background_gc_time_stamp = fb_get_time_in_us();
 }
 
 static int fb_is_bgc_ts_expired(struct fb_context_t *fb, u64 threshold) {
-  return ((fb_get_time_in_us() - fb_get_bgc_ts(fb)) > threshold) ? true : false;
+  return fb_get_time_in_us() - fb->background_gc_time_stamp > threshold;
 }
 
 static void destroy_mapping_context(struct fb_context_t *ptr_fb_context) {
@@ -499,7 +482,7 @@ static struct fb_bio_t *fb_build_bio(struct bio *bio) {
     ptr_page_buffer = (u8 *)page_address(bvec.bv_page);
 
     if (rw == READ) {
-      if (fb_get_pg_data(get_write_buffer(_fb), lpa_curr, ptr_page_buffer) !=
+      if (fb_get_pg_data(_fb->wb, lpa_curr, ptr_page_buffer) !=
           -1) {
         sec_start += 8;
         continue;

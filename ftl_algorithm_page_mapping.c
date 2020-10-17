@@ -431,7 +431,7 @@ static int make_flush_request_page_mapping(void) {
 static int make_discard_request_page_mapping(struct fb_context_t *fb,
                                              struct bio *bio) {
   struct page_mapping_context_t *ftl = get_ftl(fb);
-  struct fb_wb *wb = get_write_buffer(fb);
+  struct fb_wb *wb = fb->wb;
   u64 sec_start, sec_end, lpa_start, nr_lpgs;
   u32 bio_loop;
 
@@ -533,7 +533,7 @@ void print_blk_mgmt(struct fb_context_t *fb) {
 }
 
 static int fb_wb_flush(struct fb_context_t *fb) {
-  struct fb_wb *wb = get_write_buffer(fb);
+  struct fb_wb *wb = fb->wb;
 
   u32 lpas[NR_LP_IN_PP];
 
