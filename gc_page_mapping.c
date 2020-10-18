@@ -9,11 +9,10 @@ int trigger_bg_gc(struct fb_context_t *fb) {
   struct page_mapping_context_t *ftl = get_ftl(fb);
   struct fb_gc_mngr_t *gcm = ftl->gcm;
 
-  u8 bus, chip;
-
   wait_for_completion(&ftl->mapping_context_lock);
   reinit_completion(&ftl->mapping_context_lock);
 
+  u8 bus, chip;
   get_prev_bus_chip(fb, &bus, &chip);
 
   if (get_curr_active_block(fb, bus, chip) == NULL) {
