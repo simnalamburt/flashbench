@@ -82,13 +82,13 @@ static struct fb_act_blk_mngr_t *create_act_blk_mngr(struct fb_context_t *fb) {
   struct ssd_info *ssdi = get_ssd_inf(fb);
   struct fb_act_blk_mngr_t *abm = vmalloc(sizeof(struct fb_act_blk_mngr_t));
 
-  if (abm == NULL) {
+  if (!abm) {
     printk(KERN_ERR "flashbench: Allocating active block manager failed.\n");
     goto FAIL;
   }
 
   abm->act_blks = vmalloc(sizeof(struct flash_block *) * NUM_CHIPS);
-  if (abm->act_blks == NULL) {
+  if (!abm->act_blks) {
     printk(KERN_ERR "flashbench: Allocating active block list failed.\n");
     goto FAIL;
   }
@@ -96,7 +96,7 @@ static struct fb_act_blk_mngr_t *create_act_blk_mngr(struct fb_context_t *fb) {
   for (u32 bus = 0; bus < NUM_BUSES; bus++) {
     for (u32 chip = 0; chip < NUM_CHIPS_PER_BUS; chip++) {
       struct flash_block *blki = get_free_block(ssdi, bus, chip);
-      if (blki == NULL) {
+      if (!blki) {
         printk(KERN_ERR "flashbench: Getting new active block failed.\n");
         goto FAIL;
       }
@@ -117,8 +117,8 @@ FAIL:
 }
 
 static void destroy_act_blk_mngr(struct fb_act_blk_mngr_t *abm) {
-  if (abm == NULL) { return; }
-  if (abm->act_blks != NULL) { vfree(abm->act_blks); }
+  if (!abm) { return; }
+  if (abm->act_blks) { vfree(abm->act_blks); }
   vfree(abm);
 }
 
@@ -132,7 +132,7 @@ struct fb_act_blk_mngr_t *get_abm(struct page_mapping_context_t *ftl) {
 
 void *create_pg_ftl(struct fb_context_t *fb) {
   struct page_mapping_context_t *ftl = vmalloc(sizeof(struct page_mapping_context_t));
-  if (ftl == NULL) {
+  if (!ftl) {
     printk(KERN_ERR
            "flashbench: Allocating mapping table failed during "
            "create_pg_ftl().\n");
@@ -140,7 +140,7 @@ void *create_pg_ftl(struct fb_context_t *fb) {
   }
 
   ftl->ptr_mapping_table = create_page_mapping_table();
-  if (ftl->ptr_mapping_table == NULL) {
+  if (!ftl->ptr_mapping_table) {
     printk(
         KERN_ERR
         "flashbench: Creating mapping table failed during create_pg_ftl().\n");
@@ -148,7 +148,7 @@ void *create_pg_ftl(struct fb_context_t *fb) {
   }
 
   ftl->abm = create_act_blk_mngr(fb);
-  if (ftl->abm == NULL) {
+  if (!ftl->abm) {
     printk(KERN_ERR
            "flashbench: fb_page_mapping: Creating active block manager "
            "failed.\n");
@@ -156,21 +156,21 @@ void *create_pg_ftl(struct fb_context_t *fb) {
   }
 
   ftl->delm = create_del_mngr();
-  if (ftl->delm == NULL) {
+  if (!ftl->delm) {
     printk(KERN_ERR
            "flashbench: fb_page_mapping: Creating del manager failed.\n");
     goto FAIL;
   }
 
   ftl->gcm = create_gc_mngr(fb);
-  if (ftl->gcm == NULL) {
+  if (!ftl->gcm) {
     printk(KERN_ERR
            "flashbench: fb_page_mapping: Creating GC manager failed.\n");
     goto FAIL;
   }
 
   ftl->lpas_to_discard = vmalloc(NR_MAX_LPAS_DISCARD * sizeof(u32));
-  if (ftl->lpas_to_discard == NULL) {
+  if (!ftl->lpas_to_discard) {
     printk(KERN_ERR "flashbench: fb_page_mapping: Allocating lpas failed.\n");
 
     goto FAIL;
@@ -210,13 +210,13 @@ static void init_delm(struct fb_del_mngr_t *delm) {
 
 static struct fb_del_mngr_t *create_del_mngr(void) {
   struct fb_del_mngr_t *delm = vmalloc(sizeof(struct fb_del_mngr_t));
-  if (delm == NULL) {
+  if (!delm) {
     printk(KERN_ERR "flashbench: Allocating DEL manager failed.\n");
     goto FAIL;
   }
 
   delm->btod = vmalloc(sizeof(struct fb_btod_t) * NUM_BTODS);
-  if (delm->btod == NULL) {
+  if (!delm->btod) {
     printk(KERN_ERR "flashbench: Allocating DEL block list failed.\n");
     goto FAIL;
   }
@@ -224,7 +224,7 @@ static struct fb_del_mngr_t *create_del_mngr(void) {
   for (u32 i = 0; i < NUM_BTODS; ++i) { delm->btod[i].blki = NULL; }
 
   delm->wtod = vmalloc(sizeof(struct fb_wtod_t) * NUM_WTODS);
-  if (delm->wtod == NULL) {
+  if (!delm->wtod) {
     printk(KERN_ERR "flashbench: Allocating DEL WL list failed.\n");
     goto FAIL;
   }
@@ -236,19 +236,19 @@ static struct fb_del_mngr_t *create_del_mngr(void) {
   }
 
   delm->ppas = vmalloc(sizeof(u32) * NR_MAX_LPAS_DISCARD);
-  if (delm->ppas == NULL) {
+  if (!delm->ppas) {
     printk(KERN_ERR "flashbench: Allocating PPA list failed.\n");
     goto FAIL;
   }
 
   delm->lpas_to_copy = vmalloc(sizeof(u32) * NR_MAX_LPGS_COPY);
-  if (delm->lpas_to_copy == NULL) {
+  if (!delm->lpas_to_copy) {
     printk(KERN_ERR "flashbench: Allocating LPA list failed.\n");
     goto FAIL;
   }
 
   delm->data_to_copy = vmalloc(sizeof(u8) * LOGICAL_PAGE_SIZE * NR_MAX_LPGS_COPY);
-  if (delm->data_to_copy == NULL) {
+  if (!delm->data_to_copy) {
     printk(KERN_ERR "flashbench: Allocating valid page buffer failed.\n");
     goto FAIL;
   }
@@ -267,14 +267,14 @@ FAIL:
 }
 
 static void destroy_del_mngr(struct fb_del_mngr_t *delm) {
-  if (delm == NULL) { return; }
+  if (!delm) { return; }
 
-  if (delm->hash_btod != NULL) { HASH_CLEAR(hh, delm->hash_btod); }
-  if (delm->hash_wtod != NULL) { HASH_CLEAR(hh, delm->hash_wtod); }
-  if (delm->btod != NULL) { vfree(delm->btod); }
-  if (delm->wtod != NULL) { vfree(delm->wtod); }
-  if (delm->lpas_to_copy != NULL) { vfree(delm->lpas_to_copy); }
-  if (delm->data_to_copy != NULL) { vfree(delm->data_to_copy); }
+  if (delm->hash_btod) { HASH_CLEAR(hh, delm->hash_btod); }
+  if (delm->hash_wtod) { HASH_CLEAR(hh, delm->hash_wtod); }
+  if (delm->btod) { vfree(delm->btod); }
+  if (delm->wtod) { vfree(delm->wtod); }
+  if (delm->lpas_to_copy) { vfree(delm->lpas_to_copy); }
+  if (delm->data_to_copy) { vfree(delm->data_to_copy); }
   vfree(delm);
 }
 
@@ -307,14 +307,14 @@ void fb_del_invalid_data(struct fb_context_t *fb, struct fb_bio_t *fb_bio) {
 }
 
 void destroy_pg_ftl(struct page_mapping_context_t *ftl) {
-  if (ftl == NULL) { return; }
+  if (!ftl) { return; }
 
   destroy_act_blk_mngr(ftl->abm);
   destroy_gc_mngr(ftl->gcm);
   destroy_mapping_table(ftl->ptr_mapping_table);
   destroy_del_mngr(ftl->delm);
 
-  if (ftl->lpas_to_discard != NULL) { vfree(ftl->lpas_to_discard); }
+  if (ftl->lpas_to_discard) { vfree(ftl->lpas_to_discard); }
   vfree(ftl);
 }
 
@@ -332,7 +332,7 @@ static int make_read_request_page_mapping(struct fb_context_t *ptr_fb_context,
   u32 physical_page_address = get_mapped_physical_address(
       ptr_fb_context, logical_page_address, &bus, &chip, &block, &page);
 
-  if (physical_page_address == PAGE_UNMAPPED) {
+  if (physical_page_address == (u32)PAGE_UNMAPPED) {
     complete(&ptr_mapping_context->mapping_context_lock);
     return -1;
   }
@@ -355,8 +355,8 @@ static int make_read_request_page_mapping(struct fb_context_t *ptr_fb_context,
 static int is_fgc_needed(struct fb_context_t *fb, u8 bus, u8 chip) {
   for (u8 chip_idx = chip; chip_idx < NUM_CHIPS_PER_BUS; chip_idx++) {
     for (u8 bus_idx = bus; bus_idx < NUM_BUSES; bus_idx++) {
-      if ((get_curr_gc_block(fb, bus, chip) == NULL) &&
-          (get_free_block(get_ssd_inf(fb), bus, chip) == NULL)) {
+      if (!get_curr_gc_block(fb, bus, chip) &&
+          !get_free_block(get_ssd_inf(fb), bus, chip)) {
         return true;
       }
     }
@@ -464,14 +464,14 @@ static int make_discard_request_page_mapping(struct fb_context_t *fb,
 }
 
 static void destroy_mapping_table(struct page_mapping_table_t *mt) {
-  if (mt == NULL) { return; }
-  if (mt->mappings != NULL) { vfree(mt->mappings); }
+  if (!mt) { return; }
+  if (mt->mappings) { vfree(mt->mappings); }
   kfree(mt);
 }
 
 static struct page_mapping_table_t *create_page_mapping_table(void) {
   struct page_mapping_table_t *ptr_mapping_table = kmalloc(sizeof(struct page_mapping_table_t), GFP_ATOMIC);
-  if (ptr_mapping_table == NULL) {
+  if (!ptr_mapping_table) {
     printk(KERN_ERR
            "flashbench: Allocating mapping table failed during "
            "create_page_mapping_table().\n");
@@ -483,7 +483,7 @@ static struct page_mapping_table_t *create_page_mapping_table(void) {
         LOGICAL_PAGE_SIZE) * CFACTOR_PERCENT) / 100;
 
   ptr_mapping_table->mappings = vmalloc(sizeof(u32) * ptr_mapping_table->nr_entries);
-  if (ptr_mapping_table->mappings == NULL) {
+  if (!ptr_mapping_table->mappings) {
     printk(KERN_ERR
            "flashbench: Allocating mapping entries failed during "
            "create_page_mapping_table().\n");
@@ -497,7 +497,7 @@ static struct page_mapping_table_t *create_page_mapping_table(void) {
   return ptr_mapping_table;
 
 FAIL_ALLOC_ENTRIES:
-  if (ptr_mapping_table != NULL) {
+  if (ptr_mapping_table) {
     kfree(ptr_mapping_table);
   }
 FAIL_ALLOC_TABLE:

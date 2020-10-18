@@ -95,7 +95,7 @@ int fb_bus_controller_init(struct vdevice_t *ptr_vdevice,
                            u32 num_max_entries_per_chip) {
   // Allocating a pointer of the bus controller list
   struct fb_bus_controller_t **ptr_bus_controller = kmalloc(sizeof(struct fb_bus_controller_t *) * NUM_BUSES, GFP_ATOMIC);
-  if (ptr_bus_controller == NULL) {
+  if (!ptr_bus_controller) {
     printk(KERN_ERR
            "flashbench: bus controller: Allocating the pointer of bus "
            "controllers failed.\n");
@@ -105,7 +105,7 @@ int fb_bus_controller_init(struct vdevice_t *ptr_vdevice,
   // Creating bus controllers(for the number of buses)
   for (u32 loop_bus = 0; loop_bus < NUM_BUSES; loop_bus++) {
     ptr_bus_controller[loop_bus] = create_bus_controller(num_max_entries_per_chip);
-    if (ptr_bus_controller[loop_bus] == NULL) {
+    if (!ptr_bus_controller[loop_bus]) {
       printk(KERN_ERR
              "flashbench: bus controller: Creating bus controllers failed.\n");
       goto CREATE_BUS_CTRL_FAIL;
@@ -133,9 +133,9 @@ INIT_BUS_CTRL_THREAD_FAIL:
   }
 
 CREATE_BUS_CTRL_FAIL:
-  if (ptr_bus_controller != NULL) {
+  if (ptr_bus_controller) {
     for (u32 loop_bus = 0; loop_bus < NUM_BUSES; loop_bus++) {
-      if (ptr_bus_controller[loop_bus] == NULL) { break; }
+      if (!ptr_bus_controller[loop_bus]) { break; }
       destroy_bus_controller(ptr_bus_controller[loop_bus]);
     }
 
@@ -148,16 +148,16 @@ ALLOC_PTR_BUS_CTRL_FAIL:
 // Destory bus controllers
 void fb_bus_controller_destroy(
     struct fb_bus_controller_t **ptr_bus_controller) {
-  if (ptr_bus_controller == NULL) { return; }
+  if (!ptr_bus_controller) { return; }
 
   for (u32 loop_bus = 0; loop_bus < NUM_BUSES; loop_bus++) {
-    if (ptr_bus_controller[loop_bus] == NULL) { continue; }
+    if (!ptr_bus_controller[loop_bus]) { continue; }
     ptr_bus_controller[loop_bus]->flag_enable_thread = 0;
     fb_stop_bus_ctrl_thread(ptr_bus_controller[loop_bus]);
   }
 
   for (u32 loop_bus = 0; loop_bus < NUM_BUSES; loop_bus++) {
-    if (ptr_bus_controller[loop_bus] == NULL) { continue; }
+    if (!ptr_bus_controller[loop_bus]) { continue; }
     destroy_bus_controller(ptr_bus_controller[loop_bus]);
   }
 
@@ -178,7 +178,7 @@ static struct fb_bus_controller_t *create_bus_controller(
     u32 num_max_entries_per_chip) {
   // Allocating a pointer of bus contorller structure
   struct fb_bus_controller_t *ptr_bus_controller = kmalloc(sizeof(struct fb_bus_controller_t), GFP_ATOMIC);
-  if (ptr_bus_controller == NULL) {
+  if (!ptr_bus_controller) {
     printk(KERN_ERR
            "flashbench: bus controller: Allocating bus controller failed.\n");
     goto ALLOC_BUS_CTRL_FAIL;
@@ -186,7 +186,7 @@ static struct fb_bus_controller_t *create_bus_controller(
 
   // Allocating a pointer of operation queue list(for number of chips)
   ptr_bus_controller->ptr_opr_queue = kmalloc(sizeof(struct fb_opr_queue_t *) * NUM_CHIPS_PER_BUS, GFP_ATOMIC);
-  if (ptr_bus_controller->ptr_opr_queue == NULL) {
+  if (!ptr_bus_controller->ptr_opr_queue) {
     printk(KERN_ERR
            "flashbench: bus controller: Allocating pointer of operation "
            "queues failed.\n");
@@ -196,7 +196,7 @@ static struct fb_bus_controller_t *create_bus_controller(
   // Creating operation queues
   for (u32 loop_chip = 0; loop_chip < NUM_CHIPS_PER_BUS; loop_chip++) {
     ptr_bus_controller->ptr_opr_queue[loop_chip] = create_opr_queue(num_max_entries_per_chip);
-    if (ptr_bus_controller->ptr_opr_queue[loop_chip] == NULL) {
+    if (!ptr_bus_controller->ptr_opr_queue[loop_chip]) {
       printk(KERN_ERR
              "flashbench: bus controller: Creating operation queues failed.\n");
       goto CREATE_OPR_QUEUE_FAIL;
@@ -205,7 +205,7 @@ static struct fb_bus_controller_t *create_bus_controller(
 
   // Creating chip busy structures
   ptr_bus_controller->chip_busies = kmalloc(sizeof(struct fb_chip_busy_t) * NUM_CHIPS_PER_BUS, GFP_ATOMIC);
-  if (ptr_bus_controller->chip_busies == NULL) {
+  if (!ptr_bus_controller->chip_busies) {
     printk(KERN_ERR
            "flashbench: bus controller: Allocating chip busy array failed.\n");
     goto CREATE_OPR_QUEUE_FAIL;
@@ -225,9 +225,9 @@ static struct fb_bus_controller_t *create_bus_controller(
   return ptr_bus_controller;
 
 CREATE_OPR_QUEUE_FAIL:
-  if (ptr_bus_controller->ptr_opr_queue != NULL) {
+  if (ptr_bus_controller->ptr_opr_queue) {
     for (u32 loop_chip = 0; loop_chip < NUM_CHIPS_PER_BUS; loop_chip++) {
-      if (ptr_bus_controller->ptr_opr_queue[loop_chip] == NULL) { break; }
+      if (!ptr_bus_controller->ptr_opr_queue[loop_chip]) { break; }
       destroy_opr_queue(ptr_bus_controller->ptr_opr_queue[loop_chip]);
     }
 
@@ -235,7 +235,7 @@ CREATE_OPR_QUEUE_FAIL:
   }
 
 ALLOC_PTR_OPR_QUEUE_FAIL:
-  if (ptr_bus_controller != NULL) {
+  if (ptr_bus_controller) {
     kfree(ptr_bus_controller);
   }
 
@@ -246,14 +246,14 @@ ALLOC_BUS_CTRL_FAIL:
 // Destroying the bus controller
 static void destroy_bus_controller(
     struct fb_bus_controller_t *ptr_bus_controller) {
-  if (ptr_bus_controller != NULL) {
-    if (ptr_bus_controller->chip_busies != NULL) {
+  if (ptr_bus_controller) {
+    if (ptr_bus_controller->chip_busies) {
       kfree(ptr_bus_controller->chip_busies);
     }
 
-    if (ptr_bus_controller->ptr_opr_queue != NULL) {
+    if (ptr_bus_controller->ptr_opr_queue) {
       for (u32 loop_chip = 0; loop_chip < NUM_CHIPS_PER_BUS; loop_chip++) {
-        if (ptr_bus_controller->ptr_opr_queue[loop_chip] == NULL) { break; }
+        if (!ptr_bus_controller->ptr_opr_queue[loop_chip]) { break; }
         destroy_opr_queue(ptr_bus_controller->ptr_opr_queue[loop_chip]);
       }
 
@@ -394,7 +394,7 @@ static int fb_init_bus_ctrl_thread(
 
 static void fb_stop_bus_ctrl_thread(
     struct fb_bus_controller_t *ptr_bus_controller) {
-  if (ptr_bus_controller->ptr_task == NULL) { return; }
+  if (!ptr_bus_controller->ptr_task) { return; }
   kthread_stop(ptr_bus_controller->ptr_task);
 }
 
@@ -404,7 +404,7 @@ static void fb_stop_bus_ctrl_thread(
 static struct fb_opr_queue_t *create_opr_queue(u32 num_max_entries) {
   // Allocating an operation queue
   struct fb_opr_queue_t *ptr_opr_queue = kmalloc(sizeof(struct fb_opr_queue_t), GFP_ATOMIC);
-  if (ptr_opr_queue == NULL) {
+  if (!ptr_opr_queue) {
     printk(KERN_ERR
            "flashbench: bus controller: Allocating operation queue failed.\n");
     goto ALLOC_OPR_QUEUE_FAIL;
@@ -412,7 +412,7 @@ static struct fb_opr_queue_t *create_opr_queue(u32 num_max_entries) {
 
   // Allocating an operation list where data are actually stored
   ptr_opr_queue->opr_list = kmalloc(sizeof(struct fb_operation_t) * num_max_entries, GFP_ATOMIC);
-  if (ptr_opr_queue->opr_list == NULL) {
+  if (!ptr_opr_queue->opr_list) {
     printk(KERN_ERR
            "flashbench: bus controller: Allocating operation list failed.\n");
     goto ALLOC_OPR_LIST_FAIL;
@@ -431,7 +431,7 @@ static struct fb_opr_queue_t *create_opr_queue(u32 num_max_entries) {
   return ptr_opr_queue;
 
 ALLOC_OPR_LIST_FAIL:
-  if (ptr_opr_queue != NULL) {
+  if (ptr_opr_queue) {
     kfree(ptr_opr_queue);
   }
 
@@ -441,8 +441,8 @@ ALLOC_OPR_QUEUE_FAIL:
 
 // Destroying the operation queue
 static void destroy_opr_queue(struct fb_opr_queue_t *ptr_opr_queue) {
-  if (ptr_opr_queue == NULL) { return; }
-  if (ptr_opr_queue->opr_list != NULL) { kfree(ptr_opr_queue->opr_list); }
+  if (!ptr_opr_queue) { return; }
+  if (ptr_opr_queue->opr_list) { kfree(ptr_opr_queue->opr_list); }
   kfree(ptr_opr_queue);
 }
 
@@ -555,7 +555,7 @@ static void release_busy_lock(struct fb_bus_controller_t *ptr_bus_controller,
   busy->issue_time_in_us = 0;
 
   // Read block I/O management
-  if (busy->ptr_fb_bio == NULL) { return; }
+  if (!busy->ptr_fb_bio) { return; }
 
   // Reduce the request count. If request count is zero, it means that the
   // block I/O completes

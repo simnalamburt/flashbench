@@ -15,7 +15,7 @@ int trigger_bg_gc(struct fb_context_t *fb) {
   u8 bus, chip;
   get_prev_bus_chip(fb, &bus, &chip);
 
-  if (get_curr_active_block(fb, bus, chip) == NULL) {
+  if (!get_curr_active_block(fb, bus, chip)) {
     // there is no free block:
     // as long as a free block exists, it is used for active block
     if (fb_bgc_prepare_act_blks(fb) != 0) {
