@@ -12,6 +12,7 @@ struct fb_lbs_mngr_t;
 struct fb_wb;
 struct fb_bio_t;
 struct fb_context_t;
+struct page_mapping_context_t;
 
 struct fb_bio_t {
   u32 req_count;
@@ -27,7 +28,7 @@ struct fb_bio_t {
 struct fb_context_t {
   int err;
 
-  void *ptr_mapping_context;
+  struct page_mapping_context_t *ptr_mapping_context;
 
   struct fb_lbs_mngr_t *ptr_lbs_mngr;
 

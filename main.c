@@ -45,7 +45,6 @@ static blk_qc_t make_request(
   const int rw =
       bio_data_dir(bio);  // data direction을 돌려줌. read인지 write인지
   u32 ret_value = 0;
-  u32 loop, req_count;
 
   struct fb_bio_t *fbio = NULL;
 
@@ -56,7 +55,7 @@ static blk_qc_t make_request(
 
   fb_update_bgc_ts(_fb);
 
-  if (_fb->err == true) goto FAIL;
+  if (_fb->err) { goto FAIL; }
 
   if (unlikely(bio->bi_opf & REQ_PREFLUSH)) {
     _fb->make_flush_request();
@@ -68,13 +67,14 @@ static blk_qc_t make_request(
     goto REQ_FINISH;
   }
 
-  if ((fbio = fb_build_bio(bio)) == NULL) {
+  fbio = fb_build_bio(bio);
+  if (!fbio) {
     printk(KERN_ERR "flashbench: Building bio structure failed.\n");
     ret_value = -ENODEV;
     goto FAIL;
   }
 
-  req_count = fbio->req_count;
+  u32 req_count = fbio->req_count;
 
   switch (rw) {
     case READ:
@@ -86,7 +86,7 @@ static blk_qc_t make_request(
         goto REQ_FINISH;
       }
 
-      for (loop = 0; loop < req_count; loop++) {
+      for (u32 loop = 0; loop < req_count; loop++) {
         if (_fb->make_read_request(_fb, fbio->lpas[loop], fbio->kpages[loop],
                                    fbio) == -1) {
           if (dec_bio_req_count(fbio) == 0) {
@@ -102,7 +102,7 @@ static blk_qc_t make_request(
 
       fb_del_invalid_data(_fb, fbio);
 
-      for (loop = 0; loop < req_count; loop++) {
+      for (u32 loop = 0; loop < req_count; loop++) {
         if (fb_put_pg(_fb->wb, fbio->lpas[loop],
                       fbio->kpages[loop]) == 0) {
           perf_inc_nr_incomming_write();
@@ -128,7 +128,7 @@ static blk_qc_t make_request(
 REQ_FINISH:
   if (rw != READ) {
     bio_endio(bio);
-    if (fbio != NULL) fb_destroy_bio(fbio);
+    if (fbio) { fb_destroy_bio(fbio); }
   }
 
   fb_update_bgc_ts(_fb);
@@ -142,7 +142,7 @@ FAIL:
 
   bio->bi_error = ret_value;
   bio_endio(bio);
-  if (fbio != NULL) fb_destroy_bio(fbio);
+  if (fbio) { fb_destroy_bio(fbio); }
   complete(&_fb->dev_lock);
   return BLK_QC_T_NONE;
 }
@@ -155,21 +155,23 @@ fb_init(void)  // __init: 해당 함수 혹은 변수가 초기화 과정에서�
 
   perf_init();  // procfs에 summary 파일 생성 및 사용을 위한 초기화
 
-  if ((_fb = (struct fb_context_t *)kmalloc(sizeof(struct fb_context_t),
-                                            GFP_ATOMIC)) == NULL) {
+  _fb = kmalloc(sizeof(struct fb_context_t), GFP_ATOMIC);
+  if (!_fb) {
     printk(KERN_ERR
            "flashbench: Memory allocation for FlashBench context failed.\n");
     ret_value = -ENOMEM;
     goto FAIL_ALLOC_CONTEXT;
   }
 
-  if ((_fb->ptr_vdevice = create_vdevice()) == NULL) {
+  _fb->ptr_vdevice = create_vdevice();
+  if (!_fb->ptr_vdevice) {
     printk(KERN_ERR "flashbench: Creating a virtual device failed.\n");
     ret_value = -ENOMEM;
     goto FAIL_CREATE_VDEVICE;
   }
 
-  if ((_fb->ptr_ssd_info = create_ssd_info()) == NULL) {
+  _fb->ptr_ssd_info = create_ssd_info();
+  if (!_fb->ptr_ssd_info) {
     printk(KERN_ERR
            "flashbench: Creating information structure of virtual device "
            "failed.\n");
@@ -177,13 +179,15 @@ fb_init(void)  // __init: 해당 함수 혹은 변수가 초기화 과정에서�
     goto FAIL_CREATE_SSD_INFO;
   }
 
-  if ((_fb->ptr_mapping_context = create_pg_ftl(_fb)) == NULL) {
+  _fb->ptr_mapping_context = create_pg_ftl(_fb);
+  if (!_fb->ptr_mapping_context) {
     printk(KERN_ERR "flashbench: Creating a mapping context failed.\n");
     ret_value = -ENOMEM;
     goto FAIL_CREATE_MAPPING_CONTEXT;
   }
 
-  if (!(_fb->ptr_req_queue = blk_alloc_queue(GFP_KERNEL))) {
+  _fb->ptr_req_queue = blk_alloc_queue(GFP_KERNEL);
+  if (!_fb->ptr_req_queue) {
     printk(KERN_ERR "flashbench: Allocating a block queue failed.\n");
     ret_value = -ENOMEM;
     goto FAIL_ALLOC_BDEV_QUEUE;
@@ -219,23 +223,24 @@ fb_init(void)  // __init: 해당 함수 혹은 변수가 초기화 과정에서�
   // 잘은 모르겠고 DISCARD를 support한다는 것으로 추정
   queue_flag_set_unlocked(QUEUE_FLAG_DISCARD, _fb->ptr_req_queue);
 
-  if ((_fb->device_major_num =
-           register_blkdev(_fb->device_major_num, DEV_NAME)) < 0) {
+  _fb->device_major_num = register_blkdev(_fb->device_major_num, DEV_NAME);
+  if (_fb->device_major_num < 0) {
     printk(KERN_ERR "flashbench: Registering a block device failed.\n");
     ret_value = _fb->device_major_num;
     goto FAIL_REGISTER_BDEV;
   }
 
   // Logical Disk를 등록시키기 위한 자료구조인 gendisk를 할당받는다
-  if (!(_fb->gd = alloc_disk(1))) {
+  _fb->gd = alloc_disk(1);
+  if (!_fb->gd) {
     printk(KERN_ERR "flashbench: Allocating a disk failed.\n");
     ret_value = -ENOMEM;
     goto FAIL_ALLOC_DISK;
   }
 
   // TODO GH
-  if ((_fb->wb = fb_create_write_buffer(NUM_PAGES_IN_WRITE_BUFFER,
-                                        LOGICAL_PAGE_SIZE)) == NULL) {
+  _fb->wb = fb_create_write_buffer(NUM_PAGES_IN_WRITE_BUFFER, LOGICAL_PAGE_SIZE);
+  if (!_fb->wb) {
     printk(KERN_ERR "flashbench: Creating a write buffer failed.\n");
     ret_value = -ENOMEM;
     goto FAIL_CREATE_WRITE_BUFFER;
@@ -260,39 +265,21 @@ fb_init(void)  // __init: 해당 함수 혹은 변수가 초기화 과정에서�
   return 0;
 
 FAIL_WRITE_BUFFER_THREAD:
-  if (_fb->wb != NULL) {
-    fb_destroy_write_buffer(_fb->wb);
-  }
-
+  if (_fb->wb) { fb_destroy_write_buffer(_fb->wb); }
 FAIL_CREATE_WRITE_BUFFER:
   del_gendisk(_fb->gd);
-
 FAIL_ALLOC_DISK:
   unregister_blkdev(_fb->device_major_num, DEV_NAME);
-
 FAIL_REGISTER_BDEV:
   blk_cleanup_queue(_fb->ptr_req_queue);
-
 FAIL_ALLOC_BDEV_QUEUE:
-  if (_fb->ptr_mapping_context != NULL) {
-    destroy_mapping_context(_fb);
-  }
-
+  if (_fb->ptr_mapping_context) { destroy_mapping_context(_fb); }
 FAIL_CREATE_MAPPING_CONTEXT:
-  if (_fb->ptr_ssd_info != NULL) {
-    destroy_ssd_info(_fb->ptr_ssd_info);
-  }
-
+  if (_fb->ptr_ssd_info) { destroy_ssd_info(_fb->ptr_ssd_info); }
 FAIL_CREATE_SSD_INFO:
-  if (_fb->ptr_vdevice != NULL) {
-    destroy_vdevice(_fb->ptr_vdevice);
-  }
-
+  if (_fb->ptr_vdevice) { destroy_vdevice(_fb->ptr_vdevice); }
 FAIL_CREATE_VDEVICE:
-  if (_fb != NULL) {
-    kfree(_fb);
-  }
-
+  if (_fb) { kfree(_fb); }
 FAIL_ALLOC_CONTEXT:
   return ret_value;
 }
@@ -305,56 +292,27 @@ static void __exit fb_exit(void) {
   blk_cleanup_queue(_fb->ptr_req_queue);
   _fb->flag_enable_wb_thread = 0;
   // Stop write buffer thread
-  if (_fb->ptr_wb_task != NULL) {
-    kthread_stop(_fb->ptr_wb_task);
-  }
-
-  if (_fb->wb != NULL) {
-    fb_destroy_write_buffer(_fb->wb);
-  }
-
-  if (_fb->ptr_mapping_context != NULL) {
-    destroy_mapping_context(_fb);
-  }
-
-  if (_fb->ptr_ssd_info != NULL) {
-    destroy_ssd_info(_fb->ptr_ssd_info);
-  }
-
-  if (_fb->ptr_vdevice != NULL) {
-    destroy_vdevice(_fb->ptr_vdevice);
-  }
-
-  if (_fb != NULL) {
-    kfree(_fb);
-  }
-
+  if (_fb->ptr_wb_task) { kthread_stop(_fb->ptr_wb_task); }
+  if (_fb->wb) { fb_destroy_write_buffer(_fb->wb); }
+  if (_fb->ptr_mapping_context) { destroy_mapping_context(_fb); }
+  if (_fb->ptr_ssd_info) { destroy_ssd_info(_fb->ptr_ssd_info); }
+  if (_fb->ptr_vdevice) { destroy_vdevice(_fb->ptr_vdevice); }
+  if (_fb) { kfree(_fb); }
   perf_display_result();
-
   perf_exit();
 }
 
 static int fb_init_write_buffer_thread(void) {
-  int rc;
-  int ret = 0;
-
   char thread_name[16];
   sprintf(thread_name, "fb_wb_thread");
 
   _fb->ptr_wb_task = kthread_run(fb_write_buffer_thread, NULL, thread_name);
-  rc = IS_ERR(_fb->ptr_wb_task);
+  int rc = IS_ERR(_fb->ptr_wb_task);
 
-  if (rc < 0) {
-    ret = -1;
-  }
-
-  return ret;
+  return rc >= 0 ? 0 : -1;
 }
 
 static int fb_write_buffer_thread(__attribute__((unused)) void *arg) {
-  u32 signr;
-  int ret = 0;
-
   allow_signal(SIGKILL);
   allow_signal(SIGSTOP);
   allow_signal(SIGCONT);
@@ -365,9 +323,6 @@ static int fb_write_buffer_thread(__attribute__((unused)) void *arg) {
   set_freezable();
 
   while ((_fb->flag_enable_wb_thread) && !kthread_should_stop()) {
-    signr = 0;
-    ret = 0;
-
     allow_signal(SIGHUP);
 
   AGAIN:
@@ -376,9 +331,7 @@ static int fb_write_buffer_thread(__attribute__((unused)) void *arg) {
         goto AGAIN;
       }
 
-      signr = kernel_dequeue_signal(NULL);
-
-      switch (signr) {
+      switch (kernel_dequeue_signal(NULL)) {
         case SIGSTOP:
           set_current_state(TASK_STOPPED);
           break;
@@ -392,14 +345,14 @@ static int fb_write_buffer_thread(__attribute__((unused)) void *arg) {
 
     disallow_signal(SIGHUP);
 
-    if (fb_is_bgc_ts_expired(_fb, BGC_TH_INTV) == true) {
+    if (fb_is_bgc_ts_expired(_fb, BGC_TH_INTV)) {
       if (_fb->background_gc(_fb) == -1) {
         printk(KERN_ERR "flashbench: BGC falied.\n");
         goto FINISH;
       }
     }
 
-    if (_fb->flag_enable_wb_thread == 0) {
+    if (!_fb->flag_enable_wb_thread) {
       yield();
       goto FINISH;
     }
@@ -413,6 +366,7 @@ FINISH:
   _fb->ptr_wb_task = NULL;
 
   return 0;
+  // TODO: Return non-zero value on error
 }
 
 struct ssd_info *get_ssd_inf(struct fb_context_t *fb) {
@@ -443,15 +397,13 @@ static void destroy_mapping_context(struct fb_context_t *ptr_fb_context) {
 }
 
 u32 dec_bio_req_count(struct fb_bio_t *fbio) {
-  u32 ret;
-
   // TODO: Race condition! wait_for_completion + reinit_completion is NOT
   // atomic!
   wait_for_completion(&fbio->bio_lock);
   reinit_completion(&fbio->bio_lock);
 
   fbio->req_count--;
-  ret = fbio->req_count;
+  u32 ret = fbio->req_count;
 
   complete(&fbio->bio_lock);
 
@@ -459,14 +411,10 @@ u32 dec_bio_req_count(struct fb_bio_t *fbio) {
 }
 
 static struct fb_bio_t *fb_build_bio(struct bio *bio) {
-  struct bio_vec bvec;
   const int rw = bio_data_dir(bio);
-  struct bvec_iter bio_loop;
-  u64 sec_start, lpa_curr;
-  struct fb_bio_t *fbio = NULL;
-  u8 *ptr_page_buffer;
 
-  if ((fbio = (struct fb_bio_t *)vmalloc(sizeof(struct fb_bio_t))) == NULL) {
+  struct fb_bio_t *fbio = vmalloc(sizeof(struct fb_bio_t));
+  if (!fbio) {
     printk(KERN_ERR "flashbench: Allocating bio structure failed.\n");
     return NULL;
   }
@@ -475,11 +423,13 @@ static struct fb_bio_t *fb_build_bio(struct bio *bio) {
   fbio->req_count = 0;
 
   // assumption: logical page size (i.e., mapping size) = 4 KB
-  sec_start = bio->bi_iter.bi_sector & (~(7));
+  u64 sec_start = bio->bi_iter.bi_sector & (~(7));
 
+  struct bio_vec bvec;
+  struct bvec_iter bio_loop;
   bio_for_each_segment(bvec, bio, bio_loop) {
-    lpa_curr = sec_start >> 3;
-    ptr_page_buffer = (u8 *)page_address(bvec.bv_page);
+    u64 lpa_curr = sec_start >> 3;
+    u8 *ptr_page_buffer = (u8 *)page_address(bvec.bv_page);
 
     if (rw == READ) {
       if (fb_get_pg_data(_fb->wb, lpa_curr, ptr_page_buffer) !=
