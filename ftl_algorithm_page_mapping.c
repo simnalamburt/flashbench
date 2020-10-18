@@ -322,16 +322,14 @@ static int make_read_request_page_mapping(struct fb_context_t *ptr_fb_context,
                                           u32 logical_page_address,
                                           u8 *ptr_page_buffer,
                                           struct fb_bio_t *ptr_fb_bio) {
-  u32 bus, chip, block, page, page_offset;
-  u32 physical_page_address;
-  u8 page_bitmap[NR_LP_IN_PP] = {0};
 
   struct page_mapping_context_t *ptr_mapping_context = ptr_fb_context->ptr_mapping_context;
 
   wait_for_completion(&ptr_mapping_context->mapping_context_lock);
   reinit_completion(&ptr_mapping_context->mapping_context_lock);
 
-  physical_page_address = get_mapped_physical_address(
+  u32 bus, chip, block, page;
+  u32 physical_page_address = get_mapped_physical_address(
       ptr_fb_context, logical_page_address, &bus, &chip, &block, &page);
 
   if (physical_page_address == PAGE_UNMAPPED) {
@@ -341,8 +339,9 @@ static int make_read_request_page_mapping(struct fb_context_t *ptr_fb_context,
 
   perf_inc_nr_page_reads();
 
-  page_offset = LP_PAGE_MASK & page;
+  u32 page_offset = LP_PAGE_MASK & page;
   page = page >> LP_PAGE_SHIFT;
+  u8 page_bitmap[NR_LP_IN_PP] = {0};
   page_bitmap[page_offset] = 1;
 
   vdevice_read(ptr_fb_context->ptr_vdevice, bus, chip, block, page, page_bitmap,
@@ -370,12 +369,10 @@ static int make_write_request_page_mapping(struct fb_context_t *fb, u32 *lpa,
                                            u8 *src) {
   struct page_mapping_context_t *ftl = get_ftl(fb);
 
-  u8 bus, chip;
-  u32 blk, pg;
-
   wait_for_completion(&ftl->mapping_context_lock);
   reinit_completion(&ftl->mapping_context_lock);
 
+  u8 bus, chip;
   get_next_bus_chip(fb, &bus, &chip);
   // Check foreground GC condition, check if the GC block is null
   if (is_fgc_needed(fb, bus, chip) && trigger_gc_page_mapping(fb) == -1) {
@@ -385,6 +382,7 @@ static int make_write_request_page_mapping(struct fb_context_t *fb, u32 *lpa,
 
   get_next_bus_chip(fb, &bus, &chip);
 
+  u32 blk, pg;
   if ((alloc_new_page(fb, bus, chip, &blk, &pg)) == -1) {
     if (trigger_gc_page_mapping(fb) == -1) {
       printk(KERN_ERR "flashbench: fb_page_mapping: Foreground GC failed.\n");
@@ -432,14 +430,12 @@ static int make_discard_request_page_mapping(struct fb_context_t *fb,
                                              struct bio *bio) {
   struct page_mapping_context_t *ftl = get_ftl(fb);
   struct fb_wb *wb = fb->wb;
-  u64 sec_start, sec_end, lpa_start, nr_lpgs;
-  u32 bio_loop;
 
-  sec_start = (bio->bi_iter.bi_sector + 7) & (~(7));
-  sec_end = (bio->bi_iter.bi_sector + (bio->bi_iter.bi_size >> 9)) & (~(7));
+  u64 sec_start = (bio->bi_iter.bi_sector + 7) & (~(7));
+  u64 sec_end = (bio->bi_iter.bi_sector + (bio->bi_iter.bi_size >> 9)) & (~(7));
 
-  lpa_start = sec_start >> 3;
-  nr_lpgs = (sec_start < sec_end) ? ((sec_end - sec_start) >> 3) : 0;
+  u64 lpa_start = sec_start >> 3;
+  u64 nr_lpgs = (sec_start < sec_end) ? ((sec_end - sec_start) >> 3) : 0;
 
   perf_inc_nr_discard_reqs();
   perf_inc_nr_discard_lpgs(nr_lpgs);
@@ -448,7 +444,7 @@ static int make_discard_request_page_mapping(struct fb_context_t *fb,
     fb_rm_buf_pg(wb, lpa_start + lp_loop);
   }
 
-  bio_loop = 0;
+  u32 bio_loop = 0;
   for (u32 lp_loop = 0; lp_loop < nr_lpgs; lp_loop++) {
     ftl->lpas_to_discard[bio_loop] = lpa_start + lp_loop;
 
@@ -540,7 +536,6 @@ static int fb_wb_flush(struct fb_context_t *fb) {
   while (fb_get_pgs_to_write(wb, NR_LP_IN_PP, lpas, wb->pg_buf) != -1) {
     if (make_write_request_page_mapping(fb, lpas, wb->pg_buf) == -1) {
       printk(KERN_ERR "flashbench: Handling a write request filed.\n");
-
       return -1;
     }
 
