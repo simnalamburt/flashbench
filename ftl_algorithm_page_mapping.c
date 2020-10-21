@@ -511,19 +511,20 @@ void print_blk_mgmt(struct fb_context_t *fb) {
 
   for (u8 chip = 0; chip < NUM_CHIPS_PER_BUS; chip++) {
     for (u8 bus = 0; bus < NUM_BUSES; bus++) {
+      struct flash_chip *chip_info = get_chip_info(get_ssd_inf(fb), bus, chip);
+      struct flash_block *active_block = get_curr_active_block(fb, bus, chip);
       printk(
           KERN_INFO
           "flashbench: Block Status b(%u), c(%u) - act: %s(%u), gc: %s, free: "
           "%u, used: "
           "%u, dirt: %u\n",
-          bus, chip, (get_curr_active_block(fb, bus, chip) == NULL) ? "X" : "O",
-          (get_curr_active_block(fb, bus, chip) == NULL)
-              ? 0
-              : get_nr_free_pgs(get_curr_active_block(fb, bus, chip)),
-          (get_curr_gc_block(fb, bus, chip) == NULL) ? "X" : "O",
-          get_nr_free_blks_in_chip(get_chip_info(get_ssd_inf(fb), bus, chip)),
-          get_nr_used_blks_in_chip(get_chip_info(get_ssd_inf(fb), bus, chip)),
-          get_nr_dirt_blks_in_chip(get_chip_info(get_ssd_inf(fb), bus, chip)));
+          bus, chip,
+          active_block ? "O" : "X",
+          active_block ? get_nr_free_pgs(active_block) : 0,
+          get_curr_gc_block(fb, bus, chip) ? "O" : "X",
+          get_nr_free_blks_in_chip(chip_info),
+          get_nr_used_blks_in_chip(chip_info),
+          get_nr_dirt_blks_in_chip(chip_info));
     }
   }
 }
