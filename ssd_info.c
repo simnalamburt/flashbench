@@ -54,16 +54,14 @@ struct ssd_info {
 };
 
 void set_free_blk(struct ssd_info *ssdi, struct flash_block *bi) {
-  struct flash_chip *ci =
-      get_chip_info(ssdi, bi->no_bus, bi->no_chip);
+  struct flash_chip *ci = get_chip_info(ssdi, bi->no_bus, bi->no_chip);
 
   DL_APPEND(ci->free_blks, bi);
   ci->nr_free_blocks++;
 }
 
 void reset_free_blk(struct ssd_info *ssdi, struct flash_block *bi) {
-  struct flash_chip *ci =
-      get_chip_info(ssdi, bi->no_bus, bi->no_chip);
+  struct flash_chip *ci = get_chip_info(ssdi, bi->no_bus, bi->no_chip);
 
   DL_DELETE(ci->free_blks, bi);
   ci->nr_free_blocks--;
@@ -80,16 +78,14 @@ u32 get_nr_free_blks_in_chip(struct flash_chip *ci) {
 }
 
 void set_used_blk(struct ssd_info *ssdi, struct flash_block *bi) {
-  struct flash_chip *ci =
-      get_chip_info(ssdi, bi->no_bus, bi->no_chip);
+  struct flash_chip *ci = get_chip_info(ssdi, bi->no_bus, bi->no_chip);
 
   DL_APPEND(ci->used_blks, bi);
   ci->nr_used_blks++;
 }
 
 void reset_used_blk(struct ssd_info *ssdi, struct flash_block *bi) {
-  struct flash_chip *ci =
-      get_chip_info(ssdi, bi->no_bus, bi->no_chip);
+  struct flash_chip *ci = get_chip_info(ssdi, bi->no_bus, bi->no_chip);
 
   DL_DELETE(ci->used_blks, bi);
   ci->nr_used_blks--;
@@ -104,16 +100,14 @@ struct flash_block *get_used_block(struct ssd_info *ssdi, u32 bus, u32 chip) {
 u32 get_nr_used_blks_in_chip(struct flash_chip *ci) { return ci->nr_used_blks; }
 
 void set_dirt_blk(struct ssd_info *ssdi, struct flash_block *bi) {
-  struct flash_chip *ci =
-      get_chip_info(ssdi, bi->no_bus, bi->no_chip);
+  struct flash_chip *ci = get_chip_info(ssdi, bi->no_bus, bi->no_chip);
 
   DL_APPEND(ci->dirt_blks, bi);
   ci->nr_dirt_blks++;
 }
 
 void reset_dirt_blk(struct ssd_info *ssdi, struct flash_block *bi) {
-  struct flash_chip *ci =
-      get_chip_info(ssdi, bi->no_bus, bi->no_chip);
+  struct flash_chip *ci = get_chip_info(ssdi, bi->no_bus, bi->no_chip);
 
   DL_DELETE(ci->dirt_blks, bi);
   ci->nr_dirt_blks--;
@@ -128,12 +122,8 @@ struct flash_block *get_dirt_block(struct ssd_info *ssdi, u32 bus, u32 chip) {
 u32 get_nr_dirt_blks_in_chip(struct flash_chip *ci) { return ci->nr_dirt_blks; }
 
 struct ssd_info *create_ssd_info(void) {
-  u32 loop_bus, loop_chip, loop_block, loop_page;
-
-  struct ssd_info *ptr_ssd_info = NULL;
-
-  if ((ptr_ssd_info = (struct ssd_info *)kmalloc(sizeof(struct ssd_info),
-                                                 GFP_ATOMIC)) == NULL) {
+  struct ssd_info *ptr_ssd_info = kmalloc(sizeof(struct ssd_info), GFP_ATOMIC);
+  if (!ptr_ssd_info) {
     printk(KERN_ERR
            "flashbench: ssd_info: Allocating ssd information structure "
            "failed.\n");
@@ -145,28 +135,27 @@ struct ssd_info *create_ssd_info(void) {
   ptr_ssd_info->nr_blocks_per_chip = NUM_BLOCKS_PER_CHIP;
   ptr_ssd_info->nr_pages_per_block = NUM_PAGES_PER_BLOCK;
 
-  if ((ptr_ssd_info->list_buses = (struct flash_bus *)kmalloc(
-           sizeof(struct flash_bus) * NUM_BUSES, GFP_ATOMIC)) == NULL) {
+  ptr_ssd_info->list_buses = kmalloc(sizeof(struct flash_bus) * NUM_BUSES, GFP_ATOMIC);
+  if (!ptr_ssd_info->list_buses) {
     printk(KERN_ERR
            "flashbench: ssd_info: Allocating bus information structure "
            "failed.\n");
     goto FAIL_ALLOC_BUS_INFO;
   }
 
-  for (loop_bus = 0; loop_bus < NUM_BUSES; loop_bus++) {
+  for (u32 loop_bus = 0; loop_bus < NUM_BUSES; loop_bus++) {
     struct flash_bus *ptr_bus = &ptr_ssd_info->list_buses[loop_bus];
 
     // initialize flash chip
-    if ((ptr_bus->list_chips = (struct flash_chip *)kmalloc(
-             sizeof(struct flash_chip) * NUM_CHIPS_PER_BUS, GFP_ATOMIC)) ==
-        NULL) {
+    ptr_bus->list_chips = kmalloc(sizeof(struct flash_chip) * NUM_CHIPS_PER_BUS, GFP_ATOMIC);
+    if (!ptr_bus->list_chips) {
       printk(KERN_ERR
              "flashbench: ssd_info: Allocating chip information structure "
              "failed.\n");
       goto FAIL_ALLOC_INFOS;
     }
 
-    for (loop_chip = 0; loop_chip < NUM_CHIPS_PER_BUS; loop_chip++) {
+    for (u32 loop_chip = 0; loop_chip < NUM_CHIPS_PER_BUS; loop_chip++) {
       struct flash_chip *ptr_chip = &ptr_bus->list_chips[loop_chip];
 
       init_completion(&ptr_chip->chip_status_lock);
@@ -185,16 +174,15 @@ struct ssd_info *create_ssd_info(void) {
       ptr_chip->dirt_blks = NULL;
 
       // initialize blocks
-      if ((ptr_chip->list_blocks = (struct flash_block *)kmalloc(
-               sizeof(struct flash_block) * NUM_BLOCKS_PER_CHIP, GFP_ATOMIC)) ==
-          NULL) {
+      ptr_chip->list_blocks = kmalloc(sizeof(struct flash_block) * NUM_BLOCKS_PER_CHIP, GFP_ATOMIC);
+      if (!ptr_chip->list_blocks) {
         printk(KERN_ERR
                "flashbench: ssd_info: Allocating block information structure "
                "failed.\n");
         goto FAIL_ALLOC_INFOS;
       }
 
-      for (loop_block = 0; loop_block < NUM_BLOCKS_PER_CHIP; loop_block++) {
+      for (u32 loop_block = 0; loop_block < NUM_BLOCKS_PER_CHIP; loop_block++) {
         struct flash_block *ptr_block = &ptr_chip->list_blocks[loop_block];
 
         ptr_block->list_pages = NULL;
@@ -217,25 +205,21 @@ struct ssd_info *create_ssd_info(void) {
         ptr_block->del_flag = false;
         // timestamp is set to 0 if the block is not used after initialization
 
-        if ((ptr_block->list_pages = (struct flash_page *)kmalloc(
-                 sizeof(struct flash_page) * NUM_PAGES_PER_BLOCK,
-                 GFP_ATOMIC)) == NULL) {
+        ptr_block->list_pages = kmalloc(sizeof(struct flash_page) * NUM_PAGES_PER_BLOCK, GFP_ATOMIC);
+        if (ptr_block->list_pages == NULL) {
           printk(KERN_ERR
                  "flashbench: ssd_info: Allocating page information structure "
                  "failed.\n");
           goto FAIL_ALLOC_INFOS;
         }
 
-        for (loop_page = 0; loop_page < NUM_PAGES_PER_BLOCK; loop_page++) {
+        for (u32 loop_page = 0; loop_page < NUM_PAGES_PER_BLOCK; loop_page++) {
           struct flash_page *ptr_page = &ptr_block->list_pages[loop_page];
-          u8 lp_loop;
 
           ptr_page->nr_invalid_log_pages = 0;
-          for (lp_loop = 0; lp_loop < NR_LP_IN_PP; lp_loop++) {
-            ptr_page->no_logical_page_addr[lp_loop] =
-                -1;  // free page (by default)
-            ptr_page->page_status[lp_loop] =
-                PAGE_STATUS_FREE;  // free page (by default)
+          for (u8 lp_loop = 0; lp_loop < NR_LP_IN_PP; lp_loop++) {
+            ptr_page->no_logical_page_addr[lp_loop] = -1; // free page (by default)
+            ptr_page->page_status[lp_loop] = PAGE_STATUS_FREE; // free page (by default)
           }
           ptr_page->del_flag = false;
         }
@@ -248,69 +232,52 @@ struct ssd_info *create_ssd_info(void) {
   return ptr_ssd_info;
 
 FAIL_ALLOC_INFOS:
-  if (ptr_ssd_info->list_buses != NULL) {
-    for (loop_bus = 0; loop_bus < NUM_BUSES; loop_bus++) {
+  if (ptr_ssd_info->list_buses) {
+    for (u32 loop_bus = 0; loop_bus < NUM_BUSES; loop_bus++) {
       struct flash_bus *ptr_bus = &ptr_ssd_info->list_buses[loop_bus];
-      if (ptr_bus->list_chips != NULL) {
-        for (loop_chip = 0; loop_chip < NUM_CHIPS_PER_BUS; loop_chip++) {
-          struct flash_chip *ptr_chip = &ptr_bus->list_chips[loop_chip];
-          if (ptr_chip->list_blocks != NULL) {
-            for (loop_block = 0; loop_block < NUM_BLOCKS_PER_CHIP;
-                 loop_block++) {
-              struct flash_block *ptr_block =
-                  &ptr_chip->list_blocks[loop_block];
-              if (ptr_block->list_pages != NULL) {
-                kfree(ptr_block->list_pages);
-              }
-            }
-
-            kfree(ptr_chip->list_blocks);
-          }
+      if (!ptr_bus->list_chips) { continue; }
+      for (u32 loop_chip = 0; loop_chip < NUM_CHIPS_PER_BUS; loop_chip++) {
+        struct flash_chip *ptr_chip = &ptr_bus->list_chips[loop_chip];
+        if (!ptr_chip->list_blocks) { continue; }
+        for (u32 loop_block = 0; loop_block < NUM_BLOCKS_PER_CHIP; loop_block++) {
+          struct flash_block *ptr_block = &ptr_chip->list_blocks[loop_block];
+          if (!ptr_block->list_pages) { continue; }
+          kfree(ptr_block->list_pages);
         }
-        kfree(ptr_bus->list_chips);
+        kfree(ptr_chip->list_blocks);
       }
+      kfree(ptr_bus->list_chips);
     }
     kfree(ptr_ssd_info->list_buses);
   }
 
 FAIL_ALLOC_BUS_INFO:
-  if (ptr_ssd_info != NULL) {
-    kfree(ptr_ssd_info);
-  }
+  if (ptr_ssd_info) { kfree(ptr_ssd_info); }
 
 FAIL_ALLOC_SSD_INFO:
   return NULL;
 }
 
 void destroy_ssd_info(struct ssd_info *ptr_ssd_info) {
-  u32 loop_bus, loop_chip, loop_block;
-
   if (ptr_ssd_info != NULL) {
     if (ptr_ssd_info->list_buses != NULL) {
-      for (loop_bus = 0; loop_bus < NUM_BUSES; loop_bus++) {
+      for (u32 loop_bus = 0; loop_bus < NUM_BUSES; loop_bus++) {
         struct flash_bus *ptr_bus = &ptr_ssd_info->list_buses[loop_bus];
-        if (ptr_bus->list_chips != NULL) {
-          for (loop_chip = 0; loop_chip < NUM_CHIPS_PER_BUS; loop_chip++) {
-            struct flash_chip *ptr_chip = &ptr_bus->list_chips[loop_chip];
-            if (ptr_chip->list_blocks != NULL) {
-              for (loop_block = 0; loop_block < NUM_BLOCKS_PER_CHIP;
-                   loop_block++) {
-                struct flash_block *ptr_block =
-                    &ptr_chip->list_blocks[loop_block];
-                if (ptr_block->list_pages != NULL) {
-                  kfree(ptr_block->list_pages);
-                }
-              }
-
-              kfree(ptr_chip->list_blocks);
-            }
+        if (!ptr_bus->list_chips) { continue; }
+        for (u32 loop_chip = 0; loop_chip < NUM_CHIPS_PER_BUS; loop_chip++) {
+          struct flash_chip *ptr_chip = &ptr_bus->list_chips[loop_chip];
+          if (!ptr_chip->list_blocks) { continue; }
+          for (u32 loop_block = 0; loop_block < NUM_BLOCKS_PER_CHIP; loop_block++) {
+            struct flash_block *ptr_block = &ptr_chip->list_blocks[loop_block];
+            if (!ptr_block->list_pages) { continue; }
+            kfree(ptr_block->list_pages);
           }
-          kfree(ptr_bus->list_chips);
+          kfree(ptr_chip->list_blocks);
         }
+        kfree(ptr_bus->list_chips);
       }
       kfree(ptr_ssd_info->list_buses);
     }
-
     kfree(ptr_ssd_info);
   }
 }
