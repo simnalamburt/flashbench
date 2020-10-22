@@ -81,11 +81,9 @@ struct fb_wb *fb_create_write_buffer(u32 nr_max_entries, u32 pg_size) {
 
   wb->pg_size = pg_size;
   wb->nr_entries = 0;
-
   wb->free_pgs = NULL;
   wb->writing_pgs = NULL;
   wb->buf_pgs = NULL;
-
   wb->hash_pgs = NULL;
 
   for (u32 i = 0; i < nr_max_entries; i++) {
@@ -119,16 +117,18 @@ void fb_destroy_write_buffer(struct fb_wb *wb) {
   if (!wb) { return; }
 
   if (wb->free_pgs) {
-    struct fb_wb_pg_t *wb_pg;
-    while ((wb_pg = wb->free_pgs) != NULL) {
+    for (;;) {
+      struct fb_wb_pg_t *wb_pg = wb->free_pgs;
+      if (!wb_pg) { break; }
       fb_wb_reset_free_pg(wb, wb_pg);
       fb_destroy_wb_entry(wb_pg);
     }
   }
 
   if (wb->buf_pgs) {
-    struct fb_wb_pg_t *wb_pg;
-    while ((wb_pg = wb->buf_pgs) != NULL) {
+    for (;;) {
+      struct fb_wb_pg_t *wb_pg = wb->buf_pgs;
+      if (!wb_pg) { break; }
       fb_wb_reset_buf_pg(wb, wb_pg);
       HASH_DEL(wb->hash_pgs, wb_pg);
       fb_destroy_wb_entry(wb_pg);
@@ -136,8 +136,9 @@ void fb_destroy_write_buffer(struct fb_wb *wb) {
   }
 
   if (wb->writing_pgs) {
-    struct fb_wb_pg_t *wb_pg;
-    while ((wb_pg = wb->writing_pgs) != NULL) {
+    for (;;) {
+      struct fb_wb_pg_t *wb_pg = wb->writing_pgs;
+      if (!wb_pg) { break; }
       fb_wb_reset_writing_pg(wb, wb_pg);
       HASH_DEL(wb->hash_pgs, wb_pg);
       fb_destroy_wb_entry(wb_pg);

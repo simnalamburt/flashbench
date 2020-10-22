@@ -65,7 +65,7 @@ void set_curr_gc_block(struct fb_context_t *fb, u32 bus, u32 chip,
 
   *(ftl->gcm->gc_blks + (bus * NUM_CHIPS_PER_BUS + chip)) = blki;
 
-  if (blki != NULL) { set_rsv_blk_flag(blki, true); }
+  if (blki) { set_rsv_blk_flag(blki, true); }
 }
 
 struct flash_block *get_curr_active_block(struct fb_context_t *fb, u32 bus,
@@ -81,5 +81,5 @@ void set_curr_active_block(struct fb_context_t *fb, u32 bus, u32 chip,
 
   *(ftl->abm->act_blks + (bus * NUM_CHIPS_PER_BUS + chip)) = blki;
 
-  if (blki != NULL) { set_act_blk_flag(blki, true); }
+  if (blki) { set_act_blk_flag(blki, true); }
 }

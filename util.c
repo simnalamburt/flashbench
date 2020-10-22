@@ -154,7 +154,7 @@ void perf_init(void) {
 
   proc_dir = proc_create("summary", 0444, NULL, &fb_proc_fops);
 
-  if (proc_dir == NULL) {
+  if (!proc_dir) {
     printk(KERN_ERR "flashbench: proc summary creation failed \n");
     // TODO: Handle error properly
     // return -EEXIST;

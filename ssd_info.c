@@ -206,7 +206,7 @@ struct ssd_info *create_ssd_info(void) {
         // timestamp is set to 0 if the block is not used after initialization
 
         ptr_block->list_pages = kmalloc(sizeof(struct flash_page) * NUM_PAGES_PER_BLOCK, GFP_ATOMIC);
-        if (ptr_block->list_pages == NULL) {
+        if (!ptr_block->list_pages) {
           printk(KERN_ERR
                  "flashbench: ssd_info: Allocating page information structure "
                  "failed.\n");
@@ -259,8 +259,8 @@ FAIL_ALLOC_SSD_INFO:
 }
 
 void destroy_ssd_info(struct ssd_info *ptr_ssd_info) {
-  if (ptr_ssd_info != NULL) {
-    if (ptr_ssd_info->list_buses != NULL) {
+  if (ptr_ssd_info) {
+    if (ptr_ssd_info->list_buses) {
       for (u32 loop_bus = 0; loop_bus < NUM_BUSES; loop_bus++) {
         struct flash_bus *ptr_bus = &ptr_ssd_info->list_buses[loop_bus];
         if (!ptr_bus->list_chips) { continue; }
