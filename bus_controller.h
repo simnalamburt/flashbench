@@ -1,5 +1,6 @@
 #pragma once
 #include <linux/types.h>
+#include "rust/libflashbench.h"
 
 struct vdevice_t;
 struct fb_bus_controller_t;

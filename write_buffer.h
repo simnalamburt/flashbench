@@ -1,4 +1,5 @@
 #pragma once
+#include <linux/completion.h>
 #include <linux/types.h>
 #include "uthash/uthash.h"
 
@@ -20,7 +21,6 @@ struct fb_wb {
   struct fb_wb_pg_t *free_pgs;  // page list head
   struct fb_wb_pg_t *writing_pgs;
   struct fb_wb_pg_t *buf_pgs;
-
   struct fb_wb_pg_t *hash_pgs;  // hashed page
 
   u8 *pg_buf;
@@ -29,15 +29,9 @@ struct fb_wb {
 };
 
 struct fb_wb *fb_create_write_buffer(u32 nr_max_entries, u32 pg_size);
-
 void fb_destroy_write_buffer(struct fb_wb *wb);
-
 int fb_get_pg_data(struct fb_wb *wb, u32 lpa, u8 *dest);
-
 int fb_get_pgs_to_write(struct fb_wb *wb, u32 nr_pgs, u32 *lpas, u8 *dest);
-
 int fb_put_pg(struct fb_wb *wb, u32 lpa, u8 *src);
-
 void fb_rm_written_pgs(struct fb_wb *wb);
-
 void fb_rm_buf_pg(struct fb_wb *wb, u32 lpa);
