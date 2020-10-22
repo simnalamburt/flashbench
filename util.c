@@ -89,16 +89,13 @@ static int fb_proc_open(__attribute__((unused)) struct inode *inode,
 }
 
 static struct file *file_open(const char *path, int flags, int rights) {
-  struct file *filp = NULL;
-  mm_segment_t oldfs;
-  int err = 0;
-
-  oldfs = get_fs();
+  mm_segment_t oldfs = get_fs();
   set_fs(get_ds());
-  filp = filp_open(path, flags, rights);
+  struct file *filp = filp_open(path, flags, rights);
   set_fs(oldfs);
   if (IS_ERR(filp)) {
-    err = PTR_ERR(filp);
+    // TODO: Use error value
+    PTR_ERR(filp);
     return NULL;
   }
   return filp;
@@ -108,22 +105,18 @@ static void file_close(struct file *file) { filp_close(file, NULL); }
 
 static int file_write(struct file *file, const char *data, size_t size,
                       loff_t offset) {
-  mm_segment_t oldfs;
-  int ret;
-
-  oldfs = get_fs();
+  mm_segment_t oldfs = get_fs();
   set_fs(get_ds());
 
-  ret = kernel_write(file, data, size, offset);
+  int ret = kernel_write(file, data, size, offset);
 
   set_fs(oldfs);
   return ret;
 }
 
 void fb_file_log(const char *filename, const char *string) {
-  struct file *fp = NULL;
-
-  if ((fp = file_open(filename, O_CREAT | O_WRONLY | O_APPEND, 0777)) == NULL) {
+  struct file *fp = file_open(filename, O_CREAT | O_WRONLY | O_APPEND, 0777);
+  if (!fp) {
     printk(KERN_ERR "flashbench: file_open error (%s)\n", filename);
     return;
   }
