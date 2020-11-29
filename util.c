@@ -1,4 +1,3 @@
-#include <linux/buffer_head.h>
 #include <linux/proc_fs.h>
 #include <linux/seq_file.h>
 
@@ -6,9 +5,6 @@
 
 static int fb_proc_open(struct inode *inode, struct file *file);
 static int fb_proc_summary(struct seq_file *m, void *v);
-
-static struct file *file_open(const char *path, int flags, int rights);
-static void file_close(struct file *file);
 
 // file operation 구조체, 초기화를 이렇게 함
 // read 함수는 개발자가 직접 작성 X
@@ -82,44 +78,6 @@ u32 timer_get_timestamp_in_us(void) {
 static int fb_proc_open(__attribute__((unused)) struct inode *inode,
                         struct file *file) {
   return single_open(file, fb_proc_summary, NULL);
-}
-
-static struct file *file_open(const char *path, int flags, int rights) {
-  mm_segment_t oldfs = get_fs();
-  set_fs(get_ds());
-  struct file *filp = filp_open(path, flags, rights);
-  set_fs(oldfs);
-  if (IS_ERR(filp)) {
-    // TODO: Use error value
-    long __attribute__((unused)) result = PTR_ERR(filp);
-    return NULL;
-  }
-  return filp;
-}
-
-static void file_close(struct file *file) { filp_close(file, NULL); }
-
-static int file_write(struct file *file, const char *data, size_t size,
-                      loff_t offset) {
-  mm_segment_t oldfs = get_fs();
-  set_fs(get_ds());
-
-  int ret = kernel_write(file, data, size, offset);
-
-  set_fs(oldfs);
-  return ret;
-}
-
-void fb_file_log(const char *filename, const char *string) {
-  struct file *fp = file_open(filename, O_CREAT | O_WRONLY | O_APPEND, 0777);
-  if (!fp) {
-    printk(KERN_ERR "flashbench: file_open error (%s)\n", filename);
-    return;
-  }
-
-  file_write(fp, string, strlen(string), 0);
-
-  file_close(fp);
 }
 
 // procfs를 통해, 커널 정보를 사용자 영역에서 접근 가능하다.
