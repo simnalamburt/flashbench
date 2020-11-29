@@ -4,7 +4,6 @@
 #include "rust/libflashbench.h"
 
 #include "ftl_algorithm_page_mapping.h"
-#include "gc_page_mapping.h"
 #include "main.h"
 #include "option.h"
 #include "page_mapping_function.h"
@@ -55,17 +54,10 @@ struct fb_del_mngr_t {
   u8 *data_to_copy;
 };
 
-static int make_read_request_page_mapping(struct fb_context_t *ptr_fb_context,
-                                          u32 logical_page_address,
-                                          u8 *ptr_page_buffer,
-                                          struct fb_bio_t *ptr_fb_bio);
 static int make_write_request_page_mapping(struct fb_context_t *ptr_fb_context,
                                            u32 *logical_page_address,
                                            u8 *ptr_page_buffer);
-static int make_flush_request_page_mapping(void);
-static int make_discard_request_page_mapping(
-    struct fb_context_t *ptr_fb_context, struct bio *bio);
-static int fb_wb_flush(struct fb_context_t *fb);
+
 static struct page_mapping_table_t *create_page_mapping_table(void);
 static void destroy_mapping_table(struct page_mapping_table_t *mt);
 static struct fb_act_blk_mngr_t *create_act_blk_mngr(struct fb_context_t *fb);
@@ -73,10 +65,6 @@ static void destroy_act_blk_mngr(struct fb_act_blk_mngr_t *abm);
 
 static struct fb_del_mngr_t *create_del_mngr(void);
 static void destroy_del_mngr(struct fb_del_mngr_t *delm);
-
-static int fb_background_gc(struct fb_context_t *fb) {
-  return trigger_bg_gc(fb);
-}
 
 static struct fb_act_blk_mngr_t *create_act_blk_mngr(struct fb_context_t *fb) {
   struct ssd_info *ssdi = get_ssd_inf(fb);
@@ -177,12 +165,6 @@ void *create_pg_ftl(struct fb_context_t *fb) {
   }
 
   fb->ptr_mapping_context = ftl;
-
-  fb->make_read_request = make_read_request_page_mapping;
-  fb->make_flush_request = make_flush_request_page_mapping;
-  fb->make_discard_request = make_discard_request_page_mapping;
-  fb->background_gc = fb_background_gc;
-  fb->wb_flush = fb_wb_flush;
 
   init_completion(&ftl->mapping_context_lock);
   complete(&ftl->mapping_context_lock);
@@ -317,7 +299,7 @@ void destroy_pg_ftl(struct page_mapping_context_t *ftl) {
   vfree(ftl);
 }
 
-static int make_read_request_page_mapping(struct fb_context_t *ptr_fb_context,
+int make_read_request_page_mapping(struct fb_context_t *ptr_fb_context,
                                           u32 logical_page_address,
                                           u8 *ptr_page_buffer,
                                           struct fb_bio_t *ptr_fb_bio) {
@@ -420,12 +402,13 @@ FAILED:
   return -1;
 }
 
-static int make_flush_request_page_mapping(void) {
+int make_flush_request_page_mapping(void) {
+  // TODO: Do something meaningful
   printk(KERN_INFO "flashbench: FLUSH\n");
   return 0;
 }
 
-static int make_discard_request_page_mapping(struct fb_context_t *fb,
+int make_discard_request_page_mapping(struct fb_context_t *fb,
                                              struct bio *bio) {
   struct page_mapping_context_t *ftl = get_ftl(fb);
   struct fb_wb *wb = fb->wb;
@@ -528,7 +511,7 @@ void print_blk_mgmt(struct fb_context_t *fb) {
   }
 }
 
-static int fb_wb_flush(struct fb_context_t *fb) {
+int fb_wb_flush(struct fb_context_t *fb) {
   struct fb_wb *wb = fb->wb;
 
   u32 lpas[NR_LP_IN_PP];

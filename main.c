@@ -6,6 +6,7 @@
 #include "rust/libflashbench.h"
 
 #include "ftl_algorithm_page_mapping.h"
+#include "gc_page_mapping.h"
 #include "main.h"
 #include "option.h"
 #include "ssd_info.h"
@@ -58,12 +59,12 @@ static blk_qc_t make_request(
   if (_fb->err) { goto FAIL; }
 
   if (unlikely(bio->bi_opf & REQ_PREFLUSH)) {
-    _fb->make_flush_request();
+    make_flush_request_page_mapping();
     goto REQ_FINISH;
   }
 
   if (unlikely(bio_op(bio) == REQ_OP_DISCARD)) {
-    _fb->make_discard_request(_fb, bio);
+    make_discard_request_page_mapping(_fb, bio);
     goto REQ_FINISH;
   }
 
@@ -87,8 +88,8 @@ static blk_qc_t make_request(
       }
 
       for (u32 loop = 0; loop < req_count; loop++) {
-        if (_fb->make_read_request(_fb, fbio->lpas[loop], fbio->kpages[loop],
-                                   fbio) == -1) {
+        if (make_read_request_page_mapping(_fb, fbio->lpas[loop],
+              fbio->kpages[loop], fbio) == -1) {
           if (dec_bio_req_count(fbio) == 0) {
             bio_endio(fbio->bio);
             fb_destroy_bio(fbio);
@@ -108,7 +109,7 @@ static blk_qc_t make_request(
           perf_inc_nr_incomming_write();
         } else {
           // flush write buffer
-          if (_fb->wb_flush(_fb) == -1) {
+          if (fb_wb_flush(_fb) == -1) {
             printk(KERN_ERR "flashbench: WB flushing failed.\n");
             goto FAIL;
           }
@@ -346,7 +347,7 @@ static int fb_write_buffer_thread(__attribute__((unused)) void *arg) {
     disallow_signal(SIGHUP);
 
     if (fb_is_bgc_ts_expired(_fb, BGC_TH_INTV)) {
-      if (_fb->background_gc(_fb) == -1) {
+      if (trigger_bg_gc(_fb) == -1) {
         printk(KERN_ERR "flashbench: BGC falied.\n");
         goto FINISH;
       }

@@ -6,6 +6,7 @@ enum {
   PAGE_UNMAPPED = -1,
 };
 
+struct bio;
 struct flash_block;
 struct fb_del_mngr_t;
 struct fb_context_t;
@@ -53,3 +54,12 @@ struct fb_gc_mngr_t *get_gcm(struct page_mapping_context_t *ftl);
 struct fb_act_blk_mngr_t *get_abm(struct page_mapping_context_t *ftl);
 void print_blk_mgmt(struct fb_context_t *fb);
 void fb_del_invalid_data(struct fb_context_t *fb, struct fb_bio_t *fb_bio);
+
+int make_read_request_page_mapping(struct fb_context_t *ptr_fb_context,
+                                   u32 logical_page_address,
+                                   u8 *ptr_page_buffer,
+                                   struct fb_bio_t *ptr_fb_bio);
+int make_flush_request_page_mapping(void);
+int make_discard_request_page_mapping(struct fb_context_t *ptr_fb_context,
+                                      struct bio *bio);
+int fb_wb_flush(struct fb_context_t *fb);
