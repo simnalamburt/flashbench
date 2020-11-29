@@ -40,8 +40,6 @@ struct fb_context_t {
                               struct bio *bio);
   int (*make_read_request)(struct fb_context_t *ptr_fb_context, u32 lpa_curr,
                            u8 *ptr_page_buffer, struct fb_bio_t *ptr_fb_bio);
-  int (*make_write_request)(struct fb_context_t *ptr_fb_context, u32 *lpa_curr,
-                            u8 *ptr_page_buffer);
   int (*background_gc)(struct fb_context_t *ptr_fb_context);
 
   int (*wb_flush)(struct fb_context_t *ptr_fb_context);

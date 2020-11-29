@@ -179,7 +179,6 @@ void *create_pg_ftl(struct fb_context_t *fb) {
   fb->ptr_mapping_context = ftl;
 
   fb->make_read_request = make_read_request_page_mapping;
-  fb->make_write_request = make_write_request_page_mapping;
   fb->make_flush_request = make_flush_request_page_mapping;
   fb->make_discard_request = make_discard_request_page_mapping;
   fb->background_gc = fb_background_gc;
