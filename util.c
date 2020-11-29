@@ -2,6 +2,8 @@
 #include <linux/proc_fs.h>
 #include <linux/seq_file.h>
 
+#include "util.h"
+
 static int fb_proc_open(struct inode *inode, struct file *file);
 static int fb_proc_summary(struct seq_file *m, void *v);
 

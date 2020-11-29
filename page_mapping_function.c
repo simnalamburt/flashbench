@@ -3,6 +3,7 @@
 #include "ftl_algorithm_page_mapping.h"
 #include "main.h"
 #include "ssd_info.h"
+#include "page_mapping_function.h"
 
 u32 get_mapped_physical_address(struct fb_context_t *ptr_fb_context,
                                 u32 logical_page_address, u32 *ptr_bus,

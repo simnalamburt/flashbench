@@ -4,6 +4,7 @@
 #include "main.h"
 #include "page_mapping_function.h"
 #include "util.h"
+#include "gc_page_mapping.h"
 
 int trigger_bg_gc(struct fb_context_t *fb) {
   struct page_mapping_context_t *ftl = get_ftl(fb);

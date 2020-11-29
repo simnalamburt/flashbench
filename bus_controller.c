@@ -7,6 +7,7 @@
 
 #include "main.h"
 #include "util.h"
+#include "bus_controller.h"
 
 struct fb_operation_t {
   enum fb_dev_op_t operation;
