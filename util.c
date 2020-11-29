@@ -14,23 +14,44 @@ static void file_close(struct file *file);
 // read 함수는 개발자가 직접 작성 X
 // 커널의 seq-file에서 제공되는 seq_read를 사용
 static const struct file_operations fb_proc_fops = {
-    .owner = THIS_MODULE,
-    .open = fb_proc_open,  // 파일(/proc/summary)을 열 때 불리는 함수
-    .read = seq_read,  // 파일(/proc/summary)을 읽을 때 불리는 함수
+  .owner = THIS_MODULE,
+  .open = fb_proc_open,  // 파일(/proc/summary)을 열 때 불리는 함수
+  .read = seq_read,  // 파일(/proc/summary)을 읽을 때 불리는 함수
 };
-
-static struct proc_dir_entry *proc_dir;
 
 static u32 _perf_nr_incomming_write = 0;
 static u32 _perf_nr_wordline_prog_fg = 0;
 static u32 _perf_nr_wordline_prog_bg = 0;
 static u32 _perf_nr_page_reads = 0;
 static u32 _perf_nr_blk_erasures = 0;
-static u32 _perf_nr_gc_trigger_fg = 0;
 static u32 _perf_nr_gc_trigger_bg = 0;
-static u32 _perf_nr_lsb_pg_backup = 0;
 static u32 _perf_nr_discard_reqs = 0;
 static u32 _perf_nr_discarded_lpgs = 0;
+
+void perf_inc_nr_incomming_write(void) { _perf_nr_incomming_write++; }
+void perf_inc_nr_wordline_prog_fg(void) { _perf_nr_wordline_prog_fg++; }
+void perf_inc_nr_wordline_prog_bg(void) { _perf_nr_wordline_prog_bg++; }
+void perf_inc_nr_page_reads(void) { _perf_nr_page_reads++; }
+void perf_inc_nr_blk_erasures(void) { _perf_nr_blk_erasures++; }
+void perf_inc_nr_gc_trigger_bg(void) { _perf_nr_gc_trigger_bg++; }
+void perf_inc_nr_discard_reqs(void) { _perf_nr_discard_reqs++; }
+void perf_inc_nr_discard_lpgs(u32 nr_lpgs) { _perf_nr_discarded_lpgs += nr_lpgs; }
+
+void perf_display_result(void) {
+  printk(
+      KERN_INFO
+      "flashbench: ===================Total read/write requests summary=================\n"
+      "flashbench: # of total write from OS: %u\n"
+      "flashbench: # of read pages: %u\n"
+      "flashbench: # of write pages in FG procedures: %u\n"
+      "flashbench: # of write pages in BG procedures: %u\n"
+      "flashbench: # of erase blocks: %u\n"
+      "flashbench: # of BG GC: %u\n"
+      "flashbench: # of discard reqs: %u (%u)\n",
+      _perf_nr_incomming_write, _perf_nr_page_reads, _perf_nr_wordline_prog_fg,
+      _perf_nr_wordline_prog_bg, _perf_nr_blk_erasures, _perf_nr_gc_trigger_bg,
+      _perf_nr_discard_reqs, _perf_nr_discarded_lpgs);
+}
 
 static int fb_proc_summary(struct seq_file *m,
                            __attribute__((unused)) void *v) {
@@ -42,33 +63,12 @@ static int fb_proc_summary(struct seq_file *m,
       "# of write pages in FG procedures: %u\n"
       "# of write pages in BG procedures: %u\n"
       "# of erase blocks: %u\n"
-      "# of FG GC: %u\n"
       "# of BG GC: %u\n"
-      "# of LSB page backups: %u\n"
       "# of discard reqs: %u (%u)\n",
       _perf_nr_incomming_write, _perf_nr_page_reads, _perf_nr_wordline_prog_fg,
-      _perf_nr_wordline_prog_bg, _perf_nr_blk_erasures, _perf_nr_gc_trigger_fg,
-      _perf_nr_gc_trigger_bg, _perf_nr_lsb_pg_backup, _perf_nr_discard_reqs,
-      _perf_nr_discarded_lpgs);
+      _perf_nr_wordline_prog_bg, _perf_nr_blk_erasures, _perf_nr_gc_trigger_bg,
+      _perf_nr_discard_reqs, _perf_nr_discarded_lpgs);
   return 0;
-}
-
-void perf_inc_nr_incomming_write(void) { _perf_nr_incomming_write++; }
-
-void perf_inc_nr_wordline_prog_fg(void) { _perf_nr_wordline_prog_fg++; }
-
-void perf_inc_nr_wordline_prog_bg(void) { _perf_nr_wordline_prog_bg++; }
-
-void perf_inc_nr_page_reads(void) { _perf_nr_page_reads++; }
-
-void perf_inc_nr_blk_erasures(void) { _perf_nr_blk_erasures++; }
-
-void perf_inc_nr_gc_trigger_bg(void) { _perf_nr_gc_trigger_bg++; }
-
-void perf_inc_nr_discard_reqs(void) { _perf_nr_discard_reqs++; }
-
-void perf_inc_nr_discard_lpgs(u32 nr_lpgs) {
-  _perf_nr_discarded_lpgs += nr_lpgs;
 }
 
 u32 timer_get_timestamp_in_us(void) {
@@ -122,31 +122,11 @@ void fb_file_log(const char *filename, const char *string) {
   file_close(fp);
 }
 
-void perf_display_result(void) {
-  printk(
-      KERN_INFO
-      "flashbench: ===================Total read/write requests summary=================\n"
-      "flashbench: # of total write from OS: %u\n"
-      "flashbench: # of read pages: %u\n"
-      "flashbench: # of write pages in FG procedures: %u\n"
-      "flashbench: # of write pages in BG procedures: %u\n"
-      "flashbench: # of erase blocks: %u\n"
-      "flashbench: # of FG GC: %u\n"
-      "flashbench: # of BG GC: %u\n"
-      "flashbench: # of LSB page backups: %u\n"
-      "flashbench: # of discard reqs: %u (%u)\n",
-      _perf_nr_incomming_write, _perf_nr_page_reads, _perf_nr_wordline_prog_fg,
-      _perf_nr_wordline_prog_bg, _perf_nr_blk_erasures, _perf_nr_gc_trigger_fg,
-      _perf_nr_gc_trigger_bg, _perf_nr_lsb_pg_backup, _perf_nr_discard_reqs,
-      _perf_nr_discarded_lpgs);
-}
-
+// procfs를 통해, 커널 정보를 사용자 영역에서 접근 가능하다.
 void perf_init(void) {
-  // procfs를 통해, 커널 정보를 사용자 영역에서 접근 가능하다.
-  // proc_create(...): /proc 에다가 파일 생성하는 함수
+  // proc_create(): /proc 에다가 파일 생성하는 함수
   // 파일명, 권한, 디렉토리, file_operation 구조체
-
-  proc_dir = proc_create("summary", 0444, NULL, &fb_proc_fops);
+  struct proc_dir_entry *proc_dir = proc_create("summary", 0444, NULL, &fb_proc_fops);
 
   if (!proc_dir) {
     printk(KERN_ERR "flashbench: proc summary creation failed \n");
