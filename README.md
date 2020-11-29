@@ -26,7 +26,7 @@ sudo mkfs -t ext4 -b 4096 /dev/fbSSD
 sudo mkdir -p /vSSD
 sudo mount -o discard /dev/fbSSD /vSSD
 # Check the status of the virtual SSD
-cat /proc/summary
+cat /proc/flashbench
 
 # If you want to clear the cache: https://www.kernel.org/doc/Documentation/sysctl/vm.txt
 echo 3 | sudo tee /proc/sys/vm/drop_caches
