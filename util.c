@@ -67,14 +67,6 @@ static int fb_proc_summary(struct seq_file *m,
   return 0;
 }
 
-u32 timer_get_timestamp_in_us(void) {
-  struct timeval tv;
-
-  do_gettimeofday(&tv);
-
-  return tv.tv_sec * 1000000 + tv.tv_usec;
-}
-
 static int fb_proc_open(__attribute__((unused)) struct inode *inode,
                         struct file *file) {
   return single_open(file, fb_proc_summary, NULL);

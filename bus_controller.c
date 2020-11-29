@@ -6,7 +6,6 @@
 #include "rust/libflashbench.h"
 
 #include "main.h"
-#include "util.h"
 #include "bus_controller.h"
 
 struct fb_operation_t {
@@ -89,6 +88,9 @@ static void acquire_busy_lock(struct fb_bus_controller_t *ptr_bus_controller,
 static bool is_acquired(const struct fb_chip_busy_t *busy) {
   return busy->wakeup_time_in_us != 0 || busy->issue_time_in_us != 0;
 }
+
+static u32 timer_get_timestamp_in_us(void);
+
 
 // ----------------- Public functions ----------------------------------------
 // Creating and initialize bus controllers in the virtual device structure
@@ -578,4 +580,10 @@ static void acquire_busy_lock(struct fb_bus_controller_t *ptr_bus_controller,
   busy->issue_time_in_us = time;
   busy->wakeup_time_in_us = time + operation_time(operation);
   busy->ptr_fb_bio = ptr_fb_bio;
+}
+
+static u32 timer_get_timestamp_in_us(void) {
+  struct timeval tv;
+  do_gettimeofday(&tv);
+  return tv.tv_sec * 1000000 + tv.tv_usec;
 }
