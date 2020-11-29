@@ -31,31 +31,25 @@ static u32 _perf_nr_gc_trigger_bg = 0;
 static u32 _perf_nr_lsb_pg_backup = 0;
 static u32 _perf_nr_discard_reqs = 0;
 static u32 _perf_nr_discarded_lpgs = 0;
-static u32 _perf_nr_plocks = 0;
-static u32 _perf_nr_blocks = 0;
 
 static int fb_proc_summary(struct seq_file *m,
                            __attribute__((unused)) void *v) {
-  seq_printf(m,
-             "===================Total read/write requests "
-             "summary=================\n");
-  seq_printf(m, "flashbench: # of total write from OS: %u\n",
-             _perf_nr_incomming_write);
-  seq_printf(m, "flashbench: # of read pages: %u\n", _perf_nr_page_reads);
-  seq_printf(m, "flashbench: # of write pages in FG procedures: %u\n",
-             _perf_nr_wordline_prog_fg);
-  seq_printf(m, "flashbench: # of write pages in BG procedures: %u\n",
-             _perf_nr_wordline_prog_bg);
-  seq_printf(m, "flashbench: # of erase blocks: %u\n", _perf_nr_blk_erasures);
-  seq_printf(m, "flashbench: # of FG GC: %u\n", _perf_nr_gc_trigger_fg);
-  seq_printf(m, "flashbench: # of BG GC: %u\n", _perf_nr_gc_trigger_bg);
-  seq_printf(m, "flashbench: # of LSB page backups: %u\n",
-             _perf_nr_lsb_pg_backup);
-  seq_printf(m, "flashbench: # of discard reqs: %u (%u)\n",
-             _perf_nr_discard_reqs, _perf_nr_discarded_lpgs);
-  seq_printf(m, "flashbench: # of plocks: %u\n", _perf_nr_plocks);
-  seq_printf(m, "flashbench: # of blocks: %u\n", _perf_nr_blocks);
-
+  seq_printf(
+      m,
+      "===================Total read/write requests summary=================\n"
+      "# of total write from OS: %u\n"
+      "# of read pages: %u\n"
+      "# of write pages in FG procedures: %u\n"
+      "# of write pages in BG procedures: %u\n"
+      "# of erase blocks: %u\n"
+      "# of FG GC: %u\n"
+      "# of BG GC: %u\n"
+      "# of LSB page backups: %u\n"
+      "# of discard reqs: %u (%u)\n",
+      _perf_nr_incomming_write, _perf_nr_page_reads, _perf_nr_wordline_prog_fg,
+      _perf_nr_wordline_prog_bg, _perf_nr_blk_erasures, _perf_nr_gc_trigger_fg,
+      _perf_nr_gc_trigger_bg, _perf_nr_lsb_pg_backup, _perf_nr_discard_reqs,
+      _perf_nr_discarded_lpgs);
   return 0;
 }
 
@@ -129,24 +123,22 @@ void fb_file_log(const char *filename, const char *string) {
 }
 
 void perf_display_result(void) {
-  printk(KERN_INFO
-         "flashbench: ===================Total read/write requests "
-         "summary=================\n");
-  printk(KERN_INFO "flashbench: # of total write from OS: %u\n",
-         _perf_nr_incomming_write);
-  printk(KERN_INFO "flashbench: # of read pages: %u\n", _perf_nr_page_reads);
-  printk(KERN_INFO "flashbench: # of write pages in FG procedures: %u\n",
-         _perf_nr_wordline_prog_fg);
-  printk(KERN_INFO "flashbench: # of write pages in BG procedures: %u\n",
-         _perf_nr_wordline_prog_bg);
-  printk(KERN_INFO "flashbench: # of erase blocks: %u\n",
-         _perf_nr_blk_erasures);
-  printk(KERN_INFO "flashbench: # of FG GC: %u\n", _perf_nr_gc_trigger_fg);
-  printk(KERN_INFO "flashbench: # of BG GC: %u\n", _perf_nr_gc_trigger_bg);
-  printk(KERN_INFO "flashbench: # of LSB page backups: %u\n",
-         _perf_nr_lsb_pg_backup);
-  printk(KERN_INFO "flashbench: # of discard reqs: %u (%u)\n",
-         _perf_nr_discard_reqs, _perf_nr_discarded_lpgs);
+  printk(
+      KERN_INFO
+      "flashbench: ===================Total read/write requests summary=================\n"
+      "flashbench: # of total write from OS: %u\n"
+      "flashbench: # of read pages: %u\n"
+      "flashbench: # of write pages in FG procedures: %u\n"
+      "flashbench: # of write pages in BG procedures: %u\n"
+      "flashbench: # of erase blocks: %u\n"
+      "flashbench: # of FG GC: %u\n"
+      "flashbench: # of BG GC: %u\n"
+      "flashbench: # of LSB page backups: %u\n"
+      "flashbench: # of discard reqs: %u (%u)\n",
+      _perf_nr_incomming_write, _perf_nr_page_reads, _perf_nr_wordline_prog_fg,
+      _perf_nr_wordline_prog_bg, _perf_nr_blk_erasures, _perf_nr_gc_trigger_fg,
+      _perf_nr_gc_trigger_bg, _perf_nr_lsb_pg_backup, _perf_nr_discard_reqs,
+      _perf_nr_discarded_lpgs);
 }
 
 void perf_init(void) {
